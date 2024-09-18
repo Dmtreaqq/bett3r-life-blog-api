@@ -1,0 +1,32 @@
+{
+  "name": "bett3r-life-blog-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Dmtreaqq/bett3r-life-blog-api.git",
+  "author": "Dmytro Pavlov <dmitrypavlov99@ukr.net>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "watch": "tsc -w",
+    "dev": "nodemon --inspect ./dist/index.js",
+    "test": "jest -i",
+    "test:coverage": "jest -i --coverage"
+  },
+  "dependencies": {
+    "dotenv": "16.4.5",
+    "express": "4.20.0"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.21",
+    "@types/jest": "29.5.12",
+    "@types/node": "22.5.4",
+    "@types/supertest": "6.0.2",
+    "jest": "29.7.0",
+    "nodemon": "3.1.4",
+    "supertest": "7.0.0",
+    "ts-jest": "29.2.5",
+    "ts-node": "10.9.2",
+    "typescript": "5.6.2"
+  }
+}

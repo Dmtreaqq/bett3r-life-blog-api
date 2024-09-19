@@ -1,5 +1,5 @@
 import express from "express";
-import { CONFIG } from "./config/config";
+import { CONFIG } from "./utils/config";
 import { testingController } from "./controllers/testingController";
 import { postsController } from "./controllers/postsController";
 import { blogsController } from "./controllers/blogsController";

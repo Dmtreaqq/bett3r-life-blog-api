@@ -1,9 +1,5 @@
 import { Request } from 'express'
 
-export type ApiErrorResult = {
-    errorsMessages: FieldError[]
-}
-
 export enum HTTP_STATUSES {
     OK_200 = 200,
     CREATED_201 = 201,
@@ -12,11 +8,6 @@ export enum HTTP_STATUSES {
     NOT_AUTHORIZED_401 = 401,
     FORBIDDEN_403 = 403,
     NOT_FOUND_404 = 404,
-}
-
-export type FieldError = {
-    message: string;
-    field: string;
 }
 
 export type RequestWbody<T> = Request<{}, {}, T>

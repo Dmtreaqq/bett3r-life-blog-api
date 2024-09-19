@@ -1,7 +1,7 @@
 import { agent } from 'supertest'
 import { app } from '../../../src/app'
-import { CONFIG } from "../../../src/config/config";
-import { HTTP_STATUSES } from "../../../src/config/types";
+import { CONFIG } from "../../../src/utils/config";
+import { HTTP_STATUSES } from "../../../src/utils/types";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
 
 export const request = agent(app)
@@ -11,14 +11,14 @@ const baseUrl = '/api';
 const body: BlogInputModel = {
     name: 'SomeBlog',
     description: 'Some description',
-    websiteUrl: 'Some Url'
+    websiteUrl: 'https://somewebsite.com'
 }
 
 const responseBody: BlogViewModel = {
     id: '1',
-    name: 'SomeBlog',
-    description: 'Some description',
-    websiteUrl: 'Some Url'
+    name: body.name,
+    description: body.description,
+    websiteUrl: body.websiteUrl,
 }
 
 describe('/blogs positive', () => {

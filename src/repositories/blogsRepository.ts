@@ -1,15 +1,17 @@
+import { randomUUID } from 'crypto';
 import { blogsDB } from "../db";
 import { BlogInputModel, BlogViewModel } from "../models/BlogModel";
 
-let counter = 1;
-
 export const blogsRepository = {
+    getBlogs() {
+        return blogsDB;
+    },
     getBlogById(id: string): BlogViewModel | undefined {
         return blogsDB.find(blog => blog.id === id);
     },
     createBlog(blogInput: BlogInputModel): BlogViewModel {
         const post: BlogViewModel = {
-            id: String(counter++),
+            id: randomUUID(),
             name: blogInput.name,
             description: blogInput.description,
             websiteUrl: blogInput.websiteUrl

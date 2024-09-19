@@ -1,20 +1,25 @@
 import { postsDB } from "../db";
 import { PostInputModel, PostViewModel } from "../models/PostModel";
-
-let counter = 1;
+import { randomUUID } from "crypto";
+import { blogsRepository } from "./blogsRepository";
 
 export const postsRepository = {
+    getPosts() {
+        return postsDB;
+    },
     getPostById(id: string): PostViewModel | undefined {
         return postsDB.find(post => post.id === id);
     },
     createPost(postInput: PostInputModel): PostViewModel {
+        const blogName = blogsRepository.getBlogById(postInput.blogId)!.name;
+
         const post: PostViewModel = {
-            id: String(counter++),
+            id: randomUUID(),
             title: postInput.title,
             shortDescription: postInput.shortDescription,
             content: postInput.content,
             blogId: postInput.blogId,
-            blogName: '???'
+            blogName: blogName
         }
 
         postsDB.push(post)

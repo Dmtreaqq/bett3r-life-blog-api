@@ -17,6 +17,7 @@ const express_1 = require("express");
 const types_1 = require("../utils/types");
 const postsRepository_1 = require("../repositories/postsRepository");
 const createEditPostValidationChains_1 = __importDefault(require("../middlewares/validation/createEditPostValidationChains"));
+const authMiddleware_1 = require("../middlewares/authMiddleware");
 exports.postsController = (0, express_1.Router)();
 exports.postsController.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const posts = postsRepository_1.postsRepository.getPosts();
@@ -30,12 +31,12 @@ exports.postsController.get('/:id', (req, res) => __awaiter(void 0, void 0, void
     }
     return res.json(foundPost);
 }));
-exports.postsController.post('/', ...createEditPostValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.postsController.post('/', authMiddleware_1.authMiddleware, ...createEditPostValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
     const post = postsRepository_1.postsRepository.createPost(body);
     return res.status(types_1.HTTP_STATUSES.CREATED_201).json(post);
 }));
-exports.postsController.put('/:id', ...createEditPostValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.postsController.put('/:id', authMiddleware_1.authMiddleware, ...createEditPostValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const foundPost = postsRepository_1.postsRepository.getPostById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(types_1.HTTP_STATUSES.NOT_FOUND_404);
@@ -45,7 +46,7 @@ exports.postsController.put('/:id', ...createEditPostValidationChains_1.default,
     postsRepository_1.postsRepository.updatePostById(newPost);
     return res.sendStatus(types_1.HTTP_STATUSES.NO_CONTENT_204);
 }));
-exports.postsController.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.postsController.delete('/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const foundPost = postsRepository_1.postsRepository.getPostById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(types_1.HTTP_STATUSES.NOT_FOUND_404);

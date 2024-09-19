@@ -3,6 +3,7 @@ import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } fr
 import { BlogInputModel, BlogViewModel } from "../models/BlogModel";
 import { blogsRepository } from "../repositories/blogsRepository";
 import createEditBlogValidationChains from '../middlewares/validation/createEditBlogValidationChains';
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 export const blogsController = Router();
 
@@ -22,14 +23,14 @@ blogsController.get('/:id', async (req: RequestWparams<{ id: string }>, res: Res
     return res.json(foundPost);
 })
 
-blogsController.post('/', ...createEditBlogValidationChains, async (req: RequestWbody<BlogInputModel>, res: Response<BlogViewModel>) => {
+blogsController.post('/', authMiddleware, ...createEditBlogValidationChains, async (req: RequestWbody<BlogInputModel>, res: Response<BlogViewModel>) => {
     const body = req.body;
     const post = blogsRepository.createBlog(body);
 
     return res.status(201).json(post);
 })
 
-blogsController.put('/:id', ...createEditBlogValidationChains, async (req: RequestWparamsAndBody<{ id: string }, BlogInputModel>, res: Response) => {
+blogsController.put('/:id', authMiddleware, ...createEditBlogValidationChains, async (req: RequestWparamsAndBody<{ id: string }, BlogInputModel>, res: Response) => {
     const foundPost = blogsRepository.getBlogById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -43,7 +44,7 @@ blogsController.put('/:id', ...createEditBlogValidationChains, async (req: Reque
     return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 })
 
-blogsController.delete('/:id', async (req: RequestWparams<{ id: string }>, res: Response) => {
+blogsController.delete('/:id', authMiddleware, async (req: RequestWparams<{ id: string }>, res: Response) => {
     const foundPost = blogsRepository.getBlogById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

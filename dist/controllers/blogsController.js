@@ -17,6 +17,7 @@ const express_1 = require("express");
 const types_1 = require("../utils/types");
 const blogsRepository_1 = require("../repositories/blogsRepository");
 const createEditBlogValidationChains_1 = __importDefault(require("../middlewares/validation/createEditBlogValidationChains"));
+const authMiddleware_1 = require("../middlewares/authMiddleware");
 exports.blogsController = (0, express_1.Router)();
 exports.blogsController.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blogs = blogsRepository_1.blogsRepository.getBlogs();
@@ -30,12 +31,12 @@ exports.blogsController.get('/:id', (req, res) => __awaiter(void 0, void 0, void
     }
     return res.json(foundPost);
 }));
-exports.blogsController.post('/', ...createEditBlogValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsController.post('/', authMiddleware_1.authMiddleware, ...createEditBlogValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
     const post = blogsRepository_1.blogsRepository.createBlog(body);
     return res.status(201).json(post);
 }));
-exports.blogsController.put('/:id', ...createEditBlogValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsController.put('/:id', authMiddleware_1.authMiddleware, ...createEditBlogValidationChains_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const foundPost = blogsRepository_1.blogsRepository.getBlogById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(types_1.HTTP_STATUSES.NOT_FOUND_404);
@@ -45,7 +46,7 @@ exports.blogsController.put('/:id', ...createEditBlogValidationChains_1.default,
     blogsRepository_1.blogsRepository.updateBlogById(newPost);
     return res.sendStatus(types_1.HTTP_STATUSES.NO_CONTENT_204);
 }));
-exports.blogsController.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsController.delete('/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const foundPost = blogsRepository_1.blogsRepository.getBlogById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(types_1.HTTP_STATUSES.NOT_FOUND_404);

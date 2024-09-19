@@ -3,6 +3,7 @@ import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } fr
 import { PostInputModel, PostViewModel } from "../models/PostModel";
 import { postsRepository } from "../repositories/postsRepository";
 import createEditPostValidationChains from "../middlewares/validation/createEditPostValidationChains";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 export const postsController = Router();
 
@@ -22,14 +23,14 @@ postsController.get('/:id', async (req: RequestWparams<{ id: string }>, res: Res
     return res.json(foundPost);
 })
 
-postsController.post('/', ...createEditPostValidationChains, async (req: RequestWbody<PostInputModel>, res: Response<PostViewModel>) => {
+postsController.post('/', authMiddleware, ...createEditPostValidationChains, async (req: RequestWbody<PostInputModel>, res: Response<PostViewModel>) => {
     const body = req.body;
     const post = postsRepository.createPost(body);
 
     return res.status(HTTP_STATUSES.CREATED_201).json(post);
 })
 
-postsController.put('/:id', ...createEditPostValidationChains, async (req: RequestWparamsAndBody<{ id: string }, PostInputModel>, res: Response) => {
+postsController.put('/:id', authMiddleware,  ...createEditPostValidationChains, async (req: RequestWparamsAndBody<{ id: string }, PostInputModel>, res: Response) => {
     const foundPost = postsRepository.getPostById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -43,7 +44,7 @@ postsController.put('/:id', ...createEditPostValidationChains, async (req: Reque
     return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 })
 
-postsController.delete('/:id', async (req: RequestWparams<{ id: string }>, res: Response) => {
+postsController.delete('/:id', authMiddleware, async (req: RequestWparams<{ id: string }>, res: Response) => {
     const foundPost = postsRepository.getPostById(req.params.id);
     if (!foundPost) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

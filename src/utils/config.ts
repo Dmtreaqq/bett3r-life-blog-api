@@ -7,5 +7,7 @@ export const CONFIG = {
         TESTING: '/testing',
         POSTS: '/posts',
         BLOGS: '/blogs',
-    }
+    },
+    LOGIN: process.env.LOGIN,
+    PASSWORD: process.env.PASSWORD,
 }

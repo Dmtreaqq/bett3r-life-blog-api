@@ -3,50 +3,45 @@ import { app } from '../../../src/app'
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
+import { blogsRepository } from "../../../src/repositories/blogsRepository";
+import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 
 export const request = agent(app)
 
 const baseUrl = '/api';
+const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
-const body: BlogInputModel = {
+const blogInput: BlogInputModel = {
     name: 'SomeBlog',
     description: 'Some description',
     websiteUrl: 'https://somewebsite.com'
 }
 
-const responseBody: BlogViewModel = {
+const blogEntity: BlogViewModel = {
     id: '1',
-    name: body.name,
-    description: body.description,
-    websiteUrl: body.websiteUrl,
+    name: blogInput.name,
+    description: blogInput.description,
+    websiteUrl: blogInput.websiteUrl,
 }
 
 describe('/blogs positive', () => {
-    beforeAll(async () => {
-        await request.delete(`${baseUrl}/${CONFIG.PATH.TESTING}/all-data`);
-    })
-
     let createdBlog: BlogViewModel;
 
-    it('should GET empty array', async () => {
-        const response = await request
-            .get(baseUrl + CONFIG.PATH.BLOGS)
-            .expect(HTTP_STATUSES.OK_200)
-
-        expect(response.body.length).toBe(0)
+    beforeAll(async () => {
+        await request.delete(`${baseUrl}/${CONFIG.PATH.TESTING}/all-data`);
+        createdBlog = blogsRepository.createBlog(blogInput);
     })
 
     it('should POST a blog successfully', async () => {
         const response = await request
             .post(baseUrl + CONFIG.PATH.BLOGS)
-            .send(body)
+            .send(blogInput)
+            .set('authorization', authHeader)
             .expect(HTTP_STATUSES.CREATED_201);
 
-        createdBlog = response.body;
-
         expect(response.body).toEqual({
-            ...body,
-            ...responseBody,
+            ...blogInput,
+            ...blogEntity,
             id: expect.any(String),
         })
     })
@@ -59,30 +54,32 @@ describe('/blogs positive', () => {
         expect(response.body).toEqual(createdBlog)
     })
 
-    it('should GET post array including created blog', async () => {
+    it('should GET blogs successfully', async () => {
         const response = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response.body).toEqual([createdBlog])
+        expect(response.body).toEqual(expect.arrayContaining([createdBlog]))
     })
 
     it('should PUT blog successfully', async () => {
         await request
             .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog.id}`)
-            .send(body)
+            .send(blogInput)
+            .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         const getResponse = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog.id}`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(getResponse.body).toEqual({ ...createdBlog, ...body })
+        expect(getResponse.body).toEqual({ ...createdBlog, ...blogInput })
     })
 
     it('should DELETE blog successfully', async () => {
         await request
             .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog.id}`)
+            .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         await request

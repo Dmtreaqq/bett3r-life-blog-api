@@ -5,52 +5,56 @@ import { blogsRepository } from "../repositories/blogsRepository";
 import createEditBlogValidationChains from '../middlewares/validation/createEditBlogValidationChains';
 import { authMiddleware } from "../middlewares/authMiddleware";
 
-export const blogsController = Router();
+export const blogsRouter = Router();
 
-blogsController.get('/', async (req: Request, res: Response<BlogViewModel[]>) => {
-    const blogs = blogsRepository.getBlogs()
-    return res.json(blogs);
-})
+const blogsController = {
+    async getBlogs(req: Request, res: Response<BlogViewModel[]>){
+        const blogs = await blogsRepository.getBlogs()
+        return res.json(blogs);
+    },
+    async getBlogById(req: RequestWparams<{ id: string }>, res: Response<BlogViewModel>){
+        const { id } = req.params;
+        const foundPost = await blogsRepository.getBlogById(id);
 
-blogsController.get('/:id', async (req: RequestWparams<{ id: string }>, res: Response<BlogViewModel>) => {
-    const { id } = req.params;
-    const foundPost = blogsRepository.getBlogById(id);
+        if (!foundPost) {
+            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        }
 
-    if (!foundPost) {
-        return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        return res.json(foundPost);
+    },
+    async createBlog(req: RequestWbody<BlogInputModel>, res: Response<BlogViewModel>){
+        const body = req.body;
+        const post = await blogsRepository.createBlog(body);
+
+        return res.status(201).json(post);
+    },
+    async editPost(req: RequestWparamsAndBody<{ id: string }, BlogInputModel>, res: Response){
+        const foundPost = await blogsRepository.getBlogById(req.params.id);
+        if (!foundPost) {
+            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        }
+
+        const updatedPostFromBody = req.body;
+        const newPost = { ...foundPost, ...updatedPostFromBody  };
+
+        blogsRepository.updateBlogById(newPost);
+
+        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    },
+    async deleteBlogById(req: RequestWparams<{ id: string }>, res: Response){
+        const foundPost = await blogsRepository.getBlogById(req.params.id);
+        if (!foundPost) {
+            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        }
+
+        await blogsRepository.deleteBlogById(foundPost.id);
+
+        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     }
+}
 
-    return res.json(foundPost);
-})
-
-blogsController.post('/', authMiddleware, ...createEditBlogValidationChains, async (req: RequestWbody<BlogInputModel>, res: Response<BlogViewModel>) => {
-    const body = req.body;
-    const post = blogsRepository.createBlog(body);
-
-    return res.status(201).json(post);
-})
-
-blogsController.put('/:id', authMiddleware, ...createEditBlogValidationChains, async (req: RequestWparamsAndBody<{ id: string }, BlogInputModel>, res: Response) => {
-    const foundPost = blogsRepository.getBlogById(req.params.id);
-    if (!foundPost) {
-        return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-    }
-
-    const updatedPostFromBody = req.body;
-    const newPost = { ...foundPost, ...updatedPostFromBody  };
-
-    blogsRepository.updateBlogById(newPost);
-
-    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-})
-
-blogsController.delete('/:id', authMiddleware, async (req: RequestWparams<{ id: string }>, res: Response) => {
-    const foundPost = blogsRepository.getBlogById(req.params.id);
-    if (!foundPost) {
-        return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-    }
-
-    blogsRepository.deleteBlogById(foundPost.id);
-
-    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-})
+blogsRouter.get('/', blogsController.getBlogs)
+blogsRouter.get('/:id', blogsController.getBlogById)
+blogsRouter.post('/', authMiddleware, ...createEditBlogValidationChains, blogsController.createBlog)
+blogsRouter.put('/:id', authMiddleware, ...createEditBlogValidationChains, blogsController.editPost)
+blogsRouter.delete('/:id', authMiddleware, blogsController.deleteBlogById)

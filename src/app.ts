@@ -1,8 +1,8 @@
 import express from "express";
 import { CONFIG } from "./utils/config";
 import { testingController } from "./controllers/testingController";
-import { postsController } from "./controllers/postsController";
-import { blogsController } from "./controllers/blogsController";
+import { postsRouter } from "./controllers/postsController";
+import { blogsRouter } from "./controllers/blogsController";
 
 export const app = express();
 
@@ -14,5 +14,5 @@ const blogsPathsUrl = baseUrl + CONFIG.PATH.BLOGS;
 app.use(express.json());
 
 app.use(testingPathUrl, testingController);
-app.use(postsPathUrl, postsController);
-app.use(blogsPathsUrl, blogsController);
+app.use(postsPathUrl, postsRouter);
+app.use(blogsPathsUrl, blogsRouter);

@@ -9,13 +9,7 @@ export const fromUTF8ToBase64 = (code: string) => {
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const auth = req.headers['authorization'] as string
-    if (!auth) {
-        res
-            .status(401)
-            .json({})
-        return
-    }
-    if (auth.slice(0, 6) !== 'Basic ') {
+    if (!auth || auth.split(' ')[0] !== 'Basic') {
         res
             .status(401)
             .json({})

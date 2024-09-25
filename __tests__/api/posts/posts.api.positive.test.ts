@@ -3,10 +3,11 @@ import { app } from '../../../src/app'
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { PostInputModel, PostViewModel } from "../../../src/models/PostModel";
-import { blogsRepository } from "../../../src/repositories/blogsRepository";
+import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { postsRepository } from "../../../src/repositories/postsRepository";
+import { postsRepository } from "../../../src/repositories/postsInMemoryMongoRepository";
+import { client } from "../../../src/repositories/db";
 
 export const request = agent(app)
 
@@ -32,7 +33,8 @@ const postEntity: PostViewModel = {
     content: postInput.content,
     shortDescription: postInput.shortDescription,
     blogId: '???',
-    blogName: '???'
+    blogName: '???',
+    createdAt: "2024-09-25T13:47:55.913Z",
 }
 
 describe('/posts positive', () => {
@@ -40,22 +42,23 @@ describe('/posts positive', () => {
     let createdBlog: BlogViewModel;
 
     beforeAll(async () => {
-        await request.delete(`${baseUrl}/${CONFIG.PATH.TESTING}/all-data`);
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        createdBlog = blogsRepository.createBlog(blogInput);
-        createdPost = postsRepository.createPost({ ...postInput, blogId: createdBlog.id })
+        createdBlog = await blogsRepository.createBlog(blogInput);
+        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlog.id })
+    })
+
+    afterAll(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        await client.close();
     })
 
     it('should POST a post successfully', async () => {
-        createdBlog = blogsRepository.createBlog(blogInput);
-
         const response = await request
             .post(baseUrl + CONFIG.PATH.POSTS)
             .send({ ...postInput, blogId: createdBlog.id })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.CREATED_201);
-
-        createdPost = response.body;
 
         expect(response.body).toEqual({
             ...postInput,
@@ -63,6 +66,7 @@ describe('/posts positive', () => {
             blogName: createdBlog.name,
             blogId: createdBlog.id,
             id: expect.any(String),
+            createdAt: expect.any(String),
         })
     })
 

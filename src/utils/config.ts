@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ path: '.env.local' });
 
 export const CONFIG = {
     PORT: process.env.PORT || 3006,
@@ -9,5 +9,5 @@ export const CONFIG = {
         BLOGS: '/blogs',
     },
     LOGIN: process.env.LOGIN,
-    PASSWORD: process.env.PASSWORD,
+    MONGO_URL: `mongodb+srv://${String(process.env.MONGO_USERNAME)}:${String(process.env.MONGO_PASSWORD)}@cluster0.klsta.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`,
 }

@@ -1,6 +1,6 @@
 import { body } from "express-validator"
 import { validationMiddleware } from "./validationMiddleware";
-import { blogsRepository } from "../../repositories/blogsRepository";
+import { blogsRepository } from "../../repositories/blogsInMemoryMongoRepository";
 
 const createTitleChain = () => body('title')
     .isString().withMessage('Should be a string')
@@ -24,8 +24,8 @@ const createBlogIdChain = () => body('blogId')
     .isString().withMessage('Should be a string')
     .trim()
     .notEmpty().withMessage('Should not be empty')
-    .custom(value => {
-        const foundBlog = blogsRepository.getBlogById(value);
+    .custom(async value => {
+        const foundBlog = await blogsRepository.getBlogById(value);
 
         if (!foundBlog) {
             throw new Error(`Blog ${value} not found`);

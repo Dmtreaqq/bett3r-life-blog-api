@@ -5,7 +5,8 @@ import { HTTP_STATUSES } from "../../../src/utils/types";
 import { PostInputModel } from "../../../src/models/PostModel";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { blogsRepository } from "../../../src/repositories/blogsRepository";
+import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
+import { client } from "../../../src/repositories/db";
 
 export const request = agent(app)
 
@@ -22,8 +23,13 @@ let createdBlog: BlogViewModel;
 
 describe('/blogs negative tests', () => {
     beforeAll(async () => {
-        await request.delete(`${baseUrl}/${CONFIG.PATH.TESTING}/all-data`);
-        createdBlog = blogsRepository.createBlog(blogInput);
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        createdBlog = await blogsRepository.createBlog(blogInput);
+    })
+
+    afterAll(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        await client.close();
     })
 
     it('should return 404 for GET not existing blog', async () => {

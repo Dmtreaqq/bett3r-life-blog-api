@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } from "../utils/types";
 import { BlogInputModel, BlogViewModel } from "../models/BlogModel";
-import { blogsRepository } from "../repositories/blogsRepository";
+import { blogsRepository } from "../repositories/blogsInMemoryMongoRepository";
 import createEditBlogValidationChains from '../middlewares/validation/createEditBlogValidationChains';
 import { authMiddleware } from "../middlewares/authMiddleware";
 
@@ -28,7 +28,7 @@ const blogsController = {
 
         return res.status(201).json(post);
     },
-    async editPost(req: RequestWparamsAndBody<{ id: string }, BlogInputModel>, res: Response){
+    async editBlog(req: RequestWparamsAndBody<{ id: string }, BlogInputModel>, res: Response){
         const foundPost = await blogsRepository.getBlogById(req.params.id);
         if (!foundPost) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -37,7 +37,7 @@ const blogsController = {
         const updatedPostFromBody = req.body;
         const newPost = { ...foundPost, ...updatedPostFromBody  };
 
-        blogsRepository.updateBlogById(newPost);
+        await blogsRepository.updateBlogById(newPost);
 
         return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
@@ -56,5 +56,5 @@ const blogsController = {
 blogsRouter.get('/', blogsController.getBlogs)
 blogsRouter.get('/:id', blogsController.getBlogById)
 blogsRouter.post('/', authMiddleware, ...createEditBlogValidationChains, blogsController.createBlog)
-blogsRouter.put('/:id', authMiddleware, ...createEditBlogValidationChains, blogsController.editPost)
+blogsRouter.put('/:id', authMiddleware, ...createEditBlogValidationChains, blogsController.editBlog)
 blogsRouter.delete('/:id', authMiddleware, blogsController.deleteBlogById)

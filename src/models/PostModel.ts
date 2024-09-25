@@ -5,6 +5,7 @@ export type PostViewModel = {
     content: string;
     blogId: string;
     blogName: string;
+    createdAt: string;
 }
 
 export type PostInputModel = {

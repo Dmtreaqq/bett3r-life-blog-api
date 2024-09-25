@@ -1,7 +1,7 @@
-import { postsDB } from "../db";
+import { postsDB } from "./db";
 import { PostInputModel, PostViewModel } from "../models/PostModel";
 import { randomUUID } from "crypto";
-import { blogsRepository } from "./blogsRepository";
+import { blogsRepository } from "./blogsInMemoryRepository";
 
 export const postsRepository = {
     getPosts() {
@@ -19,7 +19,8 @@ export const postsRepository = {
             shortDescription: postInput.shortDescription,
             content: postInput.content,
             blogId: postInput.blogId,
-            blogName: blogName
+            blogName: blogName,
+            createdAt: new Date().toISOString(),
         }
 
         postsDB.push(post)

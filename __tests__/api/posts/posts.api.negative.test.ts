@@ -4,9 +4,10 @@ import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { PostInputModel, PostViewModel } from "../../../src/models/PostModel";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
-import { blogsRepository } from "../../../src/repositories/blogsRepository";
+import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { postsRepository } from "../../../src/repositories/postsRepository";
+import { postsRepository } from "../../../src/repositories/postsInMemoryMongoRepository";
+import { client } from "../../../src/repositories/db";
 
 export const request = agent(app)
 
@@ -31,10 +32,15 @@ describe('/posts negative tests', () => {
     let createdPost: PostViewModel;
 
     beforeAll(async () => {
-        await request.delete(`${baseUrl}/${CONFIG.PATH.TESTING}/all-data`);
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        createdBlog = blogsRepository.createBlog(blogInput);
-        createdPost = postsRepository.createPost({ ...postInput, blogId: createdBlog.id })
+        createdBlog = await blogsRepository.createBlog(blogInput);
+        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlog.id })
+    })
+
+    afterAll(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        await client.close();
     })
 
     it('should return 404 for GET not existing post', async () => {

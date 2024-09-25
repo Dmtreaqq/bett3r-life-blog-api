@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { blogsDB } from "../db";
+import { blogsDB } from "./db";
 import { BlogInputModel, BlogViewModel } from "../models/BlogModel";
 
 export const blogsRepository = {
@@ -14,7 +14,9 @@ export const blogsRepository = {
             id: randomUUID(),
             name: blogInput.name,
             description: blogInput.description,
-            websiteUrl: blogInput.websiteUrl
+            websiteUrl: blogInput.websiteUrl,
+            createdAt: new Date().toISOString(),
+            isMembership: false
         }
 
         blogsDB.push(post)

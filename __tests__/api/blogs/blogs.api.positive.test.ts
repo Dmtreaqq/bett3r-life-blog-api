@@ -3,8 +3,9 @@ import { app } from '../../../src/app'
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
-import { blogsRepository } from "../../../src/repositories/blogsRepository";
+import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
+import { client } from "../../../src/repositories/db";
 
 export const request = agent(app)
 
@@ -22,14 +23,21 @@ const blogEntity: BlogViewModel = {
     name: blogInput.name,
     description: blogInput.description,
     websiteUrl: blogInput.websiteUrl,
+    createdAt: "2024-09-25T13:47:55.913Z",
+    isMembership: false
 }
 
 describe('/blogs positive', () => {
     let createdBlog: BlogViewModel;
 
     beforeAll(async () => {
-        await request.delete(`${baseUrl}/${CONFIG.PATH.TESTING}/all-data`);
-        createdBlog = blogsRepository.createBlog(blogInput);
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        createdBlog = await blogsRepository.createBlog(blogInput);
+    })
+
+    afterAll(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        await client.close();
     })
 
     it('should POST a blog successfully', async () => {
@@ -43,6 +51,7 @@ describe('/blogs positive', () => {
             ...blogInput,
             ...blogEntity,
             id: expect.any(String),
+            createdAt: expect.any(String)
         })
     })
 

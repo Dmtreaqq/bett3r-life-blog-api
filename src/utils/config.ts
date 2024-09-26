@@ -9,5 +9,6 @@ export const CONFIG = {
         BLOGS: '/blogs',
     },
     LOGIN: process.env.LOGIN,
+    LOCAL_MONGO_URL: 'mongodb://localhost:27017/?retryWrites=true',
     MONGO_URL: `mongodb+srv://${String(process.env.MONGO_USERNAME)}:${String(process.env.MONGO_PASSWORD)}@cluster0.klsta.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`,
 }

@@ -7,15 +7,13 @@ const blogsDB: BlogViewModel[] = [];
 
 export {postsDB, blogsDB};
 
-
-// import { MongoMemoryServer } from 'mongodb-memory-server'
 import { MongoClient } from "mongodb";
 
 export const client = new MongoClient(CONFIG.MONGO_URL);
 
 export const runDB = async () => {
     try {
-        await client.db('better-life-blog').command({ ping: 1 })
+        await client.connect()
         console.log('Connected to MongoDB successfully')
     } catch (error) {
         console.error('MongoDB connection error: ', error)
@@ -23,5 +21,6 @@ export const runDB = async () => {
     }
 }
 
-export const blogsCollection = client.db('better-life-blog').collection<BlogViewModel>("blogs");
-export const postsCollection = client.db('better-life-blog').collection<PostViewModel>("posts");
+const db = client.db('better-life-blog')
+export const blogsCollection = db.collection<BlogViewModel>("blogs");
+export const postsCollection = db.collection<PostViewModel>("posts");

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } from "../utils/types";
 import { BlogInputModel, BlogViewModel } from "../models/BlogModel";
-import { blogsRepository } from "../repositories/blogsInMemoryMongoRepository";
+import { blogsRepository } from "../repositories/blogsRepository";
 import createEditBlogValidationChains from '../middlewares/validation/createEditBlogValidationChains';
 import { authMiddleware } from "../middlewares/authMiddleware";
 

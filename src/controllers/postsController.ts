@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } from "../utils/types";
 import { PostInputModel, PostViewModel } from "../models/PostModel";
-import { postsRepository } from "../repositories/postsInMemoryMongoRepository";
+import { postsRepository } from "../repositories/postsRepository";
 import createEditPostValidationChains from "../middlewares/validation/createEditPostValidationChains";
 import { authMiddleware } from "../middlewares/authMiddleware";
 

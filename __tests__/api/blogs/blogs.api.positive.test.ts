@@ -1,10 +1,11 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
-import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
+import { blogsRepository } from "../../../src/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { client } from "../../../src/repositories/db";
+import { client, runDB } from "../../../src/repositories/db";
 import { request } from '../test-helper'
+import { server } from "../../../src/repositories/db";
 
 
 const baseUrl = '/api';
@@ -29,6 +30,7 @@ describe('/blogs positive', () => {
     let createdBlog: BlogViewModel;
 
     beforeAll(async () => {
+        await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         createdBlog = await blogsRepository.createBlog(blogInput);
     })
@@ -36,6 +38,7 @@ describe('/blogs positive', () => {
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
+        await server.stop();
     })
 
     it('should POST a blog successfully', async () => {

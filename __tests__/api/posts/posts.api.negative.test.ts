@@ -4,10 +4,10 @@ import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { PostInputModel, PostViewModel } from "../../../src/models/PostModel";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
-import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
+import { blogsRepository } from "../../../src/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { postsRepository } from "../../../src/repositories/postsInMemoryMongoRepository";
-import { client } from "../../../src/repositories/db";
+import { postsRepository } from "../../../src/repositories/postsRepository";
+import { client, runDB, server } from "../../../src/repositories/db";
 import { request } from '../test-helper';
 
 
@@ -32,6 +32,7 @@ describe('/posts negative tests', () => {
     let createdPost: PostViewModel;
 
     beforeAll(async () => {
+        await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
         createdBlog = await blogsRepository.createBlog(blogInput);
@@ -41,6 +42,7 @@ describe('/posts negative tests', () => {
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
+        await server.stop();
     })
 
     it('should return 404 for GET not existing post', async () => {

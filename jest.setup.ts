@@ -1,0 +1,1 @@
+process.env.IS_API_TEST = 'true'

@@ -1,7 +1,7 @@
 import { postsCollection } from "./db";
 import { PostInputModel, PostViewModel } from "../models/PostModel";
 import { randomUUID } from "crypto";
-import { blogsRepository } from "./blogsInMemoryMongoRepository";
+import { blogsRepository } from "./blogsRepository";
 
 export const postsRepository = {
     async getPosts() {

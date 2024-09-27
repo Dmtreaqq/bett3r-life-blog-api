@@ -1,6 +1,6 @@
 import { body } from "express-validator"
 import { validationMiddleware } from "./validationMiddleware";
-import { blogsRepository } from "../../repositories/blogsInMemoryMongoRepository";
+import { blogsRepository } from "../../repositories/blogsRepository";
 
 const createTitleChain = () => body('title')
     .isString().withMessage('Should be a string')

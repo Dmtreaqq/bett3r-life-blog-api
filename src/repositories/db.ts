@@ -1,15 +1,9 @@
+import { MongoClient } from "mongodb";
 import { PostViewModel } from "../models/PostModel";
 import { BlogViewModel } from "../models/BlogModel";
 import { CONFIG } from "../utils/config";
 
-const postsDB: PostViewModel[] = [];
-const blogsDB: BlogViewModel[] = [];
-
-export {postsDB, blogsDB};
-
-import { MongoClient } from "mongodb";
-
-export const client = new MongoClient(CONFIG.MONGO_URL);
+export const client = new MongoClient(CONFIG.LOCAL_MONGO_URL);
 
 export const runDB = async () => {
     try {

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { blogsCollection, client, blogsDB } from "./db";
+import { blogsCollection } from "./db";
 import { BlogInputModel, BlogViewModel } from "../models/BlogModel";
 
 export const blogsRepository = {

@@ -8,8 +8,7 @@ import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { postsRepository } from "../../../src/repositories/postsInMemoryMongoRepository";
 import { client } from "../../../src/repositories/db";
-
-export const request = agent(app)
+import { request } from '../test-helper';
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;

@@ -1,6 +1,4 @@
 import { runDB } from "./repositories/db";
-
-require('dotenv').config({ path: '.env.local' })
 import { app } from "./app";
 import { CONFIG } from "./utils/config";
 
@@ -13,4 +11,3 @@ const startApp = async () => {
 }
 
 startApp();
-

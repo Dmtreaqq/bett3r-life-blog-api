@@ -1,13 +1,11 @@
-import { agent } from 'supertest'
-import { app } from '../../../src/app'
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { BlogInputModel, BlogViewModel } from "../../../src/models/BlogModel";
 import { blogsRepository } from "../../../src/repositories/blogsInMemoryMongoRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { client } from "../../../src/repositories/db";
+import { request } from '../test-helper'
 
-export const request = agent(app)
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;

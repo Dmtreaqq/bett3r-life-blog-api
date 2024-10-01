@@ -2,12 +2,17 @@ import { postsCollection } from "../../db/db";
 import { blogsRepository } from "../blogs/blogsRepository";
 import { PostDbModel } from "./models/PostDbModel";
 import { ObjectId } from "mongodb";
-import { BlogDbModel } from "../blogs/models/BlogDbModel";
 import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 
 export const postsRepository = {
-    async getPosts(): Promise<PostDbModel[]> {
-        return postsCollection.find({}).toArray()
+    async getPosts(pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostDbModel[]> {
+
+        return postsCollection
+            .find({})
+            .sort(sortBy, sortDirection)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .toArray()
     },
     async getPostById(id: string): Promise<PostDbModel | null> {
         return postsCollection.findOne({ _id: new ObjectId(id) });

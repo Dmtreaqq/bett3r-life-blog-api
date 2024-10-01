@@ -1,7 +1,5 @@
 import { Collection, Db, MongoClient } from "mongodb";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { PostApiResponseModel } from "../components/posts/models/PostApiModel";
-import { BlogApiResponseModel } from "../components/blogs/models/BlogApiModel";
 import { CONFIG } from "../utils/config";
 import { BlogDbModel } from "../components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../components/posts/models/PostDbModel";
@@ -25,6 +23,7 @@ export const runDB = async () => {
         postsCollection = db.collection<PostDbModel>("posts");
 
         console.log('Using MongoDB in memory')
+        return
     }
 
     try {

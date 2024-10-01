@@ -20,7 +20,7 @@ const blogInput: BlogApiRequestModel = {
 }
 
 const postInput: PostApiRequestModel = {
-    title: 'Doctor Who article',
+    title: 'z 9',
     content: 'Abcdefg',
     shortDescription: 'dsadadas',
     blogId: '123'
@@ -48,6 +48,12 @@ describe('/posts positive', () => {
         createdBlog = await blogsRepository.createBlog(blogInput);
         createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString() })
         createdPostResponse = postsRepository.fromDbModelToResponseModel(createdPost)
+
+        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'a 1' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'b 2' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'c 3' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'd 4' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'e 5' })
     })
 
     afterAll(async () => {
@@ -118,5 +124,33 @@ describe('/posts positive', () => {
         await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
             .expect(HTTP_STATUSES.NOT_FOUND_404);
+    })
+
+    it('should GET posts using sorting', async () => {
+        const response1 = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/?sortBy=title&sortDirection=desc`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response1.body[0].title).toEqual('z 9')
+
+        const response2 = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/?sortBy=title&sortDirection=asc`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response2.body[0].title).toEqual('a 1')
+    })
+
+    it('should GET posts using pagination', async () => {
+        const response1 = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/?pageSize=2`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response1.body).toHaveLength(2)
+
+        const response2 = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/?pageNumber=8&pageSize=2`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response2.body).toHaveLength(0)
     })
 })

@@ -1,16 +1,24 @@
 import { Router, Request, Response } from 'express';
-import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } from "../../utils/types";
+import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody, RequestWquery } from "../../utils/types";
 import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 import { postsRepository } from "./postsRepository";
 import createEditPostValidationChains from "./middlewares/createEditPostValidationChains";
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import postUrlParamValidation from "./middlewares/postUrlParamValidation";
+import postQueryValidation from "./middlewares/postQueryValidation";
+import { PostQueryGetModel } from "./models/PostQueryGetModel";
 
 export const postsRouter = Router();
 
 const postsController = {
-    async getPosts(req: Request, res: Response<PostApiResponseModel[]>){
-        const posts = await postsRepository.getPosts();
+    async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostApiResponseModel[]>){
+        const { pageNumber, pageSize, sortBy, sortDirection } = req.query
+        const posts = await postsRepository.getPosts(
+            Number(pageNumber),
+            Number(pageSize),
+            sortBy,
+            sortDirection
+        );
 
         const apiModelPosts = posts.map(postsRepository.fromDbModelToResponseModel);
 
@@ -61,7 +69,7 @@ const postsController = {
     }
 }
 
-postsRouter.get('/', postsController.getPosts)
+postsRouter.get('/', ...postQueryValidation, postsController.getPosts)
 postsRouter.get('/:id', ...postUrlParamValidation, postsController.getPostById)
 postsRouter.post('/', authMiddleware, ...createEditPostValidationChains, postsController.createPost)
 postsRouter.put('/:id', ...postUrlParamValidation, authMiddleware,  ...createEditPostValidationChains, postsController.editPost)

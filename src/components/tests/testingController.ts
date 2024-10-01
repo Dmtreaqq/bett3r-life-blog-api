@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import { blogsRepository } from "../repositories/blogsRepository";
-import { postsRepository } from "../repositories/postsRepository";
+import { blogsRepository } from "../blogs/blogsRepository";
+import { postsRepository } from "../posts/postsRepository";
 
 export const testingController = Router();
 

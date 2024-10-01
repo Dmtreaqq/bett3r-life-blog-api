@@ -1,4 +1,4 @@
-export type BlogViewModel = {
+export type BlogApiResponseModel = {
     id: string;
     name: string;
     description: string;
@@ -7,7 +7,7 @@ export type BlogViewModel = {
     createdAt: string;
 }
 
-export type BlogInputModel = {
+export type BlogApiRequestModel = {
     name: string;
     description: string;
     websiteUrl: string;

@@ -1,4 +1,4 @@
-export type PostViewModel = {
+export type PostApiResponseModel = {
     id: string;
     title: string;
     shortDescription: string;
@@ -8,7 +8,7 @@ export type PostViewModel = {
     createdAt: string;
 }
 
-export type PostInputModel = {
+export type PostApiRequestModel = {
     title: string;
     shortDescription: string;
     content: string;

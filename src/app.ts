@@ -1,8 +1,8 @@
 import express from "express";
 import { CONFIG } from "./utils/config";
-import { testingController } from "./controllers/testingController";
-import { postsRouter } from "./controllers/postsController";
-import { blogsRouter } from "./controllers/blogsController";
+import { testingController } from "./components/tests/testingController";
+import { postsRouter } from "./components/posts/postsController";
+import { blogsRouter } from "./components/blogs/blogsController";
 
 export const app = express();
 

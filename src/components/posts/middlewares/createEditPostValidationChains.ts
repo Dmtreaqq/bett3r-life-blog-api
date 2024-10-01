@@ -1,6 +1,8 @@
 import { body } from "express-validator"
-import { validationMiddleware } from "./validationMiddleware";
-import { blogsRepository } from "../../repositories/blogsRepository";
+import { validationMiddleware } from "../../../middlewares/validationMiddleware";
+import { blogsRepository } from "../../blogs/blogsRepository";
+
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
 const createTitleChain = () => body('title')
     .isString().withMessage('Should be a string')
@@ -24,6 +26,7 @@ const createBlogIdChain = () => body('blogId')
     .isString().withMessage('Should be a string')
     .trim()
     .notEmpty().withMessage('Should not be empty')
+    .matches(objectIdRegex).withMessage('Blog ID should be an ObjectId type')
     .custom(async value => {
         const foundBlog = await blogsRepository.getBlogById(value);
 

@@ -1,4 +1,4 @@
-import { runDB } from "./repositories/db";
+import { runDB } from "./db/db";
 import { app } from "./app";
 import { CONFIG } from "./utils/config";
 

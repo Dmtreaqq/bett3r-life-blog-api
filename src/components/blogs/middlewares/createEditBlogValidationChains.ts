@@ -1,5 +1,5 @@
 import { body } from "express-validator"
-import { validationMiddleware } from "./validationMiddleware";
+import { validationMiddleware } from "../../../middlewares/validationMiddleware";
 
 const urlRegex = new RegExp('^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$');
 

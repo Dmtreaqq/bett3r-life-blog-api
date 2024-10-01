@@ -2,11 +2,22 @@ import { randomUUID } from 'crypto';
 import { blogsCollection } from "../../db/db";
 import { BlogApiRequestModel, BlogApiResponseModel } from "./models/BlogApiModel";
 import { BlogDbModel } from "./models/BlogDbModel";
-import { ObjectId } from "mongodb";
+import { Filter, ObjectId } from "mongodb";
 
 export const blogsRepository = {
-    async getBlogs(): Promise<BlogDbModel[]> {
-        return blogsCollection.find({}).toArray()
+    async getBlogs(name: string, pageSize: number = 10, pageNumber: number = 1, sortBy: string = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<BlogDbModel[]> {
+        const filter: Filter<BlogDbModel> = {}
+
+        if (name !== undefined) {
+            filter.name = { $regex: name, $options: 'i' }
+        }
+
+        return blogsCollection
+            .find(filter)
+            .sort(sortBy, sortDirection)
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .toArray()
     },
     async getBlogById(id: string): Promise<BlogDbModel | null> {
         return blogsCollection.findOne({ _id: new ObjectId(id) });

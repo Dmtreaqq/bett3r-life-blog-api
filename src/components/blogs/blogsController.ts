@@ -1,17 +1,27 @@
-import { Router, Request, Response } from 'express';
-import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody } from "../../utils/types";
+import { Router, Response } from 'express';
+import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody, RequestWquery } from "../../utils/types";
 import { BlogApiRequestModel, BlogApiResponseModel } from "./models/BlogApiModel";
 import { blogsRepository } from "./blogsRepository";
 import createEditBlogValidationChains from './middlewares/createEditBlogValidationChains';
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import { BlogDbModel } from "./models/BlogDbModel";
 import blogUrlParamValidation from "./middlewares/blogUrlParamValidation";
+import { BlogQueryGetModel } from "./models/BlogQueryGetModel";
+import blogQueryValidation from "./middlewares/blogQueryValidation";
 
 export const blogsRouter = Router();
 
 const blogsController = {
-    async getBlogs(req: Request, res: Response<BlogApiResponseModel[]>){
-        const blogs = await blogsRepository.getBlogs()
+    async getBlogs(req: RequestWquery<BlogQueryGetModel>, res: Response<BlogApiResponseModel[]>){
+        const { searchNameTerm, pageSize, pageNumber, sortBy, sortDirection } = req.query
+
+        const blogs = await blogsRepository.getBlogs(
+            searchNameTerm,
+            Number(pageSize),
+            Number(pageNumber),
+            sortBy,
+            sortDirection,
+        )
 
         const apiModelBlogs = blogs.map(blogsRepository.fromDbModelToResponseModel)
 
@@ -62,7 +72,7 @@ const blogsController = {
     }
 }
 
-blogsRouter.get('/', blogsController.getBlogs)
+blogsRouter.get('/', ...blogQueryValidation, blogsController.getBlogs)
 blogsRouter.get('/:id', ...blogUrlParamValidation, blogsController.getBlogById)
 blogsRouter.post('/', authMiddleware, ...createEditBlogValidationChains, blogsController.createBlog)
 blogsRouter.put('/:id', authMiddleware, ...blogUrlParamValidation, ...createEditBlogValidationChains, blogsController.editBlog)

@@ -13,7 +13,7 @@ const createQuerySortByChain = () => query('sortBy')
             throw new Error('Should be a string');
         }
         return true;
-    }).withMessage('Should be a string')
+    })
 
 const createQuerySortDirectionChain = () => query('sortDirection')
     .optional()

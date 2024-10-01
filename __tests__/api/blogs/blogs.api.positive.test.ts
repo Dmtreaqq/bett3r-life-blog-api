@@ -1,12 +1,17 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
-import { BlogApiRequestModel, BlogApiResponseModel } from "../../../src/components/blogs/models/BlogApiModel";
+import {
+    BlogApiRequestModel,
+    BlogApiResponseModel,
+    BlogCreatePostApiRequestModel
+} from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { client, runDB } from "../../../src/db/db";
 import { request } from '../test-helper'
 import { server } from "../../../src/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
+import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
 
 
 const baseUrl = '/api';
@@ -18,6 +23,12 @@ const blogInput: BlogApiRequestModel = {
     websiteUrl: 'https://somewebsite.com'
 }
 
+const postInput: BlogCreatePostApiRequestModel = {
+    title: 'post',
+    content: 'Abcdefg',
+    shortDescription: 'dsadadas'
+}
+
 const blogEntity: BlogApiResponseModel = {
     id: '1',
     name: blogInput.name,
@@ -25,6 +36,16 @@ const blogEntity: BlogApiResponseModel = {
     websiteUrl: blogInput.websiteUrl,
     createdAt: "2024-09-25T13:47:55.913Z",
     isMembership: false
+}
+
+const postEntity: PostApiResponseModel = {
+    id: '???',
+    title: postInput.title,
+    content: postInput.content,
+    shortDescription: postInput.shortDescription,
+    blogId: '???',
+    blogName: blogEntity.name,
+    createdAt: "2024-09-25T13:47:55.913Z",
 }
 
 describe('/blogs positive', () => {
@@ -112,17 +133,6 @@ describe('/blogs positive', () => {
         expect(getResponse.body).toEqual(createdBlogResponse);
     })
 
-    it('should DELETE blog successfully', async () => {
-        await request
-            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
-            .set('authorization', authHeader)
-            .expect(HTTP_STATUSES.NO_CONTENT_204);
-
-        await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
-            .expect(HTTP_STATUSES.NOT_FOUND_404);
-    })
-
     it('should GET blogs using sorting successfully', async () => {
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=name&sortDirection=desc&searchNameTerm=tor`)
@@ -149,5 +159,61 @@ describe('/blogs positive', () => {
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response2.body).toHaveLength(1)
+    })
+
+    it('should POST post for a certain blog', async () => {
+        const response = await request
+            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
+            .send(postInput)
+            .set('authorization', authHeader)
+            .expect(HTTP_STATUSES.CREATED_201);
+
+        expect(response.body).toEqual({
+            ...postEntity,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            blogId: createdBlog._id.toString()
+        })
+
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${response.body.id}`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse.body).toEqual({
+            ...postEntity,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            blogId: createdBlog._id.toString()
+        })
+    })
+
+    it('should GET posts for a certain blog', async () => {
+        await request
+            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
+            .send(postInput)
+            .set('authorization', authHeader)
+            .expect(HTTP_STATUSES.CREATED_201);
+
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
+            .expect(HTTP_STATUSES.OK_200)
+
+        expect(getResponse.body[0]).toEqual({
+            ...postEntity,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            blogId: createdBlog._id.toString()
+        })
+    })
+
+    it('should DELETE blog successfully', async () => {
+        await request
+            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .set('authorization', authHeader)
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .expect(HTTP_STATUSES.NOT_FOUND_404);
     })
 })

@@ -211,4 +211,57 @@ describe('/blogs negative tests', () => {
             .set('authorization', 'test')
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
+
+    it('should return empty array while GET posts for a certain blog, when no posts yet', async () => {
+        const blog = await blogsRepository.createBlog(blogInput);
+
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog._id}/posts`)
+            .expect(HTTP_STATUSES.OK_200)
+
+        expect(getResponse.body).toEqual([])
+    })
+
+    it('should return 400 while GET posts for a not existing blog', async () => {
+        const objectId = new ObjectId()
+
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${objectId}/posts`)
+            .expect(HTTP_STATUSES.BAD_REQUEST_400)
+
+        expect(getResponse.body).toEqual({
+            errorsMessages: [{
+                field: 'id',
+                message: `Blog ${objectId} not found`,
+            }]
+        })
+    })
+
+    it('should return 400 for GET blog sortBy as number', async () => {
+        const response = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=67`)
+            .expect(HTTP_STATUSES.BAD_REQUEST_400)
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'sortBy',
+                message: 'Should be a string',
+            }]
+        })
+    })
+
+    it('should return 400 for PUT blog invalid url', async () => {
+        const response = await request
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .set('authorization', authHeader)
+            .send({ ...blogInput, websiteUrl: 'http://localhost:8000/' })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400)
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'websiteUrl',
+                message: 'Should follow URL regex with HTTPS://, received http://localhost:8000/',
+            }]
+        })
+    })
 })

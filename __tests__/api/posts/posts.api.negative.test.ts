@@ -241,4 +241,17 @@ describe('/posts negative tests', () => {
             .set('authorization', 'Basic Test')
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
+
+    it('should return 400 for GET post sortBy as number', async () => {
+        const response = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/?sortBy=67`)
+            .expect(HTTP_STATUSES.BAD_REQUEST_400)
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'sortBy',
+                message: 'Should be a string',
+            }]
+        })
+    })
 })

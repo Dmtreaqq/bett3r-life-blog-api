@@ -66,14 +66,4 @@ export const blogsRepository = {
             createdAt: blogDbModel.createdAt
         }
     },
-    fromResponseModelToDbModel(blogResponseModel: BlogApiResponseModel): BlogDbModel {
-        return {
-            _id: new ObjectId(blogResponseModel.id),
-            name: blogResponseModel.name,
-            description: blogResponseModel.description,
-            websiteUrl: blogResponseModel.websiteUrl,
-            isMembership: blogResponseModel.isMembership,
-            createdAt: blogResponseModel.createdAt
-        }
-    },
 }

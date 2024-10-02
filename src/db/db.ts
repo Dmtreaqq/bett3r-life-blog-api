@@ -27,7 +27,7 @@ export const runDB = async () => {
     }
 
     try {
-        client = new MongoClient(CONFIG.LOCAL_MONGO_URL)
+        client = new MongoClient(CONFIG.MONGO_URL)
         await client.connect()
         db = client.db('better-life-blog')
         blogsCollection = db.collection<BlogDbModel>("blogs");

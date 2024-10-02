@@ -1,7 +1,7 @@
-import { postsCollection } from "../../db/db";
+import { blogsCollection, postsCollection } from "../../db/db";
 import { blogsRepository } from "../blogs/blogsRepository";
 import { PostDbModel } from "./models/PostDbModel";
-import { ObjectId } from "mongodb";
+import { Filter, ObjectId } from "mongodb";
 import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 
 export const postsRepository = {
@@ -53,6 +53,9 @@ export const postsRepository = {
     },
     async deleteAllPosts(): Promise<void> {
         await postsCollection.deleteMany({})
+    },
+    async getPostsCount(): Promise<number> {
+        return blogsCollection.countDocuments({})
     },
     fromDbModelToResponseModel(postDbModel: PostDbModel): PostApiResponseModel {
         return {

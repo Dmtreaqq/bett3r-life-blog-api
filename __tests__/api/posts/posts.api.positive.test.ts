@@ -91,7 +91,13 @@ describe('/posts positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.POSTS}`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response.body).toEqual(expect.arrayContaining([createdPostResponse]))
+        expect(response.body).toEqual({
+            items: expect.arrayContaining([createdPostResponse]),
+            page: 1,
+            pageSize: 10,
+            pagesCount: 1,
+            totalCount: 1
+        })
     })
 
     it('should PUT post successfully', async () => {
@@ -131,13 +137,13 @@ describe('/posts positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/?sortBy=title&sortDirection=desc`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body[0].title).toEqual('z 9')
+        expect(response1.body.items[0].title).toEqual('z 9')
 
         const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/?sortBy=title&sortDirection=asc`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body[0].title).toEqual('a 1')
+        expect(response2.body.items[0].title).toEqual('a 1')
     })
 
     it('should GET posts using pagination', async () => {
@@ -145,12 +151,12 @@ describe('/posts positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/?pageSize=2`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body).toHaveLength(2)
+        expect(response1.body.items).toHaveLength(2)
 
         const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/?pageNumber=8&pageSize=2`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body).toHaveLength(0)
+        expect(response2.body.items).toHaveLength(0)
     })
 })

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody, RequestWquery } from "../../utils/types";
-import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
+import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "./models/PostApiModel";
 import { postsRepository } from "./postsRepository";
 import createEditPostValidationChains from "./middlewares/createEditPostValidationChains";
 import { authMiddleware } from "../../middlewares/authMiddleware";
@@ -11,8 +11,8 @@ import { PostQueryGetModel } from "./models/PostQueryGetModel";
 export const postsRouter = Router();
 
 const postsController = {
-    async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostApiResponseModel[]>){
-        const { pageNumber, pageSize, sortBy, sortDirection } = req.query
+    async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostsApiResponseModel>){
+        const { pageNumber = 1, pageSize = 10, sortBy, sortDirection } = req.query
         const posts = await postsRepository.getPosts(
             Number(pageNumber),
             Number(pageSize),
@@ -20,9 +20,18 @@ const postsController = {
             sortDirection
         );
 
+        const postsCount = await postsRepository.getPostsCount();
         const apiModelPosts = posts.map(postsRepository.fromDbModelToResponseModel);
 
-        return res.json(apiModelPosts);
+        const result: PostsApiResponseModel = {
+            items: apiModelPosts,
+            page: Number(pageNumber),
+            pageSize: Number(pageSize),
+            totalCount: postsCount,
+            pagesCount: Math.ceil(postsCount / Number(pageSize)),
+        }
+
+        return res.json(result);
     },
     async getPostById(req: RequestWparams<{ id: string }>, res: Response<PostApiResponseModel>){
         const { id } = req.params;

@@ -208,7 +208,7 @@ describe('/blogs positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
             .expect(HTTP_STATUSES.OK_200)
 
-        expect(getResponse.body[0]).toEqual({
+        expect(getResponse.body.items[0]).toEqual({
             ...postEntity,
             id: expect.any(String),
             createdAt: expect.any(String),

@@ -5,10 +5,15 @@ import { Filter, ObjectId } from "mongodb";
 import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 
 export const postsRepository = {
-    async getPosts(pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostDbModel[]> {
+    async getPosts(blogId?: string, pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostDbModel[]> {
+        const filter: Filter<any> = {}
+
+        if (blogId) {
+            filter.blogId = blogId
+        }
 
         return postsCollection
-            .find({})
+            .find(filter)
             .sort(sortBy, sortDirection)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
@@ -54,8 +59,14 @@ export const postsRepository = {
     async deleteAllPosts(): Promise<void> {
         await postsCollection.deleteMany({})
     },
-    async getPostsCount(): Promise<number> {
-        return blogsCollection.countDocuments({})
+    async getPostsCount(blogId?: string): Promise<number> {
+        const filter: Filter<any> = {}
+
+        if (blogId) {
+            filter.blogId = blogId
+        }
+
+        return blogsCollection.countDocuments(filter)
     },
     fromDbModelToResponseModel(postDbModel: PostDbModel): PostApiResponseModel {
         return {

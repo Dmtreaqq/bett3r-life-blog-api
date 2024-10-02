@@ -14,6 +14,7 @@ const postsController = {
     async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostsApiResponseModel>){
         const { pageNumber = 1, pageSize = 10, sortBy, sortDirection } = req.query
         const posts = await postsRepository.getPosts(
+            '',
             Number(pageNumber),
             Number(pageSize),
             sortBy,

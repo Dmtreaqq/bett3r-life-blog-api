@@ -219,22 +219,21 @@ describe('/blogs negative tests', () => {
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog._id}/posts`)
             .expect(HTTP_STATUSES.OK_200)
 
-        expect(getResponse.body).toEqual([])
+        expect(getResponse.body).toEqual({
+            "items": [],
+            "page": 1,
+            "pageSize": 10,
+            "pagesCount": 0,
+            "totalCount": 0
+        })
     })
 
     it('should return 400 while GET posts for a not existing blog', async () => {
         const objectId = new ObjectId()
 
-        const getResponse = await request
+        await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${objectId}/posts`)
-            .expect(HTTP_STATUSES.BAD_REQUEST_400)
-
-        expect(getResponse.body).toEqual({
-            errorsMessages: [{
-                field: 'id',
-                message: `Blog ${objectId} not found`,
-            }]
-        })
+            .expect(HTTP_STATUSES.NOT_FOUND_404)
     })
 
     it('should return 400 for GET blog sortBy as number', async () => {

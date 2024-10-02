@@ -20,7 +20,7 @@ import { BlogDbModel } from "./models/BlogDbModel";
 import blogUrlParamValidation from "./middlewares/blogUrlParamValidation";
 import { BlogQueryGetModel } from "./models/BlogQueryGetModel";
 import blogQueryValidation from "./middlewares/blogQueryValidation";
-import { PostApiRequestModel, PostApiResponseModel } from "../posts/models/PostApiModel";
+import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
 import { postsRepository } from "../posts/postsRepository";
 
 import createPostForBlogValidationChains, { createBlogIdChain } from "./middlewares/createPostForBlogValidationChains";
@@ -103,18 +103,34 @@ const blogsController = {
 
         return res.status(HTTP_STATUSES.CREATED_201).json(postsRepository.fromDbModelToResponseModel(post))
     },
-    async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostApiResponseModel[]>) {
-        const { pageNumber, pageSize, sortDirection, sortBy } = req.query
+    async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostsApiResponseModel>) {
+        const { pageNumber = 1, pageSize = 10, sortDirection, sortBy } = req.query
 
-        const posts = await postsRepository.getPosts(Number(pageNumber), Number(pageSize), sortBy, sortDirection)
+        const blog = await blogsRepository.getBlogById(req.params.id);
+        if (!blog) {
+            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        }
 
-        return res.status(HTTP_STATUSES.OK_200).json(posts.map(postsRepository.fromDbModelToResponseModel))
+        const posts = await postsRepository.getPosts(blog._id.toString(), Number(pageNumber), Number(pageSize), sortBy, sortDirection)
+        const postsCount = await postsRepository.getPostsCount(blog._id.toString());
+
+        const apiModelPosts = posts.map(postsRepository.fromDbModelToResponseModel);
+
+        const result: PostsApiResponseModel = {
+            items: apiModelPosts,
+            page: Number(pageNumber),
+            pageSize: Number(pageSize),
+            totalCount: postsCount,
+            pagesCount: Math.ceil(postsCount / Number(pageSize)),
+        }
+
+        return res.json(result);
     }
 }
 
 blogsRouter.get('/', ...blogQueryValidation, blogsController.getBlogs)
 blogsRouter.get('/:id', ...blogUrlParamValidation, blogsController.getBlogById)
-blogsRouter.get('/:id/posts', ...blogUrlParamValidation, createBlogIdChain(), ...postQueryValidation, blogsController.getPostsForBlog)
+blogsRouter.get('/:id/posts', ...blogUrlParamValidation, ...postQueryValidation, blogsController.getPostsForBlog)
 
 blogsRouter.post('/', authMiddleware, ...createEditBlogValidationChains, blogsController.createBlog)
 blogsRouter.post('/:id/posts', authMiddleware, ...blogUrlParamValidation, ...createPostForBlogValidationChains, blogsController.createPostForBlog)

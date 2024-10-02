@@ -3,7 +3,7 @@ import { HTTP_STATUSES } from "../../../src/utils/types";
 import {
     BlogApiRequestModel,
     BlogApiResponseModel,
-    BlogCreatePostApiRequestModel
+    BlogCreatePostApiRequestModel, BlogsApiResponseModel
 } from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
@@ -99,7 +99,13 @@ describe('/blogs positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response.body).toEqual(expect.arrayContaining([createdBlogResponse]))
+        expect(response.body).toEqual({
+            items: expect.arrayContaining([createdBlogResponse]),
+            totalCount: 7,
+            pagesCount: 1,
+            pageSize: 10,
+            page: 1
+        } as BlogsApiResponseModel);
     })
 
     it('should GET blogs by searchNameTerm successfully', async () => {
@@ -110,13 +116,13 @@ describe('/blogs positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?searchNameTerm=BODY`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body).toEqual(expect.arrayContaining([createdBlogResponse, responseNewBlog]))
+        expect(response1.body.items).toEqual(expect.arrayContaining([createdBlogResponse, responseNewBlog]))
 
         const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?searchNameTerm=body`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body).toEqual(expect.arrayContaining([createdBlogResponse, responseNewBlog]))
+        expect(response2.body.items).toEqual(expect.arrayContaining([createdBlogResponse, responseNewBlog]))
     })
 
     it('should PUT blog successfully', async () => {
@@ -138,13 +144,13 @@ describe('/blogs positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=name&sortDirection=desc&searchNameTerm=tor`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body[0].name).toEqual('Doctor Who')
+        expect(response1.body.items[0].name).toEqual('Doctor Who')
 
         const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=name&sortDirection=asc&searchNameTerm=tor`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body[0].name).toEqual('Doctor Connors')
+        expect(response2.body.items[0].name).toEqual('Doctor Connors')
     })
 
     it('should GET blogs using pagination successfully', async () => {
@@ -152,13 +158,17 @@ describe('/blogs positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?pageSize=2&searchNameTerm=tor`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body).toHaveLength(2)
+        expect(response1.body.items).toHaveLength(2)
+        expect(response1.body.pageSize).toEqual(2)
+        expect(response1.body.page).toEqual(1)
 
         const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?pageSize=2&pageNumber=3&searchNameTerm=tor`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body).toHaveLength(1)
+        expect(response2.body.items).toHaveLength(1)
+        expect(response2.body.pageSize).toEqual(2)
+        expect(response2.body.page).toEqual(3)
     })
 
     it('should POST post for a certain blog', async () => {

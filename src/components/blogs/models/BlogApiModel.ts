@@ -9,6 +9,14 @@ export type BlogApiResponseModel = {
     createdAt: string;
 }
 
+export type BlogsApiResponseModel = {
+    pagesCount: number;
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    items: BlogApiResponseModel[];
+}
+
 export type BlogApiRequestModel = {
     name: string;
     description: string;

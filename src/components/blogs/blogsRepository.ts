@@ -56,6 +56,15 @@ export const blogsRepository = {
     async deleteAllBlogs(): Promise<void> {
         await blogsCollection.deleteMany({})
     },
+    async getBlogsCount(name: string): Promise<number> {
+        const filter: Filter<any> = {}
+
+        if (name !== undefined) {
+            filter.name = { $regex: name, $options: 'i' }
+        }
+
+        return blogsCollection.countDocuments(filter)
+    },
     fromDbModelToResponseModel(blogDbModel: BlogDbModel): BlogApiResponseModel {
         return {
             id: blogDbModel._id.toString(),

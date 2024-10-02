@@ -7,7 +7,12 @@ import {
     RequestWparamsAndQuery,
     RequestWquery
 } from "../../utils/types";
-import { BlogApiRequestModel, BlogApiResponseModel, BlogCreatePostApiRequestModel } from "./models/BlogApiModel";
+import {
+    BlogApiRequestModel,
+    BlogApiResponseModel,
+    BlogCreatePostApiRequestModel,
+    BlogsApiResponseModel
+} from "./models/BlogApiModel";
 import { blogsRepository } from "./blogsRepository";
 import createEditBlogValidationChains from './middlewares/createEditBlogValidationChains';
 import { authMiddleware } from "../../middlewares/authMiddleware";
@@ -25,8 +30,8 @@ import postQueryValidation from "../posts/middlewares/postQueryValidation";
 export const blogsRouter = Router();
 
 const blogsController = {
-    async getBlogs(req: RequestWquery<BlogQueryGetModel>, res: Response<BlogApiResponseModel[]>){
-        const { searchNameTerm, pageSize, pageNumber, sortBy, sortDirection } = req.query
+    async getBlogs(req: RequestWquery<BlogQueryGetModel>, res: Response<BlogsApiResponseModel>){
+        const { searchNameTerm, pageSize = 10, pageNumber = 1, sortBy, sortDirection } = req.query
 
         const blogs = await blogsRepository.getBlogs(
             searchNameTerm,
@@ -36,9 +41,19 @@ const blogsController = {
             sortDirection,
         )
 
+        const blogsCount = await blogsRepository.getBlogsCount(searchNameTerm)
+
         const apiModelBlogs = blogs.map(blogsRepository.fromDbModelToResponseModel)
 
-        return res.json(apiModelBlogs);
+        const result: BlogsApiResponseModel = {
+            items: apiModelBlogs,
+            page: Number(pageNumber),
+            pageSize: Number(pageSize),
+            totalCount: blogsCount,
+            pagesCount: Math.ceil(blogsCount / Number(pageSize)),
+        }
+
+        return res.json(result);
     },
     async getBlogById(req: RequestWparams<{ id: string }>, res: Response<BlogApiResponseModel>){
         const { id } = req.params;

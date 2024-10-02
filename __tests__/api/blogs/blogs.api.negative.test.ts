@@ -1,6 +1,6 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
-import { BlogApiRequestModel } from "../../../src/components/blogs/models/BlogApiModel";
+import { BlogApiRequestModel, BlogCreatePostApiRequestModel } from "../../../src/components/blogs/models/BlogApiModel";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { client, runDB, server } from "../../../src/db/db";
@@ -15,6 +15,12 @@ const blogInput: BlogApiRequestModel = {
     name: 'SomeBlog',
     description: 'Some description',
     websiteUrl: 'https://somewebsite.com'
+}
+
+const postInput: BlogCreatePostApiRequestModel = {
+    title: 'post',
+    content: 'Abcdefg',
+    shortDescription: 'dsadadas'
 }
 
 describe('/blogs negative tests', () => {
@@ -108,6 +114,14 @@ describe('/blogs negative tests', () => {
                 message: 'Should not be empty',
             }]
         })
+    })
+
+    it('should return 404 for POST post for a not existing blog', async () => {
+        await request
+            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${randomId}/posts`)
+            .send({ ...postInput })
+            .set('authorization', authHeader)
+            .expect(HTTP_STATUSES.NOT_FOUND_404);
     })
 
     it('should return 400 for incorrect NAME type while POST blog', async () => {

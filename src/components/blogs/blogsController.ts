@@ -23,7 +23,7 @@ import blogQueryValidation from "./middlewares/blogQueryValidation";
 import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
 import { postsRepository } from "../posts/postsRepository";
 
-import createPostForBlogValidationChains, { createBlogIdChain } from "./middlewares/createPostForBlogValidationChains";
+import createPostForBlogValidationChains from "./middlewares/createPostForBlogValidationChains";
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 
@@ -99,6 +99,11 @@ const blogsController = {
         return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
     async createPostForBlog(req: RequestWparamsAndBody<{ id: string }, BlogCreatePostApiRequestModel>, res: Response<PostApiResponseModel>) {
+        const blog = await blogsRepository.getBlogById(req.params.id);
+        if (!blog) {
+            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        }
+
         const post = await postsRepository.createPost({ ...req.body, blogId: req.params.id });
 
         return res.status(HTTP_STATUSES.CREATED_201).json(postsRepository.fromDbModelToResponseModel(post))

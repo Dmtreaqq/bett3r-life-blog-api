@@ -96,7 +96,7 @@ describe('/posts positive', () => {
             page: 1,
             pageSize: 10,
             pagesCount: 1,
-            totalCount: 1
+            totalCount: 7
         })
     })
 

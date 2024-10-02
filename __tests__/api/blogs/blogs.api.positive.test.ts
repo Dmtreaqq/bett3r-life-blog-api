@@ -12,6 +12,7 @@ import { request } from '../test-helper'
 import { server } from "../../../src/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
+import { postsRepository } from "../../../src/components/posts/postsRepository";
 
 
 const baseUrl = '/api';
@@ -106,6 +107,23 @@ describe('/blogs positive', () => {
             pageSize: 10,
             page: 1
         } as BlogsApiResponseModel);
+    })
+
+    it('should GET posts for a certain blog successfully', async () => {
+        const blog = await blogsRepository.createBlog(blogInput);
+        const post = await postsRepository.createPost({ ...postInput, blogId: blog._id.toString() })
+
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog._id}/posts`)
+            .expect(HTTP_STATUSES.OK_200)
+
+        expect(getResponse.body).toEqual({
+            "items": [postsRepository.fromDbModelToResponseModel(post)],
+            "page": 1,
+            "pageSize": 10,
+            "pagesCount": 1,
+            "totalCount": 1
+        })
     })
 
     it('should GET blogs by searchNameTerm successfully', async () => {

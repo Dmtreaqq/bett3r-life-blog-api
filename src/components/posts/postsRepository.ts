@@ -66,7 +66,7 @@ export const postsRepository = {
             filter.blogId = blogId
         }
 
-        return blogsCollection.countDocuments(filter)
+        return postsCollection.countDocuments(filter)
     },
     fromDbModelToResponseModel(postDbModel: PostDbModel): PostApiResponseModel {
         return {

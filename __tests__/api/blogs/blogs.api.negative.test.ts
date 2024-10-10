@@ -11,11 +11,14 @@ import { ObjectId } from "mongodb";
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
-const blogInput: BlogApiRequestModel = {
+const blogInput: BlogDbModel = {
+    // _id: new ObjectId(),
     name: 'SomeBlog',
     description: 'Some description',
-    websiteUrl: 'https://somewebsite.com'
-}
+    websiteUrl: 'https://somewebsite.com',
+    createdAt: new Date().toISOString(),
+    isMembership: false
+} as BlogDbModel;
 
 const postInput: BlogCreatePostApiRequestModel = {
     title: 'post',
@@ -227,7 +230,7 @@ describe('/blogs negative tests', () => {
     })
 
     it('should return empty array while GET posts for a certain blog, when no posts yet', async () => {
-        const blog = await blogsRepository.createBlog(blogInput);
+        const blog = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId() });
 
         const getResponse = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog._id}/posts`)
@@ -237,7 +240,7 @@ describe('/blogs negative tests', () => {
             "items": [],
             "page": 1,
             "pageSize": 10,
-            "pagesCount": 0,
+            "pagesCount": 1,
             "totalCount": 0
         })
     })

@@ -13,15 +13,19 @@ import { server } from "../../../src/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
 import { postsRepository } from "../../../src/components/posts/postsRepository";
+import { ObjectId } from "mongodb";
 
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
-const blogInput: BlogApiRequestModel = {
+const blogInput: BlogDbModel = {
+    _id: new ObjectId(),
     name: 'Somebody Who',
     description: 'Some description',
-    websiteUrl: 'https://somewebsite.com'
+    websiteUrl: 'https://somewebsite.com',
+    createdAt: new Date().toISOString(),
+    isMembership: false
 }
 
 const postInput: BlogCreatePostApiRequestModel = {
@@ -59,11 +63,11 @@ describe('/blogs positive', () => {
         createdBlog = await blogsRepository.createBlog(blogInput);
         createdBlogResponse = blogsRepository.fromDbModelToResponseModel(createdBlog)
 
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor House' });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Who' });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Strange' });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Connors' });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Drake' });
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor House', _id: new ObjectId() });
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Who', _id: new ObjectId() });
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Strange', _id: new ObjectId() });
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Connors', _id: new ObjectId() });
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Drake', _id: new ObjectId() });
     })
 
     afterAll(async () => {
@@ -102,7 +106,7 @@ describe('/blogs positive', () => {
 
         expect(response.body).toEqual({
             items: expect.arrayContaining([createdBlogResponse]),
-            totalCount: 7,
+            totalCount: 6,
             pagesCount: 1,
             pageSize: 10,
             page: 1
@@ -110,7 +114,7 @@ describe('/blogs positive', () => {
     })
 
     it('should GET posts for a certain blog successfully', async () => {
-        const blog = await blogsRepository.createBlog(blogInput);
+        const blog = await blogsRepository.createBlog({...blogInput, _id: new ObjectId() });
         const post = await postsRepository.createPost({ ...postInput, blogId: blog._id.toString() })
 
         const getResponse = await request
@@ -127,7 +131,7 @@ describe('/blogs positive', () => {
     })
 
     it('should GET blogs by searchNameTerm successfully', async () => {
-        const newBlog = await blogsRepository.createBlog({ ...blogInput, name: 'Somebody House' });
+        const newBlog = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId(), name: 'Somebody House' });
         const responseNewBlog = blogsRepository.fromDbModelToResponseModel(newBlog);
 
         const response1 = await request

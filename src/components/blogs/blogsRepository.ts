@@ -1,11 +1,10 @@
-import { randomUUID } from 'crypto';
 import { blogsCollection } from "../../db/db";
-import { BlogApiRequestModel, BlogApiResponseModel } from "./models/BlogApiModel";
+import { BlogApiResponseModel } from "./models/BlogApiModel";
 import { BlogDbModel } from "./models/BlogDbModel";
 import { Filter, ObjectId } from "mongodb";
 
 export const blogsRepository = {
-    async getBlogs(name: string, pageSize: number = 10, pageNumber: number = 1, sortBy: string = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<BlogDbModel[]> {
+    async getBlogs(name: string, pageSize: number, pageNumber: number, sortBy: string, sortDirection: 'asc' | 'desc'): Promise<BlogDbModel[]> {
         const filter: Filter<BlogDbModel> = {}
 
         if (name !== undefined) {
@@ -22,19 +21,10 @@ export const blogsRepository = {
     async getBlogById(id: string): Promise<BlogDbModel | null> {
         return blogsCollection.findOne({ _id: new ObjectId(id) });
     },
-    async createBlog(blogInput: BlogApiRequestModel): Promise<BlogDbModel> {
-        const blog = {
-            _id: new ObjectId(),
-            name: blogInput.name,
-            description: blogInput.description,
-            websiteUrl: blogInput.websiteUrl,
-            createdAt: new Date().toISOString(),
-            isMembership: false
-        }
+    async createBlog(blogInput: BlogDbModel): Promise<any> {
+        await blogsCollection.insertOne(blogInput);
 
-        await blogsCollection.insertOne(blog)
-
-        return blog;
+        return blogInput;
     },
     async updateBlogById(newBlogDbModel: BlogDbModel): Promise<void> {
         await blogsCollection.updateOne({
@@ -75,4 +65,14 @@ export const blogsRepository = {
             createdAt: blogDbModel.createdAt
         }
     },
+    fromResponseModelToDbModel(blogResponseModel: BlogApiResponseModel): BlogDbModel {
+        return {
+            _id: new ObjectId(blogResponseModel.id),
+            name: blogResponseModel.name,
+            description: blogResponseModel.description,
+            websiteUrl: blogResponseModel.websiteUrl,
+            isMembership: blogResponseModel.isMembership,
+            createdAt: blogResponseModel.createdAt
+        }
+    }
 }

@@ -9,15 +9,19 @@ import { client, runDB, server } from "../../../src/db/db";
 import { request } from '../test-helper';
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
+import { ObjectId } from "mongodb";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
-const blogInput: BlogApiRequestModel = {
+const blogInput: BlogDbModel = {
+    // _id: new ObjectId(),
     name: 'Doctor Who Blog',
     description: 'Blog about Doctor Who',
     websiteUrl: 'https://doctor.who.com',
-}
+    createdAt: new Date().toISOString(),
+    isMembership: false
+} as BlogDbModel;
 
 const postInput: PostApiRequestModel = {
     title: 'z 9',

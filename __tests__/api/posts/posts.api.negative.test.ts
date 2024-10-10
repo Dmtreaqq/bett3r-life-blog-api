@@ -23,11 +23,14 @@ const postInput: PostApiRequestModel = {
     blogId: objectId.toString()
 }
 
-const blogInput: BlogApiRequestModel = {
+const blogInput: BlogDbModel = {
+    // _id: new ObjectId(),
     name: 'Doctor Who Blog',
     description: 'Blog about Doctor Who',
     websiteUrl: 'https://doctor.who.com',
-}
+    createdAt: new Date().toISOString(),
+    isMembership: false
+} as BlogDbModel;
 
 describe('/posts negative tests', () => {
     let createdBlog: BlogDbModel;

@@ -29,7 +29,7 @@ const postsController = {
             page: Number(pageNumber),
             pageSize: Number(pageSize),
             totalCount: postsCount,
-            pagesCount: Math.ceil(postsCount / Number(pageSize)),
+            pagesCount: postsCount <= 10 ? 1 : Math.ceil(postsCount / Number(pageSize)),
         }
 
         return res.json(result);

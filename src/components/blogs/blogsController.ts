@@ -82,7 +82,7 @@ const blogsController = {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
 
-        const post = await blogsService.createPostForBlog(blog.id, { ...req.body, blogId: req.params.id })
+        const post = await blogsService.createPostForBlog({ ...req.body, blogId: req.params.id })
 
         return res.status(HTTP_STATUSES.CREATED_201).json(post)
     },

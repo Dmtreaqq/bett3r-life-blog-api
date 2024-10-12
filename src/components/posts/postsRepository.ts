@@ -1,4 +1,4 @@
-import { blogsCollection, postsCollection } from "../../db/db";
+import { postsCollection } from "../../db/db";
 import { blogsRepository } from "../blogs/blogsRepository";
 import { PostDbModel } from "./models/PostDbModel";
 import { Filter, ObjectId } from "mongodb";
@@ -22,22 +22,10 @@ export const postsRepository = {
     async getPostById(id: string): Promise<PostDbModel | null> {
         return postsCollection.findOne({ _id: new ObjectId(id) });
     },
-    async createPost(postInput: PostApiRequestModel): Promise<PostDbModel> {
-        const blog = await blogsRepository.getBlogById(postInput.blogId)
+    async createPost(postInput: PostDbModel): Promise<PostDbModel> {
+        await postsCollection.insertOne(postInput)
 
-        const post = {
-            _id: new ObjectId(),
-            title: postInput.title,
-            shortDescription: postInput.shortDescription,
-            content: postInput.content,
-            blogId: postInput.blogId,
-            blogName: blog!.name,
-            createdAt: new Date().toISOString()
-        }
-
-        await postsCollection.insertOne(post)
-
-        return post;
+        return postInput;
     },
     async updatePostById(newPostDbModel: PostDbModel): Promise<void> {
         await postsCollection.updateOne({
@@ -77,6 +65,18 @@ export const postsRepository = {
             blogId: postDbModel.blogId,
             blogName: postDbModel.blogName,
             createdAt: postDbModel.createdAt
+        }
+    },
+
+    fromResponseModelToDbModel(postResponseModel: PostApiResponseModel): PostDbModel {
+        return {
+            _id: new ObjectId(postResponseModel.id),
+            title: postResponseModel.title,
+            shortDescription: postResponseModel.shortDescription,
+            content: postResponseModel.content,
+            blogId: postResponseModel.blogId,
+            blogName: postResponseModel.blogName,
+            createdAt: postResponseModel.createdAt
         }
     }
 }

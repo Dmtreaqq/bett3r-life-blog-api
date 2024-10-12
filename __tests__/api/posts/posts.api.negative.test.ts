@@ -1,7 +1,5 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
-import { PostApiRequestModel } from "../../../src/components/posts/models/PostApiModel";
-import { BlogApiRequestModel } from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { postsRepository } from "../../../src/components/posts/postsRepository";
@@ -16,12 +14,6 @@ const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
 const objectId = new ObjectId();
-const postInput: PostApiRequestModel = {
-    title: 'Doctor Who',
-    content: 'Abcdefg',
-    shortDescription: 'dsadadas',
-    blogId: objectId.toString()
-}
 
 const blogInput: BlogDbModel = {
     // _id: new ObjectId(),
@@ -31,6 +23,15 @@ const blogInput: BlogDbModel = {
     createdAt: new Date().toISOString(),
     isMembership: false
 } as BlogDbModel;
+
+const postInput: PostDbModel = {
+    blogName: blogInput.name,
+    createdAt: new Date().toISOString(),
+    title: 'Doctor Who',
+    content: 'Abcdefg',
+    shortDescription: 'dsadadas',
+    blogId: objectId.toString()
+} as PostDbModel;
 
 describe('/posts negative tests', () => {
     let createdBlog: BlogDbModel;

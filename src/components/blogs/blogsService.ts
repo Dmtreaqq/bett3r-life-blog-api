@@ -4,6 +4,7 @@ import { blogsRepository } from "./blogsRepository";
 import { BlogDbModel } from "./models/BlogDbModel";
 import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
 import { postsRepository } from "../posts/postsRepository";
+import { postsService } from "../posts/postsService";
 
 
 export const blogsService = {
@@ -79,12 +80,10 @@ export const blogsService = {
         return result;
     },
 
-    async createPostForBlog(blogId: string, post: PostApiRequestModel): Promise<PostApiResponseModel> {
-        const postFromBody = await postsRepository.createPost(post);
+    async createPostForBlog(post: PostApiRequestModel): Promise<PostApiResponseModel> {
+        const postFromBody = await postsService.createPost(post);
 
-        const result = postsRepository.fromDbModelToResponseModel(postFromBody);
-
-        return result;
+        return postFromBody;
     },
 
     async deleteBlogById(id: string): Promise<void> {

@@ -1,9 +1,8 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import {
-    BlogApiRequestModel,
     BlogApiResponseModel,
-    BlogCreatePostApiRequestModel, BlogsApiResponseModel
+    BlogsApiResponseModel
 } from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
@@ -14,6 +13,7 @@ import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
 import { postsRepository } from "../../../src/components/posts/postsRepository";
 import { ObjectId } from "mongodb";
+import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 
 
 const baseUrl = '/api';
@@ -28,11 +28,14 @@ const blogInput: BlogDbModel = {
     isMembership: false
 }
 
-const postInput: BlogCreatePostApiRequestModel = {
+const postInput: PostDbModel = {
+    createdAt: new Date().toISOString(),
+    blogId: blogInput._id.toString(),
+    blogName: blogInput.name,
     title: 'post',
     content: 'Abcdefg',
     shortDescription: 'dsadadas'
-}
+} as PostDbModel;
 
 const blogEntity: BlogApiResponseModel = {
     id: '1',

@@ -1,6 +1,6 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
-import { BlogApiRequestModel, BlogCreatePostApiRequestModel } from "../../../src/components/blogs/models/BlogApiModel";
+import { BlogCreatePostApiRequestModel } from "../../../src/components/blogs/models/BlogApiModel";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { client, runDB, server } from "../../../src/db/db";

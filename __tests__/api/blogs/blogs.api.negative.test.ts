@@ -12,13 +12,12 @@ const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
 const blogInput: BlogDbModel = {
-    // _id: new ObjectId(),
     name: 'SomeBlog',
     description: 'Some description',
     websiteUrl: 'https://somewebsite.com',
     createdAt: new Date().toISOString(),
     isMembership: false
-} as BlogDbModel;
+}
 
 const postInput: BlogCreatePostApiRequestModel = {
     title: 'post',
@@ -27,19 +26,33 @@ const postInput: BlogCreatePostApiRequestModel = {
 }
 
 describe('/blogs negative tests', () => {
-    let createdBlog: BlogDbModel;
+    let createdBlogId: string;
     const randomId = new ObjectId()
 
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        createdBlog = await blogsRepository.createBlog(blogInput);
+        createdBlogId = await blogsRepository.createBlog(blogInput);
     })
 
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
+    })
+
+    it('should return empty array while GET posts for a certain blog, when no posts yet', async () => {
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}/posts`)
+            .expect(HTTP_STATUSES.OK_200)
+
+        expect(getResponse.body).toEqual({
+            "items": [],
+            "page": 1,
+            "pageSize": 10,
+            "pagesCount": 1,
+            "totalCount": 0
+        })
     })
 
     it('should return 400 for GET by id not correct ObjectId', async () => {
@@ -174,7 +187,7 @@ describe('/blogs negative tests', () => {
 
     it('should return 400 for incorrect NAME while PUT blog', async () => {
         const editResponse = await request
-            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .send({ ...blogInput, name: '' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
@@ -189,7 +202,7 @@ describe('/blogs negative tests', () => {
 
     it('should return 400 for incorrect NAME while PUT blog', async () => {
         const editResponse = await request
-            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .send({ ...blogInput, name: 'name567890123456' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
@@ -211,38 +224,22 @@ describe('/blogs negative tests', () => {
 
     it('should return 401 when no Auth Header for PUT blog request', async () => {
         await request
-            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .send(blogInput)
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 
     it('should return 401 when no Auth Header for DELETE blog request', async () => {
         await request
-            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 
     it('should return 401 when Auth Header is incorrect for DELETE blog request', async () => {
         await request
-            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .set('authorization', 'test')
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
-    })
-
-    it('should return empty array while GET posts for a certain blog, when no posts yet', async () => {
-        const blog = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId() });
-
-        const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog._id}/posts`)
-            .expect(HTTP_STATUSES.OK_200)
-
-        expect(getResponse.body).toEqual({
-            "items": [],
-            "page": 1,
-            "pageSize": 10,
-            "pagesCount": 1,
-            "totalCount": 0
-        })
     })
 
     it('should return 400 while GET posts for a not existing blog', async () => {
@@ -268,7 +265,7 @@ describe('/blogs negative tests', () => {
 
     it('should return 400 for PUT blog invalid url', async () => {
         const response = await request
-            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .set('authorization', authHeader)
             .send({ ...blogInput, websiteUrl: 'http://localhost:8000/' })
             .expect(HTTP_STATUSES.BAD_REQUEST_400)

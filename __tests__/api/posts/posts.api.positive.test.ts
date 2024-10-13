@@ -13,13 +13,12 @@ const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
 const blogInput: BlogDbModel = {
-    // _id: new ObjectId(),
     name: 'Doctor Who Blog',
     description: 'Blog about Doctor Who',
     websiteUrl: 'https://doctor.who.com',
     createdAt: new Date().toISOString(),
     isMembership: false
-} as BlogDbModel;
+};
 
 const postInput: PostDbModel = {
     blogName: blogInput.name,
@@ -42,22 +41,24 @@ const postEntity: PostApiResponseModel = {
 
 describe('/posts positive', () => {
     let createdPost: PostDbModel;
-    let createdBlog: BlogDbModel;
+    let createdBlog: BlogDbModel | null;
+    let createdBlogId: string;
     let createdPostResponse: PostApiResponseModel;
 
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        createdBlog = await blogsRepository.createBlog(blogInput);
-        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString() })
+        createdBlogId = await blogsRepository.createBlog(blogInput);
+        createdBlog = await blogsRepository.getBlogById(createdBlogId)
+        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
         createdPostResponse = postsRepository.fromDbModelToResponseModel(createdPost)
 
-        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'a 1' })
-        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'b 2' })
-        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'c 3' })
-        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'd 4' })
-        await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString(), title: 'e 5' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'a 1' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'b 2' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'c 3' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'd 4' })
+        await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'e 5' })
     })
 
     afterAll(async () => {
@@ -69,14 +70,14 @@ describe('/posts positive', () => {
     it('should POST a post successfully', async () => {
         const response = await request
             .post(baseUrl + CONFIG.PATH.POSTS)
-            .send({ ...postInput, blogId: createdBlog._id.toString() })
+            .send({ ...postInput, blogId: createdBlogId })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.CREATED_201);
 
         expect(response.body).toEqual({
             ...postEntity,
-            blogName: createdBlog.name,
-            blogId: createdBlog._id.toString(),
+            blogName: createdBlog!.name,
+            blogId: createdBlogId,
             id: expect.any(String),
             createdAt: expect.any(String),
         })
@@ -106,7 +107,7 @@ describe('/posts positive', () => {
 
     it('should PUT post successfully', async () => {
         const editedPostInput: PostApiRequestModel = {
-            blogId: createdBlog._id.toString(),
+            blogId: createdBlogId,
             title: 'Doctor House',
             content: 'Video',
             shortDescription: 'TV series about a doctor House'

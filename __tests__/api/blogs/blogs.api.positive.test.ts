@@ -6,7 +6,7 @@ import {
 } from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { client, runDB } from "../../../src/db/db";
+import { blogsCollection, client, runDB } from "../../../src/db/db";
 import { request } from '../test-helper'
 import { server } from "../../../src/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
@@ -20,17 +20,16 @@ const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
 const blogInput: BlogDbModel = {
-    _id: new ObjectId(),
     name: 'Somebody Who',
-    description: 'Some description',
+    description: 'Some description' + Math.floor(Math.random() * 5 + 1),
     websiteUrl: 'https://somewebsite.com',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString() + 1,
     isMembership: false
 }
 
 const postInput: PostDbModel = {
     createdAt: new Date().toISOString(),
-    blogId: blogInput._id.toString(),
+    blogId: '123',
     blogName: blogInput.name,
     title: 'post',
     content: 'Abcdefg',
@@ -57,20 +56,20 @@ const postEntity: PostApiResponseModel = {
 }
 
 describe('/blogs positive', () => {
-    let createdBlog: BlogDbModel;
-    let createdBlogResponse: BlogApiResponseModel;
+    let createdBlogId: string;
+    let createdBlogResponse: BlogApiResponseModel | null;
 
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        createdBlog = await blogsRepository.createBlog(blogInput);
-        createdBlogResponse = blogsRepository.fromDbModelToResponseModel(createdBlog)
+        createdBlogId = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId() } as any);
+        createdBlogResponse = await blogsRepository.getBlogById(createdBlogId);
 
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor House', _id: new ObjectId() });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Who', _id: new ObjectId() });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Strange', _id: new ObjectId() });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Connors', _id: new ObjectId() });
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Drake', _id: new ObjectId() });
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor House', _id: new ObjectId() } as any);
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Who', _id: new ObjectId() } as any );
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Strange', _id: new ObjectId() } as any);
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Connors', _id: new ObjectId() } as any);
+        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Drake', _id: new ObjectId() } as any);
     })
 
     afterAll(async () => {
@@ -96,7 +95,7 @@ describe('/blogs positive', () => {
 
     it('should GET created blog successfully', async () => {
         const response = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual(createdBlogResponse);
@@ -109,7 +108,7 @@ describe('/blogs positive', () => {
 
         expect(response.body).toEqual({
             items: expect.arrayContaining([createdBlogResponse]),
-            totalCount: 6,
+            totalCount: 7,
             pagesCount: 1,
             pageSize: 10,
             page: 1
@@ -117,11 +116,11 @@ describe('/blogs positive', () => {
     })
 
     it('should GET posts for a certain blog successfully', async () => {
-        const blog = await blogsRepository.createBlog({...blogInput, _id: new ObjectId() });
-        const post = await postsRepository.createPost({ ...postInput, blogId: blog._id.toString() })
+        const blogId = await blogsRepository.createBlog({...blogInput, _id: new ObjectId() } as any);
+        const post = await postsRepository.createPost({ ...postInput, blogId: blogId })
 
         const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog._id}/posts`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blogId}/posts`)
             .expect(HTTP_STATUSES.OK_200)
 
         expect(getResponse.body).toEqual({
@@ -134,8 +133,8 @@ describe('/blogs positive', () => {
     })
 
     it('should GET blogs by searchNameTerm successfully', async () => {
-        const newBlog = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId(), name: 'Somebody House' });
-        const responseNewBlog = blogsRepository.fromDbModelToResponseModel(newBlog);
+        const newBlogId = await blogsRepository.createBlog({ ...blogInput, name: 'Somebody House', _id: new ObjectId() } as any );
+        const responseNewBlog = await blogsRepository.getBlogById(newBlogId);
 
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?searchNameTerm=BODY`)
@@ -152,13 +151,13 @@ describe('/blogs positive', () => {
 
     it('should PUT blog successfully', async () => {
         await request
-            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .send(blogInput)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse.body).toEqual(createdBlogResponse);
@@ -198,7 +197,7 @@ describe('/blogs positive', () => {
 
     it('should POST post for a certain blog', async () => {
         const response = await request
-            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
+            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}/posts`)
             .send(postInput)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.CREATED_201);
@@ -207,7 +206,7 @@ describe('/blogs positive', () => {
             ...postEntity,
             id: expect.any(String),
             createdAt: expect.any(String),
-            blogId: createdBlog._id.toString()
+            blogId: createdBlogId.toString()
         })
 
         const getResponse = await request
@@ -218,37 +217,37 @@ describe('/blogs positive', () => {
             ...postEntity,
             id: expect.any(String),
             createdAt: expect.any(String),
-            blogId: createdBlog._id.toString()
+            blogId: createdBlogId.toString()
         })
     })
 
     it('should GET posts for a certain blog', async () => {
         await request
-            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
+            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}/posts`)
             .send(postInput)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.CREATED_201);
 
         const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}/posts`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}/posts`)
             .expect(HTTP_STATUSES.OK_200)
 
         expect(getResponse.body.items[0]).toEqual({
             ...postEntity,
             id: expect.any(String),
             createdAt: expect.any(String),
-            blogId: createdBlog._id.toString()
+            blogId: createdBlogId.toString()
         })
     })
 
     it('should DELETE blog successfully', async () => {
         await request
-            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .delete(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlog._id}`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
             .expect(HTTP_STATUSES.NOT_FOUND_404);
     })
 })

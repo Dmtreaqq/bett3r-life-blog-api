@@ -18,10 +18,8 @@ export const blogsService = {
             sortDirection
         )
 
-        const apiModelBlogs = blogs.map(blogsRepository.fromDbModelToResponseModel)
-
         const result: BlogsApiResponseModel = {
-            items: apiModelBlogs,
+            items: blogs,
             page: pageNumber,
             pageSize,
             totalCount: blogsCount,
@@ -32,8 +30,7 @@ export const blogsService = {
     },
 
     async createBlog(blogInput: BlogApiRequestModel): Promise<BlogApiResponseModel> {
-        const blog = {
-            _id: new ObjectId(),
+        const blog: BlogDbModel = {
             name: blogInput.name,
             description: blogInput.description,
             websiteUrl: blogInput.websiteUrl,
@@ -41,9 +38,16 @@ export const blogsService = {
             isMembership: false
         }
 
-        const blogApiModel = blogsRepository.fromDbModelToResponseModel(blog);
+        const blogId = await blogsRepository.createBlog(blog)
 
-        return blogApiModel
+        return {
+            id: blogId,
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl,
+            createdAt: blog.createdAt,
+            isMembership: blog.isMembership
+        }
     },
 
     async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
@@ -52,15 +56,11 @@ export const blogsService = {
             return null;
         }
 
-        const blogApiModel = blogsRepository.fromDbModelToResponseModel(blog)
-
-        return blogApiModel;
+        return blog;
     },
 
     async updateBlog(blog: BlogApiResponseModel): Promise<void> {
-        const blogToUpdate = blogsRepository.fromResponseModelToDbModel(blog);
-
-        await blogsRepository.updateBlogById(blogToUpdate);
+        await blogsRepository.updateBlogById(blog);
     },
 
     async getPostsByBlogId(id: string, pageNumber = 1, pageSize = 10, sortBy: string, sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostsApiResponseModel> {

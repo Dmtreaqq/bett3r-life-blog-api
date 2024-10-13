@@ -34,15 +34,15 @@ const postInput: PostDbModel = {
 } as PostDbModel;
 
 describe('/posts negative tests', () => {
-    let createdBlog: BlogDbModel;
+    let createdBlogId: string;
     let createdPost: PostDbModel;
 
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        createdBlog = await blogsRepository.createBlog(blogInput);
-        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlog._id.toString() })
+        createdBlogId = await blogsRepository.createBlog(blogInput);
+        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
     })
 
     afterAll(async () => {
@@ -67,7 +67,7 @@ describe('/posts negative tests', () => {
     it('should return 404 for PUT not existing post', async () => {
         await request
             .put(`${baseUrl}${CONFIG.PATH.POSTS}/${objectId}`)
-            .send({ ...postInput, blogId: createdBlog._id.toString() })
+            .send({ ...postInput, blogId: createdBlogId })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NOT_FOUND_404)
     })
@@ -75,7 +75,7 @@ describe('/posts negative tests', () => {
     it('should return 400 for incorrect TITLE while POST post', async () => {
         const response = await request
             .post(baseUrl + CONFIG.PATH.POSTS)
-            .send({ ...postInput, blogId: createdBlog._id.toString(), title: '' })
+            .send({ ...postInput, blogId: createdBlogId, title: '' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
@@ -90,7 +90,7 @@ describe('/posts negative tests', () => {
     it('should return 400 for incorrect TITLE length while POST post', async () => {
         const response = await request
             .post(baseUrl + CONFIG.PATH.POSTS)
-            .send({ ...postInput, blogId: createdBlog._id.toString(), title: '31sym_789012345678901234567jjkkjjjkjk8901' })
+            .send({ ...postInput, blogId: createdBlogId, title: '31sym_789012345678901234567jjkkjjjkjk8901' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
@@ -150,7 +150,7 @@ describe('/posts negative tests', () => {
     it('should return 400 for incorrect TITLE while PUT post', async () => {
         const editResponse = await request
             .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
-            .send({ ...postInput, blogId: createdBlog._id.toString(), title: '' })
+            .send({ ...postInput, blogId: createdBlogId, title: '' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
@@ -165,7 +165,7 @@ describe('/posts negative tests', () => {
     it('should return 400 for incorrect TITLE length while PUT post', async () => {
         const editResponse = await request
             .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
-            .send({ ...postInput, blogId: createdBlog._id.toString(), title: '31sym_789012345678901234567jjkkjjjkjk8901' })
+            .send({ ...postInput, blogId: createdBlogId, title: '31sym_789012345678901234567jjkkjjjkjk8901' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
@@ -180,7 +180,7 @@ describe('/posts negative tests', () => {
     it('should return 400 for incorrect POST_ID length while PUT post', async () => {
         const editResponse = await request
             .put(`${baseUrl}${CONFIG.PATH.POSTS}/12345`)
-            .send({ ...postInput, blogId: createdBlog._id.toString(), title: 'new title' })
+            .send({ ...postInput, blogId: createdBlogId, title: 'new title' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 

@@ -4,39 +4,59 @@ import { BlogDbModel } from "./models/BlogDbModel";
 import { Filter, ObjectId } from "mongodb";
 
 export const blogsRepository = {
-    async getBlogs(name: string, pageSize: number, pageNumber: number, sortBy: string, sortDirection: 'asc' | 'desc'): Promise<BlogDbModel[]> {
+    async getBlogs(name: string, pageSize: number, pageNumber: number, sortBy: string, sortDirection: 'asc' | 'desc'): Promise<BlogApiResponseModel[]> {
         const filter: Filter<BlogDbModel> = {}
 
         if (name !== undefined) {
             filter.name = { $regex: name, $options: 'i' }
         }
 
-        return blogsCollection
+        const blogs = await blogsCollection
             .find(filter)
             .sort(sortBy, sortDirection)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray()
-    },
-    async getBlogById(id: string): Promise<BlogDbModel | null> {
-        return blogsCollection.findOne({ _id: new ObjectId(id) });
-    },
-    async createBlog(blogInput: BlogDbModel): Promise<any> {
-        await blogsCollection.insertOne(blogInput);
 
-        return blogInput;
+        return blogs.map(blog => ({
+            id: blog._id.toString(),
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl,
+            isMembership: blog.isMembership,
+            createdAt: blog.createdAt
+        }))
+            
     },
-    async updateBlogById(newBlogDbModel: BlogDbModel): Promise<void> {
+    async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
+        const blog = await blogsCollection.findOne({ _id: new ObjectId(id) });
+        if (!blog) return null;
+
+        return {
+            id: blog._id.toString(),
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl,
+            isMembership: blog.isMembership,
+            createdAt: blog.createdAt
+        }
+    },
+    async createBlog(blogInput: BlogDbModel): Promise<string> {
+        const result = await blogsCollection.insertOne(blogInput);
+
+        return result.insertedId.toString();
+    },
+    async updateBlogById(blogResponseModel: BlogApiResponseModel): Promise<void> {
         await blogsCollection.updateOne({
-            _id: newBlogDbModel._id
+            _id: new ObjectId(blogResponseModel.id)
         },
         {
             $set: {
-                name: newBlogDbModel.name,
-                description: newBlogDbModel.description,
-                websiteUrl: newBlogDbModel.websiteUrl,
-                isMembership: newBlogDbModel.isMembership,
-                createdAt: newBlogDbModel.createdAt
+                name: blogResponseModel.name,
+                description: blogResponseModel.description,
+                websiteUrl: blogResponseModel.websiteUrl,
+                isMembership: blogResponseModel.isMembership,
+                createdAt: blogResponseModel.createdAt
             }
         })
     },
@@ -54,25 +74,5 @@ export const blogsRepository = {
         }
 
         return blogsCollection.countDocuments(filter)
-    },
-    fromDbModelToResponseModel(blogDbModel: BlogDbModel): BlogApiResponseModel {
-        return {
-            id: blogDbModel._id.toString(),
-            name: blogDbModel.name,
-            description: blogDbModel.description,
-            websiteUrl: blogDbModel.websiteUrl,
-            isMembership: blogDbModel.isMembership,
-            createdAt: blogDbModel.createdAt
-        }
-    },
-    fromResponseModelToDbModel(blogResponseModel: BlogApiResponseModel): BlogDbModel {
-        return {
-            _id: new ObjectId(blogResponseModel.id),
-            name: blogResponseModel.name,
-            description: blogResponseModel.description,
-            websiteUrl: blogResponseModel.websiteUrl,
-            isMembership: blogResponseModel.isMembership,
-            createdAt: blogResponseModel.createdAt
-        }
     }
 }

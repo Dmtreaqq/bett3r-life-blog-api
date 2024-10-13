@@ -12,7 +12,7 @@ export const postsRouter = Router();
 
 const postsController = {
     async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostsApiResponseModel>){
-        const { pageNumber = 1, pageSize = 10, sortBy, sortDirection } = req.query
+        const { pageNumber, pageSize, sortBy, sortDirection } = req.query
 
         const result = await postsService.getPosts(
             '',

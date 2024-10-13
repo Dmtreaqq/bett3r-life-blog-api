@@ -67,10 +67,8 @@ export const blogsService = {
         const posts = await postsRepository.getPosts(id, Number(pageNumber), Number(pageSize), sortBy, sortDirection)
         const postsCount = await postsRepository.getPostsCount(id);
 
-        const apiModelPosts = posts.map(postsRepository.fromDbModelToResponseModel);
-
         const result: PostsApiResponseModel = {
-            items: apiModelPosts,
+            items: posts,
             page: Number(pageNumber) || 1,
             pageSize: Number(pageSize) || 10,
             totalCount: postsCount,
@@ -80,8 +78,10 @@ export const blogsService = {
         return result;
     },
 
-    async createPostForBlog(post: PostApiRequestModel): Promise<PostApiResponseModel> {
+    async createPostForBlog(post: PostApiRequestModel): Promise<PostApiResponseModel | null> {
         const postFromBody = await postsService.createPost(post);
+
+        if (!postFromBody) return null
 
         return postFromBody;
     },

@@ -84,6 +84,10 @@ const blogsController = {
 
         const post = await blogsService.createPostForBlog({ ...req.body, blogId: req.params.id })
 
+        if (!post) {
+            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+        }
+
         return res.status(HTTP_STATUSES.CREATED_201).json(post)
     },
     async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostsApiResponseModel>) {

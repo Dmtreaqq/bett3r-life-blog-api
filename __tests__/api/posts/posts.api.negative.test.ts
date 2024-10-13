@@ -35,14 +35,14 @@ const postInput: PostDbModel = {
 
 describe('/posts negative tests', () => {
     let createdBlogId: string;
-    let createdPost: PostDbModel;
+    let createdPostId: string;
 
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
         createdBlogId = await blogsRepository.createBlog(blogInput);
-        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
+        createdPostId = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
     })
 
     afterAll(async () => {
@@ -134,7 +134,7 @@ describe('/posts negative tests', () => {
 
     it('should return 400 for not incorrect BlogId while PUT post', async () => {
         const response = await request
-            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .send({...postInput, blogId: '123'})
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
@@ -149,7 +149,7 @@ describe('/posts negative tests', () => {
 
     it('should return 400 for incorrect TITLE while PUT post', async () => {
         const editResponse = await request
-            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .send({ ...postInput, blogId: createdBlogId, title: '' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
@@ -164,7 +164,7 @@ describe('/posts negative tests', () => {
 
     it('should return 400 for incorrect TITLE length while PUT post', async () => {
         const editResponse = await request
-            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .send({ ...postInput, blogId: createdBlogId, title: '31sym_789012345678901234567jjkkjjjkjk8901' })
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
@@ -228,20 +228,20 @@ describe('/posts negative tests', () => {
 
     it('should return 401 when no Auth Header for PUT post request', async () => {
         await request
-            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .send(blogInput)
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 
     it('should return 401 when no Auth Header for DELETE post request', async () => {
         await request
-            .delete(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .delete(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 
     it('should return 401 when Auth Header is incorrect for DELETE post request', async () => {
         await request
-            .delete(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .delete(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .set('authorization', 'Basic Test')
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })

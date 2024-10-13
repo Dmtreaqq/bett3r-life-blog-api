@@ -1,7 +1,4 @@
-import { ObjectId } from "mongodb";
-
 export type PostDbModel = {
-    _id: ObjectId
     title: string;
     shortDescription: string;
     content: string;
@@ -9,5 +6,3 @@ export type PostDbModel = {
     blogName: string;
     createdAt: string;
 }
-
-// TODO with blogs same

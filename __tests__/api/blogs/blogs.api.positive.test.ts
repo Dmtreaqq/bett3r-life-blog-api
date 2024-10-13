@@ -117,14 +117,15 @@ describe('/blogs positive', () => {
 
     it('should GET posts for a certain blog successfully', async () => {
         const blogId = await blogsRepository.createBlog({...blogInput, _id: new ObjectId() } as any);
-        const post = await postsRepository.createPost({ ...postInput, blogId: blogId })
+        const postId = await postsRepository.createPost({ ...postInput, blogId: blogId })
+        const post = await postsRepository.getPostById(postId);
 
         const getResponse = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blogId}/posts`)
             .expect(HTTP_STATUSES.OK_200)
 
         expect(getResponse.body).toEqual({
-            "items": [postsRepository.fromDbModelToResponseModel(post)],
+            "items": [post],
             "page": 1,
             "pageSize": 10,
             "pagesCount": 1,

@@ -1,14 +1,8 @@
-import { BlogApiResponseModel } from "../../blogs/models/BlogApiModel";
+import { PostDbModel } from "./PostDbModel";
 
 export type PostApiResponseModel = {
     id: string;
-    title: string;
-    shortDescription: string;
-    content: string;
-    blogId: string;
-    blogName: string;
-    createdAt: string;
-}
+} & PostDbModel;
 
 export type PostsApiResponseModel = {
     pagesCount: number;

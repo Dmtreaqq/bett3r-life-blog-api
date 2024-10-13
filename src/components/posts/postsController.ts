@@ -37,6 +37,10 @@ const postsController = {
     async createPost(req: RequestWbody<PostApiRequestModel>, res: Response<PostApiResponseModel>){
         const post = await postsService.createPost(req.body);
 
+        if (!post) {
+            return res.status(HTTP_STATUSES.BAD_REQUEST_400)
+        }
+
         return res.status(HTTP_STATUSES.CREATED_201).json(post);
     },
     async editPost (req: RequestWparamsAndBody<{ id: string }, PostApiRequestModel>, res: Response){

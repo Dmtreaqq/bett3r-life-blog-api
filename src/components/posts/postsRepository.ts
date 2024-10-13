@@ -5,39 +5,61 @@ import { Filter, ObjectId } from "mongodb";
 import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 
 export const postsRepository = {
-    async getPosts(blogId?: string, pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostDbModel[]> {
+    async getPosts(blogId?: string, pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostApiResponseModel[]> {
         const filter: Filter<any> = {}
 
         if (blogId) {
             filter.blogId = blogId
         }
 
-        return postsCollection
+        const posts = await postsCollection
             .find(filter)
             .sort(sortBy, sortDirection)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray()
-    },
-    async getPostById(id: string): Promise<PostDbModel | null> {
-        return postsCollection.findOne({ _id: new ObjectId(id) });
-    },
-    async createPost(postInput: PostDbModel): Promise<PostDbModel> {
-        await postsCollection.insertOne(postInput)
 
-        return postInput;
+        return posts.map(post => ({
+            id: post._id.toString(),
+            blogName: post.blogName,
+            content: post.content,
+            shortDescription: post.shortDescription,
+            title: post.title,
+            blogId: post.blogId,
+            createdAt: post.createdAt
+        }))
     },
-    async updatePostById(newPostDbModel: PostDbModel): Promise<void> {
+    async getPostById(id: string): Promise<PostApiResponseModel | null> {
+        const post = await postsCollection.findOne({ _id: new ObjectId(id) });
+
+        if (!post) return null;
+
+        return {
+            id: post._id.toString(),
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            title: post.title,
+            createdAt: post.createdAt,
+            shortDescription: post.shortDescription
+        }
+    },
+    async createPost(postInput: PostDbModel): Promise<string> {
+        const result = await postsCollection.insertOne(postInput)
+
+        return result.insertedId.toString();
+    },
+    async updatePostById(postResponseModel: PostApiResponseModel): Promise<void> {
         await postsCollection.updateOne({
-            _id: newPostDbModel._id
+            _id: new ObjectId(postResponseModel.id)
         },{
             $set: {
-                title: newPostDbModel.title,
-                shortDescription: newPostDbModel.shortDescription,
-                content: newPostDbModel.content,
-                blogId: newPostDbModel.blogId,
-                blogName: newPostDbModel.blogName,
-                createdAt: newPostDbModel.createdAt
+                title: postResponseModel.title,
+                shortDescription: postResponseModel.shortDescription,
+                content: postResponseModel.content,
+                blogId: postResponseModel.blogId,
+                blogName: postResponseModel.blogName,
+                createdAt: postResponseModel.createdAt
             }
         })
     },
@@ -55,28 +77,5 @@ export const postsRepository = {
         }
 
         return postsCollection.countDocuments(filter)
-    },
-    fromDbModelToResponseModel(postDbModel: PostDbModel): PostApiResponseModel {
-        return {
-            id: postDbModel._id.toString(),
-            title: postDbModel.title,
-            shortDescription: postDbModel.shortDescription,
-            content: postDbModel.content,
-            blogId: postDbModel.blogId,
-            blogName: postDbModel.blogName,
-            createdAt: postDbModel.createdAt
-        }
-    },
-
-    fromResponseModelToDbModel(postResponseModel: PostApiResponseModel): PostDbModel {
-        return {
-            _id: new ObjectId(postResponseModel.id),
-            title: postResponseModel.title,
-            shortDescription: postResponseModel.shortDescription,
-            content: postResponseModel.content,
-            blogId: postResponseModel.blogId,
-            blogName: postResponseModel.blogName,
-            createdAt: postResponseModel.createdAt
-        }
     }
 }

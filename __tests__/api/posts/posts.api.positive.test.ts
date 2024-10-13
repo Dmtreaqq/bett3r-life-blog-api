@@ -40,10 +40,10 @@ const postEntity: PostApiResponseModel = {
 }
 
 describe('/posts positive', () => {
-    let createdPost: PostDbModel;
+    let createdPostId: string;
     let createdBlog: BlogDbModel | null;
     let createdBlogId: string;
-    let createdPostResponse: PostApiResponseModel;
+    let createdPostResponse: PostApiResponseModel | null;
 
     beforeAll(async () => {
         await runDB()
@@ -51,8 +51,8 @@ describe('/posts positive', () => {
 
         createdBlogId = await blogsRepository.createBlog(blogInput);
         createdBlog = await blogsRepository.getBlogById(createdBlogId)
-        createdPost = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
-        createdPostResponse = postsRepository.fromDbModelToResponseModel(createdPost)
+        createdPostId = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
+        createdPostResponse = await postsRepository.getPostById(createdPostId)
 
         await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'a 1' })
         await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'b 2' })
@@ -85,7 +85,7 @@ describe('/posts positive', () => {
 
     it('should GET created post successfully', async () => {
         const response = await request
-            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual(createdPostResponse)
@@ -114,13 +114,13 @@ describe('/posts positive', () => {
         }
 
         await request
-            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .put(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .send(editedPostInput)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse.body).toEqual({ ...createdPostResponse, ...editedPostInput });
@@ -128,12 +128,12 @@ describe('/posts positive', () => {
 
     it('should DELETE post successfully', async () => {
         await request
-            .delete(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .delete(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         await request
-            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPost._id}`)
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${createdPostId}`)
             .expect(HTTP_STATUSES.NOT_FOUND_404);
     })
 

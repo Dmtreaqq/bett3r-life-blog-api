@@ -3,6 +3,7 @@ import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from
 import { blogsRepository } from "../blogs/blogsRepository";
 import { ObjectId } from "mongodb";
 import { PostDbModel } from "./models/PostDbModel";
+import {blogsQueryRepository} from "../blogs/repositories/blogsQueryRepository";
 
 export const postsService = {
     async getPosts(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: 'asc' | 'desc') {
@@ -36,7 +37,7 @@ export const postsService = {
     },
 
     async createPost(postInput: PostApiRequestModel): Promise<PostApiResponseModel | null> {
-        const blog = await blogsRepository.getBlogById(postInput.blogId)
+        const blog = await blogsQueryRepository.getBlogById(postInput.blogId)
 
         if (!blog) return null
 

@@ -8,6 +8,7 @@ import { client, runDB, server } from "../../../src/db/db";
 import { request } from '../test-helper';
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
+import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -50,7 +51,7 @@ describe('/posts positive', () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
         createdBlogId = await blogsRepository.createBlog(blogInput);
-        createdBlog = await blogsRepository.getBlogById(createdBlogId)
+        createdBlog = await blogsQueryRepository.getBlogById(createdBlogId)
         createdPostId = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
         createdPostResponse = await postsRepository.getPostById(createdPostId)
 

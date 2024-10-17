@@ -1,5 +1,4 @@
-import { BlogApiRequestModel, BlogApiResponseModel, BlogsApiResponseModel } from "./models/BlogApiModel";
-import { ObjectId } from "mongodb";
+import { BlogApiRequestModel, BlogApiResponseModel } from "./models/BlogApiModel";
 import { blogsRepository } from "./blogsRepository";
 import { BlogDbModel } from "./models/BlogDbModel";
 import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
@@ -8,27 +7,6 @@ import { postsService } from "../posts/postsService";
 
 
 export const blogsService = {
-    async getBlogs(searchNameTerm: string, pageSize = 10, pageNumber = 1, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<BlogsApiResponseModel> {
-        const blogsCount = await blogsRepository.getBlogsCount(searchNameTerm)
-        const blogs = await blogsRepository.getBlogs(
-            searchNameTerm,
-            pageSize,
-            pageNumber,
-            sortBy,
-            sortDirection
-        )
-
-        const result: BlogsApiResponseModel = {
-            items: blogs,
-            page: pageNumber,
-            pageSize,
-            totalCount: blogsCount,
-            pagesCount: blogsCount <= 10 ? 1 : Math.ceil(blogsCount / pageSize),
-        }
-
-        return result
-    },
-
     async createBlog(blogInput: BlogApiRequestModel): Promise<BlogApiResponseModel> {
         const blog: BlogDbModel = {
             name: blogInput.name,
@@ -48,15 +26,6 @@ export const blogsService = {
             createdAt: blog.createdAt,
             isMembership: blog.isMembership
         }
-    },
-
-    async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
-        const blog = await blogsRepository.getBlogById(id)
-        if (!blog) {
-            return null;
-        }
-
-        return blog;
     },
 
     async updateBlog(blog: BlogApiResponseModel): Promise<void> {

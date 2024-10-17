@@ -24,6 +24,7 @@ import { PostApiResponseModel, PostsApiResponseModel } from "../posts/models/Pos
 import createPostForBlogValidationChains from "./middlewares/createPostForBlogValidationChains";
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
+import {blogsQueryRepository} from "./repositories/blogsQueryRepository";
 
 export const blogsRouter = Router();
 
@@ -31,7 +32,7 @@ const blogsController = {
     async getBlogs(req: RequestWquery<BlogQueryGetModel>, res: Response<BlogsApiResponseModel>){
         const { searchNameTerm, pageSize, pageNumber, sortBy, sortDirection } = req.query
 
-        const response = await blogsService.getBlogs(
+        const response = await blogsQueryRepository.getBlogs(
             searchNameTerm,
             Number(pageSize) || 10,
             Number(pageNumber) || 1,
@@ -42,13 +43,13 @@ const blogsController = {
         return res.json(response);
     },
     async getBlogById(req: RequestWparams<{ id: string }>, res: Response<BlogApiResponseModel>){
-        const foundPost = await blogsService.getBlogById(req.params.id);
+        const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
 
-        if (!foundPost) {
+        if (!foundBlog) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
 
-        return res.json(foundPost);
+        return res.json(foundBlog);
     },
     async createBlog(req: RequestWbody<BlogApiRequestModel>, res: Response<BlogApiResponseModel>){
         const blog = await blogsService.createBlog(req.body);
@@ -56,7 +57,7 @@ const blogsController = {
         return res.status(201).json(blog);
     },
     async editBlog(req: RequestWparamsAndBody<{ id: string }, BlogApiRequestModel>, res: Response){
-        const foundBlog = await blogsService.getBlogById(req.params.id);
+        const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
         if (!foundBlog) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
@@ -67,7 +68,7 @@ const blogsController = {
         return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
     async deleteBlogById(req: RequestWparams<{ id: string }>, res: Response){
-        const foundBlog = await blogsService.getBlogById(req.params.id);
+        const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
         if (!foundBlog) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
@@ -77,7 +78,7 @@ const blogsController = {
         return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
     async createPostForBlog(req: RequestWparamsAndBody<{ id: string }, BlogCreatePostApiRequestModel>, res: Response<PostApiResponseModel>) {
-        const blog = await blogsService.getBlogById(req.params.id);
+        const blog = await blogsQueryRepository.getBlogById(req.params.id);
         if (!blog) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
@@ -93,7 +94,7 @@ const blogsController = {
     async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostsApiResponseModel>) {
         const { pageNumber, pageSize, sortDirection, sortBy } = req.query
 
-        const blog = await blogsService.getBlogById(req.params.id);
+        const blog = await blogsQueryRepository.getBlogById(req.params.id);
         if (!blog) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }

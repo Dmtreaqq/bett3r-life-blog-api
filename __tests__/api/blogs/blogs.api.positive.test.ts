@@ -6,7 +6,7 @@ import {
 } from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { blogsCollection, client, runDB } from "../../../src/db/db";
+import { client, runDB } from "../../../src/db/db";
 import { request } from '../test-helper'
 import { server } from "../../../src/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
@@ -14,6 +14,7 @@ import { PostApiResponseModel } from "../../../src/components/posts/models/PostA
 import { postsRepository } from "../../../src/components/posts/postsRepository";
 import { ObjectId } from "mongodb";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
+import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
 
 
 const baseUrl = '/api';
@@ -63,7 +64,7 @@ describe('/blogs positive', () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         createdBlogId = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId() } as any);
-        createdBlogResponse = await blogsRepository.getBlogById(createdBlogId);
+        createdBlogResponse = await blogsQueryRepository.getBlogById(createdBlogId);
 
         await blogsRepository.createBlog({ ...blogInput, name: 'Doctor House', _id: new ObjectId() } as any);
         await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Who', _id: new ObjectId() } as any );
@@ -135,7 +136,7 @@ describe('/blogs positive', () => {
 
     it('should GET blogs by searchNameTerm successfully', async () => {
         const newBlogId = await blogsRepository.createBlog({ ...blogInput, name: 'Somebody House', _id: new ObjectId() } as any );
-        const responseNewBlog = await blogsRepository.getBlogById(newBlogId);
+        const responseNewBlog = await blogsQueryRepository.getBlogById(newBlogId);
 
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?searchNameTerm=BODY`)

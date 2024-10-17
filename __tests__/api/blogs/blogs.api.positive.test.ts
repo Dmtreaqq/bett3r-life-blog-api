@@ -4,17 +4,18 @@ import {
     BlogApiResponseModel,
     BlogsApiResponseModel
 } from "../../../src/components/blogs/models/BlogApiModel";
-import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
+import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
 import { client, runDB } from "../../../src/db/db";
 import { request } from '../test-helper'
 import { server } from "../../../src/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
-import { postsRepository } from "../../../src/components/posts/postsRepository";
+import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";
 import { ObjectId } from "mongodb";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
+import {postsQueryRepository} from "../../../src/components/posts/repositories/postsQueryRepository";
 
 
 const baseUrl = '/api';
@@ -119,7 +120,7 @@ describe('/blogs positive', () => {
     it('should GET posts for a certain blog successfully', async () => {
         const blogId = await blogsRepository.createBlog({...blogInput, _id: new ObjectId() } as any);
         const postId = await postsRepository.createPost({ ...postInput, blogId: blogId })
-        const post = await postsRepository.getPostById(postId);
+        const post = await postsQueryRepository.getPostById(postId);
 
         const getResponse = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blogId}/posts`)

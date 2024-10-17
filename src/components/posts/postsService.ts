@@ -1,41 +1,9 @@
-import { postsRepository } from "./postsRepository";
-import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "./models/PostApiModel";
-import { blogsRepository } from "../blogs/blogsRepository";
-import { ObjectId } from "mongodb";
+import { postsRepository } from "./repositories/postsRepository";
+import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 import { PostDbModel } from "./models/PostDbModel";
 import {blogsQueryRepository} from "../blogs/repositories/blogsQueryRepository";
 
 export const postsService = {
-    async getPosts(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: 'asc' | 'desc') {
-        const posts = await postsRepository.getPosts(
-            blogId,
-            pageNumber,
-            pageSize,
-            sortBy,
-            sortDirection
-        );
-
-        const postsCount = await postsRepository.getPostsCount();
-        
-        const result: PostsApiResponseModel = {
-            items: posts,
-            page: Number(pageNumber),
-            pageSize: Number(pageSize),
-            totalCount: postsCount,
-            pagesCount: postsCount <= 10 ? 1 : Math.ceil(postsCount / Number(pageSize)),
-        }
-
-        return result
-    },
-
-    async getPostById(id: string) {
-        const foundPost = await postsRepository.getPostById(id);
-
-        if(!foundPost) return null;
-
-        return foundPost
-    },
-
     async createPost(postInput: PostApiRequestModel): Promise<PostApiResponseModel | null> {
         const blog = await blogsQueryRepository.getBlogById(postInput.blogId)
 

@@ -1,14 +1,15 @@
 import { CONFIG } from "../../../src/utils/config";
 import { HTTP_STATUSES } from "../../../src/utils/types";
 import { PostApiRequestModel, PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
-import { blogsRepository } from "../../../src/components/blogs/blogsRepository";
+import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { postsRepository } from "../../../src/components/posts/postsRepository";
+import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";
 import { client, runDB, server } from "../../../src/db/db";
 import { request } from '../test-helper';
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
+import {postsQueryRepository} from "../../../src/components/posts/repositories/postsQueryRepository";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -53,7 +54,7 @@ describe('/posts positive', () => {
         createdBlogId = await blogsRepository.createBlog(blogInput);
         createdBlog = await blogsQueryRepository.getBlogById(createdBlogId)
         createdPostId = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })
-        createdPostResponse = await postsRepository.getPostById(createdPostId)
+        createdPostResponse = await postsQueryRepository.getPostById(createdPostId)
 
         await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'a 1' })
         await postsRepository.createPost({ ...postInput, blogId: createdBlogId, title: 'b 2' })

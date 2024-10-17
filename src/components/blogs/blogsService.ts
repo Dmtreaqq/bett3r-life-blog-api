@@ -1,10 +1,8 @@
 import { BlogApiRequestModel, BlogApiResponseModel } from "./models/BlogApiModel";
-import { blogsRepository } from "./blogsRepository";
+import { blogsRepository } from "./repositories/blogsRepository";
 import { BlogDbModel } from "./models/BlogDbModel";
-import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
-import { postsRepository } from "../posts/postsRepository";
+import { PostApiRequestModel, PostApiResponseModel } from "../posts/models/PostApiModel";
 import { postsService } from "../posts/postsService";
-
 
 export const blogsService = {
     async createBlog(blogInput: BlogApiRequestModel): Promise<BlogApiResponseModel> {
@@ -30,21 +28,6 @@ export const blogsService = {
 
     async updateBlog(blog: BlogApiResponseModel): Promise<void> {
         await blogsRepository.updateBlogById(blog);
-    },
-
-    async getPostsByBlogId(id: string, pageNumber = 1, pageSize = 10, sortBy: string, sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostsApiResponseModel> {
-        const posts = await postsRepository.getPosts(id, Number(pageNumber), Number(pageSize), sortBy, sortDirection)
-        const postsCount = await postsRepository.getPostsCount(id);
-
-        const result: PostsApiResponseModel = {
-            items: posts,
-            page: Number(pageNumber) || 1,
-            pageSize: Number(pageSize) || 10,
-            totalCount: postsCount,
-            pagesCount: postsCount <= 10 ? 1 : Math.ceil(postsCount / Number(pageSize)),
-        }
-
-        return result;
     },
 
     async createPostForBlog(post: PostApiRequestModel): Promise<PostApiResponseModel | null> {

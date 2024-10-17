@@ -7,6 +7,7 @@ import postUrlParamValidation from "./middlewares/postUrlParamValidation";
 import postQueryValidation from "./middlewares/postQueryValidation";
 import { PostQueryGetModel } from "./models/PostQueryGetModel";
 import { postsService } from "./postsService";
+import {postsQueryRepository} from "./repositories/postsQueryRepository";
 
 export const postsRouter = Router();
 
@@ -14,7 +15,7 @@ const postsController = {
     async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostsApiResponseModel>){
         const { pageNumber, pageSize, sortBy, sortDirection } = req.query
 
-        const result = await postsService.getPosts(
+        const result = await postsQueryRepository.getPosts(
             '',
             Number(pageNumber) || 1,
             Number(pageSize) || 10,
@@ -26,7 +27,7 @@ const postsController = {
     },
     async getPostById(req: RequestWparams<{ id: string }>, res: Response<PostApiResponseModel>){
         const { id } = req.params;
-        const foundPost = await postsService.getPostById(id);
+        const foundPost = await postsQueryRepository.getPostById(id);
 
         if (!foundPost) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -44,7 +45,7 @@ const postsController = {
         return res.status(HTTP_STATUSES.CREATED_201).json(post);
     },
     async editPost (req: RequestWparamsAndBody<{ id: string }, PostApiRequestModel>, res: Response){
-        const foundPost = await postsService.getPostById(req.params.id);
+        const foundPost = await postsQueryRepository.getPostById(req.params.id);
         if (!foundPost) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
@@ -56,7 +57,7 @@ const postsController = {
         return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
     async deletePostById(req: RequestWparams<{ id: string }>, res: Response){
-        const foundPost = await postsService.getPostById(req.params.id);
+        const foundPost = await postsQueryRepository.getPostById(req.params.id);
         if (!foundPost) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }

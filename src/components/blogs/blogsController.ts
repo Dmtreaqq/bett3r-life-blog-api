@@ -25,6 +25,7 @@ import createPostForBlogValidationChains from "./middlewares/createPostForBlogVa
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 import {blogsQueryRepository} from "./repositories/blogsQueryRepository";
+import {postsQueryRepository} from "../posts/repositories/postsQueryRepository";
 
 export const blogsRouter = Router();
 
@@ -99,10 +100,10 @@ const blogsController = {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
 
-        const result = await blogsService.getPostsByBlogId(
+        const result = await postsQueryRepository.getPosts(
             blog.id,
-            Number(pageNumber),
-            Number(pageSize),
+            Number(pageNumber) || 1,
+            Number(pageSize) || 10,
             sortBy,
             sortDirection
         )

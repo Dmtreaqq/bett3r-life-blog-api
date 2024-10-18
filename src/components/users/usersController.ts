@@ -6,6 +6,7 @@ import {authMiddleware} from "../../middlewares/authMiddleware";
 import {usersService} from "./usersService";
 import {UserQueryGetModel} from "./models/UserQueryGetModel";
 import userUrlParamValidation from "./middlewares/userUrlParamValidation";
+import userValidation from "./middlewares/userValidation";
 
 export const usersRouter = Router();
 
@@ -52,5 +53,5 @@ const usersController = {
 }
 
 usersRouter.delete('/:id', authMiddleware, ...userUrlParamValidation, usersController.deleteUserById)
-usersRouter.post('/', authMiddleware, usersController.createUser)
+usersRouter.post('/', authMiddleware, ...userValidation, usersController.createUser)
 usersRouter.get('/', authMiddleware, usersController.getUsers)

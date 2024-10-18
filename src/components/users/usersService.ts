@@ -17,6 +17,7 @@ export const usersService = {
         const userDbModel: UserDbModel = {
             login: userInput.login,
             email: userInput.email,
+            password: userInput.password,
             createdAt: new Date().toISOString(),
         }
 

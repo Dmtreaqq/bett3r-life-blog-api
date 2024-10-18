@@ -7,20 +7,20 @@ import {client, runDB, server} from "../../../src/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {usersQueryRepository} from "../../../src/components/users/repositories/usersQueryRepository";
-import {blogsRepository} from "../../../src/components/blogs/repositories/blogsRepository";
 import {ObjectId} from "mongodb";
-import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
+
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
 
 const userInput: UserApiRequestModel = {
-    login: 'login', password: "12345", email: "test-email@ukr.net"
+    login: 'login6', password: "123456", email: "test-email@ukr.net"
 }
 
 const userDbModel: UserDbModel = {
     email: userInput.email,
     login: userInput.login,
+    password: userInput.password,
     createdAt: new Date().toISOString(),
 }
 

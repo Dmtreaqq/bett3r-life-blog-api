@@ -8,6 +8,7 @@ export const CONFIG = {
         POSTS: '/posts',
         BLOGS: '/blogs',
         USERS: '/users',
+        AUTH: '/auth'
     },
     LOGIN: process.env.LOGIN,
     LOCAL_MONGO_URL: 'mongodb://localhost:27017/?retryWrites=true',

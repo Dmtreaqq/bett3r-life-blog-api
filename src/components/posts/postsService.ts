@@ -1,13 +1,18 @@
-import { postsRepository } from "./repositories/postsRepository";
-import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
-import { PostDbModel } from "./models/PostDbModel";
-import {blogsQueryRepository} from "../blogs/repositories/blogsQueryRepository";
+import {postsRepository} from "./repositories/postsRepository";
+import {PostApiRequestModel, PostApiResponseModel} from "./models/PostApiModel";
+import {PostDbModel} from "./models/PostDbModel";
+import {blogsRepository} from "../blogs/repositories/blogsRepository";
+import {ApiError} from "../../utils/ApiError";
+import {HTTP_STATUSES} from "../../utils/types";
 
 export const postsService = {
-    async createPost(postInput: PostApiRequestModel): Promise<PostApiResponseModel | null> {
-        const blog = await blogsQueryRepository.getBlogById(postInput.blogId)
+    async createPost(postInput: PostApiRequestModel): Promise<string | null> {
+        const blog = await blogsRepository.getBlogById(postInput.blogId)
 
-        if (!blog) return null
+        // TODO: тогда нужно убрать проверку с миддлвара, иначе как затестить в Е2Е
+        if (!blog) {
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, `Blog ${postInput.blogId} not found`, 'blogId')
+        }
 
         const post: PostDbModel = {
             title: postInput.title,
@@ -18,24 +23,26 @@ export const postsService = {
             createdAt: new Date().toISOString()
         }
 
-        const postId = await postsRepository.createPost(post);
+        return postsRepository.createPost(post);
+    },
 
-        return {
-            id: postId,
-            title: post.title,
-            shortDescription: post.shortDescription,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            content: post.content,
-            createdAt: post.createdAt
+    async updatePost(postId: string, post: PostApiRequestModel): Promise<void> {
+        const foundPost = await postsRepository.getPostById(postId);
+        if (!foundPost) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
+
+        const newPost: PostApiResponseModel = { ...foundPost, ...post, id: postId  };
+
+        await postsRepository.updatePostById(newPost)
     },
 
-    async updatePost(post: PostApiResponseModel): Promise<void> {
-        await postsRepository.updatePostById(post)
-    },
+    async deletePostById(postId: string): Promise<boolean> {
+        const foundPost = await postsRepository.getPostById(postId);
+        if (!foundPost) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
 
-    async deletePostById(id: string): Promise<void> {
-        await postsRepository.deletePostById(id);
+        return postsRepository.deletePostById(postId);
     }
 }

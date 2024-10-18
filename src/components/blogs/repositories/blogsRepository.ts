@@ -1,7 +1,7 @@
 import { blogsCollection } from "../../../db/db";
 import { BlogApiResponseModel } from "../models/BlogApiModel";
 import { BlogDbModel } from "../models/BlogDbModel";
-import {ObjectId, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
 
 export const blogsRepository = {
     async createBlog(blogInput: BlogDbModel): Promise<string> {
@@ -33,7 +33,7 @@ export const blogsRepository = {
     async deleteAllBlogs(): Promise<void> {
         await blogsCollection.deleteMany({})
     },
-    async getBlogs(params: any) {
+    async getBlogs() {
         // TODO: Implement if we need to return Blogs model that differs from BlogApiResponseModel.
         // TODO: Now use blogsQueryRepository.ts
     },

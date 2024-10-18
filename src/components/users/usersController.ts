@@ -12,7 +12,6 @@ export const usersRouter = Router();
 const usersController = {
     async createUser(req: RequestWbody<UserApiRequestModel>, res: Response<UserApiResponseModel>, next: NextFunction) {
         try {
-            // TODO: Should I return from service, or do a second call to DB ?
             const userId = await usersService.createUser(req.body)
             const user = await usersQueryRepository.getUserById(userId)
 
@@ -26,15 +25,14 @@ const usersController = {
         }
     },
 
-    async deleteUserById(req: RequestWparams<{ id: string }>, res: Response) {
-        const user = await usersQueryRepository.getUserById(req.params.id)
-        if (!user) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+    async deleteUserById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
+        try {
+            await usersService.deleteUserById(req.params.id)
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+        } catch (err: any) {
+            return next(err)
         }
-
-        await usersService.deleteUserById(user.id)
-
-        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
 
     async getUsers(req: RequestWquery<UserQueryGetModel>, res: Response<UsersApiResponseModel>) {

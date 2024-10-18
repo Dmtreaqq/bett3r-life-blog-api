@@ -3,6 +3,7 @@ import {UserApiRequestModel} from "./models/UserApiModel";
 import {UserDbModel} from "./models/UserDbModel";
 import {ApiError} from "../../utils/ApiError";
 import {HTTP_STATUSES} from "../../utils/types";
+import {usersQueryRepository} from "./repositories/usersQueryRepository";
 
 export const usersService = {
     async createUser(userInput: UserApiRequestModel): Promise<string> {
@@ -22,7 +23,12 @@ export const usersService = {
         return usersRepository.createUser(userDbModel);
     },
 
-    async deleteUserById(id: string): Promise<boolean> {
-        return usersRepository.deleteUserById(id)
+    async deleteUserById(userId: string): Promise<boolean> {
+        const user = await usersQueryRepository.getUserById(userId)
+        if (!user) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
+
+        return usersRepository.deleteUserById(userId)
     }
 }

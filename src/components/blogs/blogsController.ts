@@ -1,6 +1,5 @@
 import {Router, Response, NextFunction} from 'express';
 import {
-    ApiErrorResult,
     HTTP_STATUSES,
     RequestWbody,
     RequestWparams,
@@ -27,7 +26,6 @@ import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 import {blogsQueryRepository} from "./repositories/blogsQueryRepository";
 import {postsQueryRepository} from "../posts/repositories/postsQueryRepository";
-import {ApiError} from "../../utils/ApiError";
 import {blogsRepository} from "./repositories/blogsRepository";
 
 export const blogsRouter = Router();
@@ -89,20 +87,22 @@ const blogsController = {
             return next(err)
         }
     },
-    async createPostForBlog(req: RequestWparamsAndBody<{ id: string }, BlogCreatePostApiRequestModel>, res: Response<PostApiResponseModel>) {
+    async createPostForBlog(req: RequestWparamsAndBody<{ id: string }, BlogCreatePostApiRequestModel>, res: Response<PostApiResponseModel>, next: NextFunction) {
+        try {
+            const { id: blogId } = req.params;
 
-        const { id: blogId } = req.params;
-        const blog = await blogsRepository.getBlogById(blogId);
-        if (!blog) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            const postId = await blogsService.createPostForBlog({ ...req.body, blogId: blogId })
+            const post = await postsQueryRepository.getPostById(postId);
+
+            // TODO: надо ли ето?
+            if (!post) {
+                return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+            }
+
+            return res.status(HTTP_STATUSES.CREATED_201).json(post)
+        } catch (err: any) {
+            return next(err)
         }
-        const post = await blogsService.createPostForBlog(blogId, { ...req.body, blogId: blogId })
-
-        if (!post) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-        }
-
-        return res.status(HTTP_STATUSES.CREATED_201).json(post)
     },
     async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostsApiResponseModel>) {
         const { pageNumber, pageSize, sortDirection, sortBy } = req.query

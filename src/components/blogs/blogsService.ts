@@ -1,10 +1,11 @@
-import {BlogApiRequestModel, BlogApiResponseModel} from "./models/BlogApiModel";
+import {BlogApiRequestModel} from "./models/BlogApiModel";
 import {blogsRepository} from "./repositories/blogsRepository";
 import {BlogDbModel} from "./models/BlogDbModel";
-import {PostApiRequestModel, PostApiResponseModel} from "../posts/models/PostApiModel";
-import {postsService} from "../posts/postsService";
+import {PostApiRequestModel} from "../posts/models/PostApiModel";
 import {HTTP_STATUSES} from "../../utils/types";
 import {ApiError} from "../../utils/ApiError";
+import {PostDbModel} from "../posts/models/PostDbModel";
+import {postsRepository} from "../posts/repositories/postsRepository";
 
 export const blogsService = {
     async createBlog(blogInput: BlogApiRequestModel): Promise<string> {
@@ -30,13 +31,24 @@ export const blogsService = {
         await blogsRepository.updateBlogById(newBlog);
     },
 
-    // TODO изменить
-    async createPostForBlog(blogId: string, post: PostApiRequestModel): Promise<PostApiResponseModel | null> {
-        const postFromBody = await postsService.createPost(post);
 
-        if (!postFromBody) return null
+    async createPostForBlog(postInput: PostApiRequestModel): Promise<string> {
+        const blog = await blogsRepository.getBlogById(postInput.blogId)
 
-        return postFromBody;
+        if (!blog) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
+
+        const post: PostDbModel = {
+            title: postInput.title,
+            shortDescription: postInput.shortDescription,
+            content: postInput.content,
+            blogId: postInput.blogId,
+            blogName: blog.name,
+            createdAt: new Date().toISOString()
+        }
+
+        return postsRepository.createPost(post);
     },
 
     async deleteBlogById(blogId: string): Promise<void> {

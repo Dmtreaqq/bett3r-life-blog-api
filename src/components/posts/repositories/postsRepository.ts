@@ -23,8 +23,10 @@ export const postsRepository = {
             }
         })
     },
-    async deletePostById(id: string): Promise<void> {
+    async deletePostById(id: string): Promise<boolean> {
         await postsCollection.deleteOne({ _id: new ObjectId(id) })
+
+        return true
     },
     async deleteAllPosts(): Promise<void> {
         await postsCollection.deleteMany({})
@@ -33,8 +35,18 @@ export const postsRepository = {
         // TODO: Implement if we need to return model that differs from PostApiResponseModel
         // TODO: Please use postsQueryRepository.ts
     },
-    async getPostById(id: string): Promise<void> {
-        // TODO: Implement if we need to return model that differs from PostApiResponseModel
-        // TODO: Please use postsQueryRepository.ts
+    async getPostById(id: string): Promise<PostDbModel | null> {
+        const post = await postsCollection.findOne({ _id: new ObjectId(id) })
+
+        if (!post) return null
+
+        return {
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt
+        }
     }
 }

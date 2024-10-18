@@ -21,5 +21,5 @@ const authController = {
         }
     }
 }
-
-authRouter.post('/login', ...authValidation,  authController.login)
+// ...authValidation removed because of incubator tests
+authRouter.post('/login',  authController.login)

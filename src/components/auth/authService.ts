@@ -2,6 +2,7 @@ import {AuthLoginApiRequestModel} from "./models/AuthApiModel";
 import {usersRepository} from "../users/repositories/usersRepository";
 import {ApiError} from "../../utils/ApiError";
 import {HTTP_STATUSES} from "../../utils/types";
+import {hashService} from "../../services/hashService";
 
 export const authService = {
     async login(authInput: AuthLoginApiRequestModel): Promise<boolean> {
@@ -14,6 +15,6 @@ export const authService = {
             throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'No user with such email or login', 'loginOrEmail')
         }
 
-        return authInput.password === user.password
+        return hashService.checkPassword(authInput.password, user.password)
     }
 }

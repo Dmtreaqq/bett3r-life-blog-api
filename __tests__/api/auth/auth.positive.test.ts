@@ -6,6 +6,7 @@ import {client, runDB, server} from "../../../src/db/db";
 import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
+import {hashSync} from "bcrypt";
 
 const baseUrl = '/api';
 
@@ -14,10 +15,11 @@ const authInput: AuthLoginApiRequestModel = {
     password: '12345'
 }
 
+const hashedPassword = hashSync(authInput.password, 10)
 const userDbModel: UserDbModel = {
     email: 'some@test.net',
     login: authInput.loginOrEmail,
-    password: authInput.password,
+    password: hashedPassword,
     createdAt: new Date().toISOString(),
 }
 

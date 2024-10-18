@@ -35,7 +35,7 @@ export const blogsQueryRepository = {
             page: pageNumber,
             pageSize,
             totalCount: blogsCount,
-            pagesCount: blogsCount <= 10 ? 1 : Math.ceil(blogsCount / pageSize),
+            pagesCount: blogsCount <= pageSize ? 1 : Math.ceil(blogsCount / pageSize),
         }
     },
 

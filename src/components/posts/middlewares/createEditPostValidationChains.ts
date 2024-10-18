@@ -1,6 +1,7 @@
 import { body } from "express-validator"
 import { validationMiddleware } from "../../../middlewares/validationMiddleware";
-import { blogsRepository } from "../../blogs/blogsRepository";
+import { blogsRepository } from "../../blogs/repositories/blogsRepository";
+import {blogsQueryRepository} from "../../blogs/repositories/blogsQueryRepository";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -27,15 +28,15 @@ const createBlogIdChain = () => body('blogId')
     .trim()
     .notEmpty().withMessage('Should not be empty')
     .matches(objectIdRegex).withMessage('Blog ID should be an ObjectId type')
-    .custom(async value => {
-        const foundBlog = await blogsRepository.getBlogById(value);
-
-        if (!foundBlog) {
-            throw new Error(`Blog ${value} not found`);
-        }
-
-        return true
-    })
+    // .custom(async value => {
+    //     const foundBlog = await blogsQueryRepository.getBlogById(value);
+    //
+    //     if (!foundBlog) {
+    //         throw new Error(`Blog ${value} not found`);
+    //     }
+    //
+    //     return true
+    // })
 
 export default [
     createBlogIdChain(),

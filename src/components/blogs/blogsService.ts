@@ -1,35 +1,14 @@
-import { BlogApiRequestModel, BlogApiResponseModel, BlogsApiResponseModel } from "./models/BlogApiModel";
-import { ObjectId } from "mongodb";
-import { blogsRepository } from "./blogsRepository";
-import { BlogDbModel } from "./models/BlogDbModel";
-import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
-import { postsRepository } from "../posts/postsRepository";
-import { postsService } from "../posts/postsService";
-
+import {BlogApiRequestModel} from "./models/BlogApiModel";
+import {blogsRepository} from "./repositories/blogsRepository";
+import {BlogDbModel} from "./models/BlogDbModel";
+import {PostApiRequestModel} from "../posts/models/PostApiModel";
+import {HTTP_STATUSES} from "../../utils/types";
+import {ApiError} from "../../utils/ApiError";
+import {PostDbModel} from "../posts/models/PostDbModel";
+import {postsRepository} from "../posts/repositories/postsRepository";
 
 export const blogsService = {
-    async getBlogs(searchNameTerm: string, pageSize = 10, pageNumber = 1, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<BlogsApiResponseModel> {
-        const blogsCount = await blogsRepository.getBlogsCount(searchNameTerm)
-        const blogs = await blogsRepository.getBlogs(
-            searchNameTerm,
-            pageSize,
-            pageNumber,
-            sortBy,
-            sortDirection
-        )
-
-        const result: BlogsApiResponseModel = {
-            items: blogs,
-            page: pageNumber,
-            pageSize,
-            totalCount: blogsCount,
-            pagesCount: blogsCount <= 10 ? 1 : Math.ceil(blogsCount / pageSize),
-        }
-
-        return result
-    },
-
-    async createBlog(blogInput: BlogApiRequestModel): Promise<BlogApiResponseModel> {
+    async createBlog(blogInput: BlogApiRequestModel): Promise<string> {
         const blog: BlogDbModel = {
             name: blogInput.name,
             description: blogInput.description,
@@ -38,55 +17,46 @@ export const blogsService = {
             isMembership: false
         }
 
-        const blogId = await blogsRepository.createBlog(blog)
-
-        return {
-            id: blogId,
-            name: blog.name,
-            description: blog.description,
-            websiteUrl: blog.websiteUrl,
-            createdAt: blog.createdAt,
-            isMembership: blog.isMembership
-        }
+        return blogsRepository.createBlog(blog)
     },
 
-    async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
-        const blog = await blogsRepository.getBlogById(id)
+    async updateBlogById(blogId: string, blog: BlogApiRequestModel): Promise<void> {
+        const foundBlog = await blogsRepository.getBlogById(blogId)
+        if (!foundBlog) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
+
+        const newBlog = { ...foundBlog, ...blog, id: blogId };
+
+        await blogsRepository.updateBlogById(newBlog);
+    },
+
+
+    async createPostForBlog(postInput: PostApiRequestModel): Promise<string> {
+        const blog = await blogsRepository.getBlogById(postInput.blogId)
+
         if (!blog) {
-            return null;
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
 
-        return blog;
-    },
-
-    async updateBlog(blog: BlogApiResponseModel): Promise<void> {
-        await blogsRepository.updateBlogById(blog);
-    },
-
-    async getPostsByBlogId(id: string, pageNumber = 1, pageSize = 10, sortBy: string, sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostsApiResponseModel> {
-        const posts = await postsRepository.getPosts(id, Number(pageNumber), Number(pageSize), sortBy, sortDirection)
-        const postsCount = await postsRepository.getPostsCount(id);
-
-        const result: PostsApiResponseModel = {
-            items: posts,
-            page: Number(pageNumber) || 1,
-            pageSize: Number(pageSize) || 10,
-            totalCount: postsCount,
-            pagesCount: postsCount <= 10 ? 1 : Math.ceil(postsCount / Number(pageSize)),
+        const post: PostDbModel = {
+            title: postInput.title,
+            shortDescription: postInput.shortDescription,
+            content: postInput.content,
+            blogId: postInput.blogId,
+            blogName: blog.name,
+            createdAt: new Date().toISOString()
         }
 
-        return result;
+        return postsRepository.createPost(post);
     },
 
-    async createPostForBlog(post: PostApiRequestModel): Promise<PostApiResponseModel | null> {
-        const postFromBody = await postsService.createPost(post);
+    async deleteBlogById(blogId: string): Promise<void> {
+        const foundBlog = await blogsRepository.getBlogById(blogId)
+        if (!foundBlog) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
 
-        if (!postFromBody) return null
-
-        return postFromBody;
-    },
-
-    async deleteBlogById(id: string): Promise<void> {
-        await blogsRepository.deleteBlogById(id);
+        await blogsRepository.deleteBlogById(blogId);
     }
 }

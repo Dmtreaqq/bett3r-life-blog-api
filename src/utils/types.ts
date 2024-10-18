@@ -10,6 +10,15 @@ export enum HTTP_STATUSES {
     NOT_FOUND_404 = 404,
 }
 
+export type FieldError = {
+    message: string
+    field: string
+}
+
+export type ApiErrorResult = {
+    errorsMessages: FieldError[]
+}
+
 export type RequestWbody<T> = Request<{}, {}, T>
 export type RequestWquery<T> = Request<{}, {}, {}, T>
 export type RequestWparams<T> = Request<T>

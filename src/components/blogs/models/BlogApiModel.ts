@@ -1,9 +1,19 @@
 import { PostApiRequestModel } from "../../posts/models/PostApiModel";
-import { BlogDbModel } from "./BlogDbModel";
+
+export type BlogApiRequestModel = {
+    name: string;
+    description: string;
+    websiteUrl: string;
+}
 
 export type BlogApiResponseModel = {
-    id: string;
-} & BlogDbModel;
+    id: string
+    name: string;
+    description: string;
+    websiteUrl: string;
+    isMembership: boolean;
+    createdAt: string;
+}
 
 export type BlogsApiResponseModel = {
     pagesCount: number;
@@ -11,12 +21,6 @@ export type BlogsApiResponseModel = {
     pageSize: number;
     totalCount: number;
     items: BlogApiResponseModel[];
-}
-
-export type BlogApiRequestModel = {
-    name: string;
-    description: string;
-    websiteUrl: string;
 }
 
 export type BlogCreatePostApiRequestModel = Omit<PostApiRequestModel, "blogId">

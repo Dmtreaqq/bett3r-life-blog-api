@@ -1,4 +1,4 @@
-import {Router, Response} from "express";
+import {Router, Response, NextFunction} from "express";
 import {HTTP_STATUSES, RequestWbody, RequestWparams, RequestWquery} from "../../utils/types";
 import {UserApiRequestModel, UserApiResponseModel, UsersApiResponseModel} from "./models/UserApiModel";
 import {usersQueryRepository} from "./repositories/usersQueryRepository";
@@ -10,7 +10,7 @@ import userUrlParamValidation from "./middlewares/userUrlParamValidation";
 export const usersRouter = Router();
 
 const usersController = {
-    async createUser(req: RequestWbody<UserApiRequestModel>, res: Response<UserApiResponseModel | object>) {
+    async createUser(req: RequestWbody<UserApiRequestModel>, res: Response<UserApiResponseModel>, next: NextFunction) {
         try {
             // TODO: Should I return from service, or do a second call to DB ?
             const userId = await usersService.createUser(req.body)
@@ -22,18 +22,7 @@ const usersController = {
 
             return res.status(HTTP_STATUSES.CREATED_201).json(user);
         } catch (err: any) {
-            if (err.message === 'User already exists') {
-                return res.status(HTTP_STATUSES.BAD_REQUEST_400).json({
-                    errorsMessages: [
-                        {
-                            message: "User with such email or login already exists",
-                            field: "email or login"
-                        }
-                    ]
-                });
-            }
-
-            return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+            return next(err)
         }
     },
 

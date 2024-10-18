@@ -1,5 +1,6 @@
-import { Router, Response } from 'express';
+import {Router, Response, NextFunction} from 'express';
 import {
+    ApiErrorResult,
     HTTP_STATUSES,
     RequestWbody,
     RequestWparams,
@@ -26,6 +27,8 @@ import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 import {blogsQueryRepository} from "./repositories/blogsQueryRepository";
 import {postsQueryRepository} from "../posts/repositories/postsQueryRepository";
+import {ApiError} from "../../utils/ApiError";
+import {blogsRepository} from "./repositories/blogsRepository";
 
 export const blogsRouter = Router();
 
@@ -44,6 +47,7 @@ const blogsController = {
         return res.json(response);
     },
     async getBlogById(req: RequestWparams<{ id: string }>, res: Response<BlogApiResponseModel>){
+        // TODO where to throw error ???
         const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
 
         if (!foundBlog) {
@@ -52,39 +56,47 @@ const blogsController = {
 
         return res.json(foundBlog);
     },
-    async createBlog(req: RequestWbody<BlogApiRequestModel>, res: Response<BlogApiResponseModel>){
-        const blog = await blogsService.createBlog(req.body);
+    async createBlog(req: RequestWbody<BlogApiRequestModel>, res: Response<BlogApiResponseModel>, next: NextFunction){
+        try {
+            const blogId = await blogsService.createBlog(req.body);
+            const blog = await blogsQueryRepository.getBlogById(blogId)
 
-        return res.status(201).json(blog);
-    },
-    async editBlog(req: RequestWparamsAndBody<{ id: string }, BlogApiRequestModel>, res: Response){
-        const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
-        if (!foundBlog) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            // TODO: We just created a blog, it must be here ! Should we use ! operator here ??
+            return res.status(201).json(blog!);
+        } catch (err) {
+            return next(err);
         }
-
-        const newBlog = { ...foundBlog, ...req.body };
-        await blogsService.updateBlog(newBlog)
-
-        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },
-    async deleteBlogById(req: RequestWparams<{ id: string }>, res: Response){
-        const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
-        if (!foundBlog) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+    async editBlog(req: RequestWparamsAndBody<{ id: string }, BlogApiRequestModel>, res: Response, next: NextFunction){
+        try {
+            const { id: blogId } = req.params;
+
+            await blogsService.updateBlogById(blogId, req.body)
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+        } catch (error: any) {
+            // TODO: How to do without return? Typescript argues
+            // TODO: We also dont see which status code was sent
+            return next(error)
         }
+    },
+    async deleteBlogById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction){
+        try {
+            await blogsService.deleteBlogById(req.params.id);
 
-        await blogsService.deleteBlogById(foundBlog.id);
-
-        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+        } catch (err) {
+            return next(err)
+        }
     },
     async createPostForBlog(req: RequestWparamsAndBody<{ id: string }, BlogCreatePostApiRequestModel>, res: Response<PostApiResponseModel>) {
-        const blog = await blogsQueryRepository.getBlogById(req.params.id);
+
+        const { id: blogId } = req.params;
+        const blog = await blogsRepository.getBlogById(blogId);
         if (!blog) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         }
-
-        const post = await blogsService.createPostForBlog({ ...req.body, blogId: req.params.id })
+        const post = await blogsService.createPostForBlog(blogId, { ...req.body, blogId: blogId })
 
         if (!post) {
             return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

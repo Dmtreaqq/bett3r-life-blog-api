@@ -1,7 +1,7 @@
 import { blogsCollection } from "../../../db/db";
 import { BlogApiResponseModel } from "../models/BlogApiModel";
 import { BlogDbModel } from "../models/BlogDbModel";
-import { ObjectId } from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export const blogsRepository = {
     async createBlog(blogInput: BlogDbModel): Promise<string> {
@@ -37,8 +37,11 @@ export const blogsRepository = {
         // TODO: Implement if we need to return Blogs model that differs from BlogApiResponseModel.
         // TODO: Now use blogsQueryRepository.ts
     },
-    async getBlogById(id: string) {
-        // TODO: Implement if we need to return Blog model that differs from BlogApiResponseModel.
-        // TODO: Now use blogsQueryRepository.ts
+    async getBlogById(id: string): Promise<BlogDbModel | null> {
+        const blog = await blogsCollection.findOne({ _id: new ObjectId(id) }, { projection: { _id: 0 } })
+
+        if (!blog) return null
+
+        return blog
     }
 }

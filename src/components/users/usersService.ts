@@ -1,6 +1,8 @@
 import {usersRepository} from "./repositories/usersRepository";
 import {UserApiRequestModel} from "./models/UserApiModel";
 import {UserDbModel} from "./models/UserDbModel";
+import {ApiError} from "../../utils/ApiError";
+import {HTTP_STATUSES} from "../../utils/types";
 
 export const usersService = {
     async createUser(userInput: UserApiRequestModel): Promise<string> {
@@ -8,7 +10,7 @@ export const usersService = {
         const userByLogin = await usersRepository.getUserByLogin(userInput.login);
 
         if (userByEmail || userByLogin) {
-            throw new Error('User already exists');
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already exists', 'email or login');
         }
 
         const userDbModel: UserDbModel = {

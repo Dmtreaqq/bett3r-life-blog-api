@@ -110,7 +110,7 @@ describe('/blogs negative tests', () => {
     })
 
     it('should return 404 for PUT not existing blog', async () => {
-        await request
+        const response = await request
             .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${randomId}`)
             .send(blogInput)
             .set('authorization', authHeader)

@@ -1,11 +1,13 @@
-import { BlogApiRequestModel, BlogApiResponseModel } from "./models/BlogApiModel";
-import { blogsRepository } from "./repositories/blogsRepository";
-import { BlogDbModel } from "./models/BlogDbModel";
-import { PostApiRequestModel, PostApiResponseModel } from "../posts/models/PostApiModel";
-import { postsService } from "../posts/postsService";
+import {BlogApiRequestModel, BlogApiResponseModel} from "./models/BlogApiModel";
+import {blogsRepository} from "./repositories/blogsRepository";
+import {BlogDbModel} from "./models/BlogDbModel";
+import {PostApiRequestModel, PostApiResponseModel} from "../posts/models/PostApiModel";
+import {postsService} from "../posts/postsService";
+import {HTTP_STATUSES} from "../../utils/types";
+import {ApiError} from "../../utils/ApiError";
 
 export const blogsService = {
-    async createBlog(blogInput: BlogApiRequestModel): Promise<BlogApiResponseModel> {
+    async createBlog(blogInput: BlogApiRequestModel): Promise<string> {
         const blog: BlogDbModel = {
             name: blogInput.name,
             description: blogInput.description,
@@ -14,23 +16,22 @@ export const blogsService = {
             isMembership: false
         }
 
-        const blogId = await blogsRepository.createBlog(blog)
+        return blogsRepository.createBlog(blog)
+    },
 
-        return {
-            id: blogId,
-            name: blog.name,
-            description: blog.description,
-            websiteUrl: blog.websiteUrl,
-            createdAt: blog.createdAt,
-            isMembership: blog.isMembership
+    async updateBlogById(blogId: string, blog: BlogApiRequestModel): Promise<void> {
+        const foundBlog = await blogsRepository.getBlogById(blogId)
+        if (!foundBlog) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
+
+        const newBlog = { ...foundBlog, ...blog, id: blogId };
+
+        await blogsRepository.updateBlogById(newBlog);
     },
 
-    async updateBlog(blog: BlogApiResponseModel): Promise<void> {
-        await blogsRepository.updateBlogById(blog);
-    },
-
-    async createPostForBlog(post: PostApiRequestModel): Promise<PostApiResponseModel | null> {
+    // TODO изменить
+    async createPostForBlog(blogId: string, post: PostApiRequestModel): Promise<PostApiResponseModel | null> {
         const postFromBody = await postsService.createPost(post);
 
         if (!postFromBody) return null
@@ -38,7 +39,12 @@ export const blogsService = {
         return postFromBody;
     },
 
-    async deleteBlogById(id: string): Promise<void> {
-        await blogsRepository.deleteBlogById(id);
+    async deleteBlogById(blogId: string): Promise<void> {
+        const foundBlog = await blogsRepository.getBlogById(blogId)
+        if (!foundBlog) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
+
+        await blogsRepository.deleteBlogById(blogId);
     }
 }

@@ -59,7 +59,7 @@ describe('/users Negative', () => {
         expect(response.body).toEqual({
             errorsMessages: [{
                 field: 'email or login',
-                message: 'User with such email or login already exists',
+                message: 'User already exists',
             }]
         })
     })
@@ -76,7 +76,7 @@ describe('/users Negative', () => {
         expect(response.body).toEqual({
             errorsMessages: [{
                 field: 'email or login',
-                message: 'User with such email or login already exists',
+                message: 'User already exists',
             }]
         })
     })

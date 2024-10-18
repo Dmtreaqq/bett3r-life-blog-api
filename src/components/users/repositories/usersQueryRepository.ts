@@ -64,11 +64,23 @@ export const usersQueryRepository = {
         const filter: Filter<any> = {}
 
         if (login) {
-            filter.login = { $regex: login, $options: 'i' }
+            if (filter.$or) {
+                filter.$or.push({
+
+                })
+            } else {
+                filter.$or = [{login: { $regex: login, $options: 'i' }}]
+            }
         }
 
         if (email) {
-            filter.email = { $regex: email, $options: 'i' }
+            if (filter.$or) {
+                filter.$or.push({
+                    email: { $regex: email, $options: 'i' }
+                })
+            } else {
+                filter.$or = [{email: { $regex: email, $options: 'i' }}]
+            }
         }
 
         return usersCollection.countDocuments(filter)

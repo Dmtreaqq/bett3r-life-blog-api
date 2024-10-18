@@ -13,7 +13,7 @@ export const blogsQueryRepository = {
         return this._mapFromDbModelToResponseModel(blog)
     },
 
-    async getBlogs(name: string, pageSize: number, pageNumber: number, sortBy: string, sortDirection: 'asc' | 'desc'): Promise<BlogsApiResponseModel> {
+    async getBlogs(name: string = '', pageSize: number = 10, pageNumber: number = 1, sortBy: string = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<BlogsApiResponseModel> {
         const filter: Filter<BlogDbModel> = {}
 
         if (name !== undefined) {

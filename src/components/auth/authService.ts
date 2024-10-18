@@ -12,7 +12,7 @@ export const authService = {
         const user = userByEmail || userByLogin
 
         if (!user) {
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'No user with such email or login', 'loginOrEmail')
+            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
         return hashService.checkPassword(authInput.password, user.password)

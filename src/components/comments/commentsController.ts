@@ -1,4 +1,4 @@
-import {Router, Response} from "express";
+import {Router, Response, NextFunction} from "express";
 import {HTTP_STATUSES, RequestWparams, RequestWparamsAndBody} from "../../utils/types";
 import {CommentApiRequestModel, CommentApiResponseModel} from "./models/CommentApiModel";
 import {commentsQueryRepository} from "./repositories/commentsQueryRepository";
@@ -18,24 +18,32 @@ const commentsController = {
 
         return res.json(comment)
     },
-    async deleteCommentById(req: RequestWparams<{ id: string }>, res: Response) {
-        const result = await commentsService.deleteCommentById(req.params.id, req.user)
+    async deleteCommentById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
+        try {
+            const result = await commentsService.deleteCommentById(req.params.id, req.user)
 
-        if (!result) {
-            return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        } catch (err) {
+            return next(err)
         }
-
-        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
     },
 
-    async updateCommentById(req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>, res: Response) {
-        const result = await commentsService.updateCommentById(req.params.id, req.body.content, req.user)
+    async updateCommentById(req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>, res: Response, next: NextFunction) {
+        try {
+            const result = await commentsService.updateCommentById(req.params.id, req.body.content, req.user)
 
-        if (!result) {
-            return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        } catch (err) {
+            return next(err)
         }
-
-        return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
     },
 }
 

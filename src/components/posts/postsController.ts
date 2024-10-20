@@ -111,19 +111,23 @@ const postsController = {
         }
     },
 
-    async getCommentsForPost(req: RequestWparamsAndQuery<{ id: string }, CommentQueryGetModel>, res: Response<CommentsApiResponseModel>) {
-        const { pageNumber, pageSize, sortBy, sortDirection} = req.query
-        const { id: postId } = req.params
+    async getCommentsForPost(req: RequestWparamsAndQuery<{ id: string }, CommentQueryGetModel>, res: Response<CommentsApiResponseModel>, next: NextFunction) {
+        try {
+            const { pageNumber, pageSize, sortBy, sortDirection} = req.query
+            const { id: postId } = req.params
 
-        const comments = await commentsQueryRepository.getComments(
-            postId,
-            Number(pageNumber) || 1,
-            Number(pageSize) || 10,
-            sortBy,
-            sortDirection
-        )
+            const comments = await commentsQueryRepository.getComments(
+                postId,
+                Number(pageNumber) || 1,
+                Number(pageSize) || 10,
+                sortBy,
+                sortDirection
+            )
 
-        return res.json(comments)
+            return res.json(comments)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
 

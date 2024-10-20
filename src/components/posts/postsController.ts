@@ -8,6 +8,10 @@ import postQueryValidation from "./middlewares/postQueryValidation";
 import { PostQueryGetModel } from "./models/PostQueryGetModel";
 import { postsService } from "./postsService";
 import {postsQueryRepository} from "./repositories/postsQueryRepository";
+import {CommentApiRequestModel, CommentApiResponseModel} from "../comments/models/CommentApiModel";
+import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
+import {commentsService} from "../comments/commentsService";
+import {commentsQueryRepository} from "../comments/repositories/commentsQueryRepository";
 
 export const postsRouter = Router();
 
@@ -74,8 +78,28 @@ const postsController = {
         } catch (err) {
             return next(err)
         }
+    },
+
+    // TODO или ложить етот метод в контроллер коментов?
+    async createCommentForPost(req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>, res: Response<CommentApiResponseModel>, next: NextFunction) {
+        const { id: postId } = req.params
+        try {
+            const commentId = await commentsService.createComment(postId, req.body, req.user)
+
+            const comment = await commentsQueryRepository.getCommentById(commentId)
+
+            if (!comment) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
+
+            return res.status(HTTP_STATUSES.CREATED_201).json(comment)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
+
+postsRouter.post('/:id/comments', jwtAuthMiddleware, postsController.createCommentForPost)
 
 postsRouter.get('/', ...postQueryValidation, postsController.getPosts)
 postsRouter.get('/:id', ...postUrlParamValidation, postsController.getPostById)

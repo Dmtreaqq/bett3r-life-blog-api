@@ -1,5 +1,5 @@
 import {NextFunction, Response, Router} from 'express'
-import {HTTP_STATUSES, RequestWbody} from "../../utils/types";
+import {RequestWbody} from "../../utils/types";
 import {AuthLoginApiRequestModel} from "./models/AuthApiModel";
 import {authService} from "./authService";
 import authValidation from "./middlewares/authValidation";

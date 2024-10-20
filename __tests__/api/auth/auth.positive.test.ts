@@ -26,12 +26,6 @@ const userDbModel = {
     createdAt: new Date().toISOString(),
 } as any
 
-const token = jwtAuthService.createToken({
-    id: userDbModel._id.toString(),
-    login: userDbModel.login,
-    email: userDbModel.email,
-    createdAt: userDbModel.createdAt
-})
 
 describe('/auth Positive', () => {
     beforeAll(async () => {
@@ -53,7 +47,12 @@ describe('/auth Positive', () => {
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
-            accessToken: token
+            accessToken: jwtAuthService.createToken({
+                id: userDbModel._id.toString(),
+                login: userDbModel.login,
+                email: userDbModel.email,
+                createdAt: userDbModel.createdAt
+            })
         })
     })
 })

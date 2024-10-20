@@ -22,7 +22,7 @@ const userDbModel: UserDbModel = {
     createdAt: new Date().toISOString(),
 }
 
-describe('/auth Positive', () => {
+describe('/auth negative', () => {
     beforeAll(async () => {
         await runDB()
     })

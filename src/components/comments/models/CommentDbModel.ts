@@ -7,4 +7,5 @@ export type CommentDbModel = {
     content: string
     commentatorInfo: CommentatorInfo
     createdAt: string
+    postId: string
 }

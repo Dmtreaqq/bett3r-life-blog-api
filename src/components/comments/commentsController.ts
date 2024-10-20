@@ -17,7 +17,7 @@ const commentsController = {
 
         return res.json(comment)
     },
-
+    //TODO PUT
     async deleteCommentById(req: RequestWparams<{ id: string }>, res: Response) {
         const result = await commentsService.deleteCommentById(req.params.id)
 

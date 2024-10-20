@@ -8,8 +8,21 @@ import {CommentApiResponseModel} from "../../../src/components/comments/models/C
 import {CommentDbModel} from "../../../src/components/comments/models/CommentDbModel";
 import {commentsRepository} from "../../../src/components/comments/repositories/commentsRepository";
 import {jwtAuthService} from "../../../src/services/jwtService";
+import {postsRepository} from "../../../src/components/posts/repositories/postsRepository";
+import {blogsRepository} from "../../../src/components/blogs/repositories/blogsRepository";
+import {BlogDbModel} from "../../../src/components/blogs/models/BlogDbModel";
+import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
 
 const baseUrl = '/api';
+
+const postInput: PostDbModel = {
+    blogName: 'Name',
+    createdAt: new Date().toISOString(),
+    title: 'z 9',
+    content: 'Abcdefg',
+    shortDescription: 'dsadadas',
+    blogId: '123'
+} as PostDbModel;
 
 const commentDbModel: CommentDbModel = {
     content: "Comment",
@@ -17,7 +30,8 @@ const commentDbModel: CommentDbModel = {
         userId: '123',
         userLogin: 'userLogin'
     },
-    createdAt: ""
+    createdAt: "",
+    postId: ""
 }
 
 const commentEntity: CommentApiResponseModel = {
@@ -30,7 +44,7 @@ const commentEntity: CommentApiResponseModel = {
     createdAt: ""
 }
 
-const token = jwtAuthService.createToken({test: 'test'})
+const token = jwtAuthService.createToken({login: 'userLogin', email: 'email', id: '123'})
 
 describe('/comments Positive', () => {
     beforeAll(async () => {
@@ -46,6 +60,24 @@ describe('/comments Positive', () => {
 
     afterEach(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+    })
+
+    it('should POST a comment successfully', async () => {
+        const postId = await postsRepository.createPost(postInput)
+
+        const response = await request
+            .post(`${baseUrl}${CONFIG.PATH.POSTS}/${postId}${CONFIG.PATH.COMMENTS}`)
+            .set('authorization', `Bearer ${token}`)
+            .send({
+                content: commentEntity.content
+            })
+            .expect(HTTP_STATUSES.CREATED_201);
+
+        expect(response.body).toEqual({
+            ...commentEntity,
+            id: expect.any(String),
+            createdAt: expect.any(String)
+        })
     })
 
     it('should GET a comment successfully', async () => {

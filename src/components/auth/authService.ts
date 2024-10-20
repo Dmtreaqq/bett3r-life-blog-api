@@ -16,7 +16,7 @@ export const authService = {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
-        const isValidPassword = hashService.checkPassword(authInput.password, user.password)
+        const isValidPassword = await hashService.checkPassword(authInput.password, user.password)
 
         if (!isValidPassword) {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)

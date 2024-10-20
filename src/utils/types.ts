@@ -8,6 +8,7 @@ export enum HTTP_STATUSES {
     NOT_AUTHORIZED_401 = 401,
     FORBIDDEN_403 = 403,
     NOT_FOUND_404 = 404,
+    INTERNAL_SERVER_ERROR_500 = 500
 }
 
 export type FieldError = {

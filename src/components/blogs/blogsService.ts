@@ -20,7 +20,7 @@ export const blogsService = {
         return blogsRepository.createBlog(blog)
     },
 
-    async updateBlogById(blogId: string, blog: BlogApiRequestModel): Promise<void> {
+    async updateBlogById(blogId: string, blog: BlogApiRequestModel): Promise<boolean> {
         const foundBlog = await blogsRepository.getBlogById(blogId)
         if (!foundBlog) {
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
@@ -28,7 +28,7 @@ export const blogsService = {
 
         const newBlog = { ...foundBlog, ...blog, id: blogId };
 
-        await blogsRepository.updateBlogById(newBlog);
+        return blogsRepository.updateBlogById(newBlog);
     },
 
 
@@ -51,12 +51,12 @@ export const blogsService = {
         return postsRepository.createPost(post);
     },
 
-    async deleteBlogById(blogId: string): Promise<void> {
+    async deleteBlogById(blogId: string): Promise<boolean> {
         const foundBlog = await blogsRepository.getBlogById(blogId)
         if (!foundBlog) {
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
 
-        await blogsRepository.deleteBlogById(blogId);
+        return blogsRepository.deleteBlogById(blogId);
     }
 }

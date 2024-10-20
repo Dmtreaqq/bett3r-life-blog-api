@@ -59,8 +59,11 @@ const blogsController = {
             const blogId = await blogsService.createBlog(req.body);
             const blog = await blogsQueryRepository.getBlogById(blogId)
 
-            // TODO: We just created a blog, it must be here ! Should we use ! operator here ??
-            return res.status(201).json(blog!);
+            if (!blog) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
+
+            return res.status(HTTP_STATUSES.CREATED_201).json(blog);
         } catch (err) {
             return next(err);
         }
@@ -69,7 +72,11 @@ const blogsController = {
         try {
             const { id: blogId } = req.params;
 
-            await blogsService.updateBlogById(blogId, req.body)
+            const result = await blogsService.updateBlogById(blogId, req.body)
+
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         } catch (error: any) {
@@ -80,7 +87,11 @@ const blogsController = {
     },
     async deleteBlogById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction){
         try {
-            await blogsService.deleteBlogById(req.params.id);
+            const result = await blogsService.deleteBlogById(req.params.id);
+
+            if(!result) {
+                res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         } catch (err) {
@@ -94,9 +105,8 @@ const blogsController = {
             const postId = await blogsService.createPostForBlog({ ...req.body, blogId: blogId })
             const post = await postsQueryRepository.getPostById(postId);
 
-            // TODO: надо ли ето?
             if (!post) {
-                return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             }
 
             return res.status(HTTP_STATUSES.CREATED_201).json(post)

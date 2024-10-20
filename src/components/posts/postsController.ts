@@ -38,11 +38,10 @@ const postsController = {
     async createPost(req: RequestWbody<PostApiRequestModel>, res: Response<PostApiResponseModel>, next: NextFunction){
         try {
             const postId = await postsService.createPost(req.body);
-            // TODO может ли тут НЕ бьіть поста???
-            const post = await postsQueryRepository.getPostById(postId!);
+            const post = await postsQueryRepository.getPostById(postId);
 
             if (!post) {
-                return res.status(HTTP_STATUSES.BAD_REQUEST_400)
+                return res.status(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
             }
 
             return res.status(HTTP_STATUSES.CREATED_201).json(post);
@@ -52,8 +51,11 @@ const postsController = {
     },
     async editPost (req: RequestWparamsAndBody<{ id: string }, PostApiRequestModel>, res: Response, next: NextFunction){
         try {
-            const { id: postId } = req.params;
-            await postsService.updatePost(postId, req.body);
+            const result = await postsService.updatePost(req.params.id, req.body);
+
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         } catch (err: any) {
@@ -62,7 +64,11 @@ const postsController = {
     },
     async deletePostById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction){
         try {
-            await postsService.deletePostById(req.params.id);
+            const result = await postsService.deletePostById(req.params.id);
+
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         } catch (err) {

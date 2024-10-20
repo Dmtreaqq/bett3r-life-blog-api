@@ -17,5 +17,17 @@ export const commentsRepository = {
         const result = await commentsCollection.deleteOne({ _id: new ObjectId(commentId) })
 
         return result.deletedCount === 1
+    },
+
+    async updateCommentById(commentId: string, commentContent: string) {
+        const result = await commentsCollection.updateOne({
+            _id: new ObjectId(commentId)
+        }, {
+            $set: {
+                content: commentContent
+            }
+        })
+
+        return result.modifiedCount === 1
     }
 }

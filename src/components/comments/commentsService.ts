@@ -36,5 +36,9 @@ export const commentsService = {
         }
 
         return commentsRepository.deleteCommentById(commentId)
+    },
+
+    async updateCommentById(commentId: string, content: string): Promise<boolean> {
+        return commentsRepository.updateCommentById(commentId, content)
     }
 }

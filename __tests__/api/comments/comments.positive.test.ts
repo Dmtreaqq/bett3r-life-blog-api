@@ -12,6 +12,7 @@ import {postsRepository} from "../../../src/components/posts/repositories/postsR
 import {blogsRepository} from "../../../src/components/blogs/repositories/blogsRepository";
 import {BlogDbModel} from "../../../src/components/blogs/models/BlogDbModel";
 import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
+import {BlogsApiResponseModel} from "../../../src/components/blogs/models/BlogApiModel";
 
 const baseUrl = '/api';
 
@@ -92,6 +93,25 @@ describe('/comments Positive', () => {
             ...commentEntity,
             id: expect.any(String),
             createdAt: expect.any(String)
+        })
+    })
+
+    it('should GET comments successfully', async () => {
+        const postId = await postsRepository.createPost({...postInput, _id: new ObjectId()} as any)
+        await commentsRepository.createComment({ ...commentDbModel, postId, _id: new ObjectId()} as any)
+        await commentsRepository.createComment({ ...commentDbModel, postId, _id: new ObjectId()} as any)
+
+        const response = await request
+            .get(`${baseUrl}${CONFIG.PATH.POSTS}/${postId}${CONFIG.PATH.COMMENTS}`)
+            .set('authorization', `Bearer ${token}`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response.body).toEqual({
+            page: 1,
+            pageSize: 10,
+            totalCount: 2,
+            pagesCount: 1,
+            items: expect.any(Array)
         })
     })
 

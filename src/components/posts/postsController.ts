@@ -1,5 +1,12 @@
 import {Router, Response, NextFunction} from 'express';
-import { HTTP_STATUSES, RequestWbody, RequestWparams, RequestWparamsAndBody, RequestWquery } from "../../utils/types";
+import {
+    HTTP_STATUSES,
+    RequestWbody,
+    RequestWparams,
+    RequestWparamsAndBody,
+    RequestWparamsAndQuery,
+    RequestWquery
+} from "../../utils/types";
 import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "./models/PostApiModel";
 import createEditPostValidationChains from "./middlewares/createEditPostValidationChains";
 import { authMiddleware } from "../../middlewares/authMiddleware";
@@ -8,10 +15,15 @@ import postQueryValidation from "./middlewares/postQueryValidation";
 import { PostQueryGetModel } from "./models/PostQueryGetModel";
 import { postsService } from "./postsService";
 import {postsQueryRepository} from "./repositories/postsQueryRepository";
-import {CommentApiRequestModel, CommentApiResponseModel} from "../comments/models/CommentApiModel";
+import {
+    CommentApiRequestModel,
+    CommentApiResponseModel,
+    CommentsApiResponseModel
+} from "../comments/models/CommentApiModel";
 import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
 import {commentsService} from "../comments/commentsService";
 import {commentsQueryRepository} from "../comments/repositories/commentsQueryRepository";
+import {CommentQueryGetModel} from "../comments/models/CommentQueryGetModel";
 
 export const postsRouter = Router();
 
@@ -96,13 +108,29 @@ const postsController = {
         } catch (err) {
             return next(err)
         }
+    },
+
+    async getCommentsForPost(req: RequestWparamsAndQuery<{ id: string }, CommentQueryGetModel>, res: Response<CommentsApiResponseModel>) {
+        const { pageNumber, pageSize, sortBy, sortDirection} = req.query
+        const { id: postId } = req.params
+
+        const comments = await commentsQueryRepository.getComments(
+            postId,
+            Number(pageNumber) || 1,
+            Number(pageSize) || 10,
+            sortBy,
+            sortDirection
+        )
+
+        return res.json(comments)
     }
 }
 
 postsRouter.post('/:id/comments', jwtAuthMiddleware, postsController.createCommentForPost)
+postsRouter.get('/:id/comments', postsController.getCommentsForPost)
 
 postsRouter.get('/', ...postQueryValidation, postsController.getPosts)
 postsRouter.get('/:id', ...postUrlParamValidation, postsController.getPostById)
 postsRouter.post('/', authMiddleware, ...createEditPostValidationChains, postsController.createPost)
-postsRouter.put('/:id', ...postUrlParamValidation, authMiddleware,  ...createEditPostValidationChains, postsController.editPost)
-postsRouter.delete('/:id', ...postUrlParamValidation, authMiddleware, postsController.deletePostById)
+postsRouter.put('/:id', authMiddleware, ...postUrlParamValidation,  ...createEditPostValidationChains, postsController.editPost)
+postsRouter.delete('/:id', authMiddleware, ...postUrlParamValidation, postsController.deletePostById)

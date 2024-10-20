@@ -14,3 +14,11 @@ export type CommentApiResponseModel = {
     createdAt: string
 }
 
+export type CommentsApiResponseModel = {
+    pagesCount: number;
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    items: CommentApiResponseModel[];
+}
+

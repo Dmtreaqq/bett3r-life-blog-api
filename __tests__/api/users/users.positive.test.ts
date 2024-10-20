@@ -206,8 +206,9 @@ describe('/users Positive', () => {
             .get(`${baseUrl}${CONFIG.PATH.USERS}/?sortBy=login&sortDirection=asc&searchEmailTerm=${userInput.email}&searchLoginTerm=hell`)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.OK_200);
-        expect(response1.body.items.length).toEqual(2)
+        expect(response1.body.items.length).toEqual(3)
         expect(response1.body.items[0].login).toEqual('ahell1')
         expect(response1.body.items[1].login).toEqual('bhell2')
+        expect(response1.body.items[2].login).toEqual('c3')
     })
 })

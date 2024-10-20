@@ -17,7 +17,7 @@ const usersController = {
             const user = await usersQueryRepository.getUserById(userId)
 
             if (!user) {
-                return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
             }
 
             return res.status(HTTP_STATUSES.CREATED_201).json(user);
@@ -28,7 +28,11 @@ const usersController = {
 
     async deleteUserById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
         try {
-            await usersService.deleteUserById(req.params.id)
+            const result = await usersService.deleteUserById(req.params.id)
+
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
+            }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         } catch (err: any) {

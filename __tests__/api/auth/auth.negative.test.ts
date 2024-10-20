@@ -22,7 +22,7 @@ const userDbModel: UserDbModel = {
     createdAt: new Date().toISOString(),
 }
 
-describe('/auth Positive', () => {
+describe('/auth negative', () => {
     beforeAll(async () => {
         await runDB()
     })
@@ -42,20 +42,13 @@ describe('/auth Positive', () => {
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 
-    it('should return 400 while POST with not existing loginOrEmail', async () => {
+    it('should return 401 while POST with not existing loginOrEmail', async () => {
         await usersRepository.createUser({ ...userDbModel, _id: new ObjectId() } as any);
 
         const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/login')
             .send({...authInput, loginOrEmail: 'not-existing'})
-            .expect(HTTP_STATUSES.BAD_REQUEST_400);
-
-        expect(response.body).toEqual({
-            errorsMessages: [{
-                field: 'loginOrEmail',
-                message: 'No user with such email or login'
-            }]
-        })
+            .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 
     it('should return 400 while POST with empty loginOrEmail', async () => {

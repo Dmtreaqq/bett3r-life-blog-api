@@ -9,7 +9,7 @@ export const postsRepository = {
 
         return result.insertedId.toString();
     },
-    async updatePostById(postResponseModel: PostApiResponseModel): Promise<void> {
+    async updatePostById(postResponseModel: PostApiResponseModel): Promise<boolean> {
         await postsCollection.updateOne({
             _id: new ObjectId(postResponseModel.id)
         },{
@@ -22,6 +22,8 @@ export const postsRepository = {
                 createdAt: postResponseModel.createdAt
             }
         })
+
+        return true
     },
     async deletePostById(id: string): Promise<boolean> {
         await postsCollection.deleteOne({ _id: new ObjectId(id) })

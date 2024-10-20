@@ -6,10 +6,9 @@ import {ApiError} from "../../utils/ApiError";
 import {HTTP_STATUSES} from "../../utils/types";
 
 export const postsService = {
-    async createPost(postInput: PostApiRequestModel): Promise<string | null> {
+    async createPost(postInput: PostApiRequestModel): Promise<string> {
         const blog = await blogsRepository.getBlogById(postInput.blogId)
 
-        // TODO: тогда нужно убрать проверку с миддлвара, иначе как затестить в Е2Е
         if (!blog) {
             throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, `Blog ${postInput.blogId} not found`, 'blogId')
         }
@@ -26,7 +25,7 @@ export const postsService = {
         return postsRepository.createPost(post);
     },
 
-    async updatePost(postId: string, post: PostApiRequestModel): Promise<void> {
+    async updatePost(postId: string, post: PostApiRequestModel): Promise<boolean> {
         const foundPost = await postsRepository.getPostById(postId);
         if (!foundPost) {
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
@@ -34,7 +33,7 @@ export const postsService = {
 
         const newPost: PostApiResponseModel = { ...foundPost, ...post, id: postId  };
 
-        await postsRepository.updatePostById(newPost)
+        return postsRepository.updatePostById(newPost)
     },
 
     async deletePostById(postId: string): Promise<boolean> {

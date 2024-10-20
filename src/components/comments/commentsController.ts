@@ -47,6 +47,6 @@ const commentsController = {
     },
 }
 
-commentsRouter.get('/:id', jwtAuthMiddleware, commentsController.getCommentById)
+commentsRouter.get('/:id', commentsController.getCommentById)
 commentsRouter.delete('/:id', jwtAuthMiddleware, commentsController.deleteCommentById)
 commentsRouter.put('/:id', jwtAuthMiddleware, ...createEditCommentValidation, commentsController.updateCommentById)

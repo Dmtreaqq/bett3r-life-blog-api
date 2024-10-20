@@ -13,7 +13,7 @@ const authController = {
             const token = await authService.login(req.body)
 
             return res.json({
-                accessToken: `Bearer ${token}`
+                accessToken: `${token}`
             })
         } catch (err) {
             return next(err)

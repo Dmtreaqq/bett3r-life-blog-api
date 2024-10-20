@@ -24,6 +24,7 @@ import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
 import {commentsService} from "../comments/commentsService";
 import {commentsQueryRepository} from "../comments/repositories/commentsQueryRepository";
 import {CommentQueryGetModel} from "../comments/models/CommentQueryGetModel";
+import createEditCommentValidation from "../comments/middlewares/createEditCommentValidation";
 
 export const postsRouter = Router();
 
@@ -126,7 +127,7 @@ const postsController = {
     }
 }
 
-postsRouter.post('/:id/comments', jwtAuthMiddleware, postsController.createCommentForPost)
+postsRouter.post('/:id/comments', jwtAuthMiddleware, ...createEditCommentValidation, postsController.createCommentForPost)
 postsRouter.get('/:id/comments', postsController.getCommentsForPost)
 
 postsRouter.get('/', ...postQueryValidation, postsController.getPosts)

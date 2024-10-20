@@ -37,7 +37,7 @@ const commentDbModel: CommentDbModel = {
 
 const commentEntity: CommentApiResponseModel = {
     id: "",
-    content: 'Comment',
+    content: 'Comment'.repeat(5),
     commentatorInfo: {
         userId: '123',
         userLogin: 'userLogin'
@@ -91,6 +91,7 @@ describe('/comments Positive', () => {
 
         expect(response.body).toEqual({
             ...commentEntity,
+            content: "Comment",
             id: expect.any(String),
             createdAt: expect.any(String)
         })

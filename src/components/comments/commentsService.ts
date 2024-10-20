@@ -25,20 +25,33 @@ export const commentsService = {
 
         return commentsRepository.createComment(commentDbModel)
     },
-    async deleteCommentById(commentId: string): Promise<boolean> {
+    // TODO: user: any описать
+    async deleteCommentById(commentId: string, user: any): Promise<boolean> {
         const comment = await commentsRepository.getCommentById(commentId)
 
-        // TODO сделать проверку что етот комент принадлежит юзеру
-
         if (!comment) {
-            // TODO -лучше возвращать что-то
+            // TODO - лучше возвращать что-то..
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
+
+        if (comment.commentatorInfo.userId !== user.id) {
+            throw new ApiError(HTTP_STATUSES.FORBIDDEN_403)
         }
 
         return commentsRepository.deleteCommentById(commentId)
     },
 
-    async updateCommentById(commentId: string, content: string): Promise<boolean> {
+    async updateCommentById(commentId: string, content: string, user: any): Promise<boolean> {
+        const comment = await commentsRepository.getCommentById(commentId)
+
+        if (!comment) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
+        }
+
+        if (comment.commentatorInfo.userId !== user.id) {
+            throw new ApiError(HTTP_STATUSES.FORBIDDEN_403)
+        }
+
         return commentsRepository.updateCommentById(commentId, content)
     }
 }

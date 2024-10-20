@@ -1,5 +1,13 @@
 import { Request } from 'express'
 
+declare global {
+    namespace Express {
+        export interface Request {
+            user: any
+        }
+    }
+}
+
 export enum HTTP_STATUSES {
     OK_200 = 200,
     CREATED_201 = 201,

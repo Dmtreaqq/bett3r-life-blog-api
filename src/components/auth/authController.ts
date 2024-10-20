@@ -9,13 +9,11 @@ export const authRouter = Router()
 const authController = {
     async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
         try {
-            const result = await authService.login(req.body)
+            const token = await authService.login(req.body)
 
-            if (!result) {
-                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            }
-
-            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+            return res.json({
+                accessToken: token
+            })
         } catch (err) {
             return next(err)
         }

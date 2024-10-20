@@ -7,6 +7,8 @@ import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/Auth
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {hashSync} from "bcrypt";
+import {jwtAuthService} from "../../../src/services/jwtService";
+import {ObjectId} from "mongodb";
 
 const baseUrl = '/api';
 
@@ -16,12 +18,20 @@ const authInput: AuthLoginApiRequestModel = {
 }
 
 const hashedPassword = hashSync(authInput.password, 10)
-const userDbModel: UserDbModel = {
+const userDbModel = {
+    _id: new ObjectId(),
     email: 'some@test.net',
     login: authInput.loginOrEmail,
     password: hashedPassword,
     createdAt: new Date().toISOString(),
-}
+} as any
+
+const token = jwtAuthService.createToken({
+    id: userDbModel._id.toString(),
+    login: userDbModel.login,
+    email: userDbModel.email,
+    createdAt: userDbModel.createdAt
+})
 
 describe('/auth Positive', () => {
     beforeAll(async () => {
@@ -37,9 +47,13 @@ describe('/auth Positive', () => {
     it('should POST login successfully', async () => {
         await usersRepository.createUser(userDbModel);
 
-        await request
+        const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/login')
             .send(authInput)
-            .expect(HTTP_STATUSES.NO_CONTENT_204);
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response.body).toEqual({
+            accessToken: token
+        })
     })
 })

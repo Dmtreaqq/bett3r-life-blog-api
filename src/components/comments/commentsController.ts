@@ -3,6 +3,7 @@ import {HTTP_STATUSES, RequestWparams} from "../../utils/types";
 import {CommentApiResponseModel} from "./models/CommentApiModel";
 import {commentsQueryRepository} from "./repositories/commentsQueryRepository";
 import {commentsService} from "./commentsService";
+import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
 
 export const commentsRouter = Router()
 
@@ -28,5 +29,5 @@ const commentsController = {
     }
 }
 
-commentsRouter.get('/:id', commentsController.getCommentById)
-commentsRouter.delete('/:id', commentsController.deleteCommentById)
+commentsRouter.get('/:id', jwtAuthMiddleware, commentsController.getCommentById)
+commentsRouter.delete('/:id', jwtAuthMiddleware, commentsController.deleteCommentById)

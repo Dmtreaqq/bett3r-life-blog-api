@@ -9,6 +9,8 @@ import {commentsRepository} from "../../../src/components/comments/repositories/
 import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {postsRepository} from "../../../src/components/posts/repositories/postsRepository";
 import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
+import {commentsTestManager} from "./commentsTestManager";
+import {postsTestManager} from "../posts/postsTestManager";
 
 const baseUrl = '/api';
 
@@ -60,10 +62,10 @@ describe('/comments Positive', () => {
     })
 
     it('should POST a comment successfully', async () => {
-        const postId = await postsRepository.createPost(postInput)
+        const post = await postsTestManager.createPost()
 
         const response = await request
-            .post(`${baseUrl}${CONFIG.PATH.POSTS}/${postId}${CONFIG.PATH.COMMENTS}`)
+            .post(`${baseUrl}${CONFIG.PATH.POSTS}/${post.id}${CONFIG.PATH.COMMENTS}`)
             .set('authorization', `Bearer ${token}`)
             .send({
                 content: commentEntity.content
@@ -78,16 +80,16 @@ describe('/comments Positive', () => {
     })
 
     it('should GET a comment successfully', async () => {
-        const commentId = await commentsRepository.createComment({ ...commentDbModel, _id: new ObjectId()} as any)
+        const comment = await commentsTestManager.createComment()
 
         const response = await request
-            .get(baseUrl + CONFIG.PATH.COMMENTS + `/${commentId}`)
+            .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
             .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
-            ...commentEntity,
-            content: "Comment",
+            ...comment,
+            content: comment.content,
             id: expect.any(String),
             createdAt: expect.any(String)
         })
@@ -113,16 +115,38 @@ describe('/comments Positive', () => {
     })
 
     it('should DELETE a comment successfully', async () => {
-        const commentId = await commentsRepository.createComment({ ...commentDbModel, _id: new ObjectId()} as any)
+        const comment = await commentsTestManager.createComment()
 
         await request
-            .del(baseUrl + CONFIG.PATH.COMMENTS + `/${commentId}`)
+            .del(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
             .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         await request
-            .get(baseUrl + CONFIG.PATH.COMMENTS + `/${commentId}`)
-            .set('authorization', `Bearer ${token}`)
+            .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
             .expect(HTTP_STATUSES.NOT_FOUND_404);
+    })
+
+    it('should PUT a comment successfully', async () => {
+        const comment = await commentsTestManager.createComment()
+
+        await request
+            .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .set('authorization', `Bearer ${token}`)
+            .send({
+                content: "This comment was changed because of test scenario"
+            })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse = await request
+            .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            content: "This comment was changed because of test scenario"
+        })
     })
 })

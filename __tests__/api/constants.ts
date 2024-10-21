@@ -1,6 +1,8 @@
 import {BlogApiRequestModel} from "../../src/components/blogs/models/BlogApiModel";
 import {fromUTF8ToBase64} from "../../src/common/middlewares/basicAuthMiddleware";
 import {CONFIG} from "../../src/common/utils/config";
+import {PostDbModel} from "../../src/components/posts/models/PostDbModel";
+import {PostApiRequestModel} from "../../src/components/posts/models/PostApiModel";
 
 export const baseUrl = '/api';
 export const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -11,3 +13,12 @@ export const blogApiRequestModel: BlogApiRequestModel = {
     description: 'BlogDescription',
     websiteUrl: 'https://blog-website.com',
 }
+
+export const postApiRequestModel: PostApiRequestModel = {
+    title: 'PostTitle',
+    content: 'PostContent',
+    shortDescription: 'PostShortDesc',
+    blogId: 'blogId'
+}
+
+export const testCommentary = 'Test commentary that more than 20 symbols'

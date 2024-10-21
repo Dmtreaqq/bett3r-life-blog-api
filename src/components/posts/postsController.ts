@@ -118,6 +118,7 @@ const postsController = {
             const { id: postId } = req.params
 
             const comments = await commentsQueryService.getCommentsForPost(
+                // TODO - спросить норм ли тут ??
                 postId,
                 Number(pageNumber) || 1,
                 Number(pageSize) || 10,

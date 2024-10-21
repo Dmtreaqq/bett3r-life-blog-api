@@ -1,8 +1,11 @@
 import jwt, {JwtPayload} from 'jsonwebtoken'
+import {CONFIG} from "../utils/config";
+
+const secret = CONFIG.JWT_SECRET
 
 export const jwtAuthService = {
     createToken(user: any): string {
-        const token = jwt.sign(user, 'secret', {
+        const token = jwt.sign(user, String(secret), {
             expiresIn: '10m'
         });
 
@@ -10,7 +13,7 @@ export const jwtAuthService = {
     },
 
     verifyToken(token: string): string | JwtPayload {
-        const result = jwt.verify(token, 'secret')
+        const result = jwt.verify(token, String(secret))
 
         return result
     }

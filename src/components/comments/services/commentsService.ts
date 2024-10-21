@@ -1,9 +1,9 @@
-import {commentsRepository} from "./repositories/commentsRepository";
-import {ApiError} from "../../common/utils/ApiError";
-import {HTTP_STATUSES} from "../../common/utils/types";
-import {CommentDbModel} from "./models/CommentDbModel";
-import {postsRepository} from "../posts/repositories/postsRepository";
-import {CommentApiRequestModel} from "./models/CommentApiModel";
+import {commentsRepository} from "../repositories/commentsRepository";
+import {ApiError} from "../../../common/utils/ApiError";
+import {HTTP_STATUSES} from "../../../common/utils/types";
+import {CommentDbModel} from "../models/CommentDbModel";
+import {postsRepository} from "../../posts/repositories/postsRepository";
+import {CommentApiRequestModel} from "../models/CommentApiModel";
 
 export const commentsService = {
     async createComment(postId: string, comment: CommentApiRequestModel, user: any): Promise<string> {

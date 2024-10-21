@@ -21,10 +21,11 @@ import {
     CommentsApiResponseModel
 } from "../comments/models/CommentApiModel";
 import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
-import {commentsService} from "../comments/commentsService";
+import {commentsService} from "../comments/services/commentsService";
 import {commentsQueryRepository} from "../comments/repositories/commentsQueryRepository";
 import {CommentQueryGetModel} from "../comments/models/CommentQueryGetModel";
 import createEditCommentValidation from "../comments/middlewares/createEditCommentValidation";
+import {commentsQueryService} from "../comments/services/commentsQueryService";
 
 export const postsRouter = Router();
 
@@ -116,7 +117,7 @@ const postsController = {
             const { pageNumber, pageSize, sortBy, sortDirection} = req.query
             const { id: postId } = req.params
 
-            const comments = await commentsQueryRepository.getComments(
+            const comments = await commentsQueryService.getCommentsForPost(
                 postId,
                 Number(pageNumber) || 1,
                 Number(pageSize) || 10,

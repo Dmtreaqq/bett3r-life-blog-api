@@ -2,7 +2,7 @@ import {Router, Response, NextFunction} from "express";
 import {HTTP_STATUSES, RequestWparams, RequestWparamsAndBody} from "../../common/utils/types";
 import {CommentApiRequestModel, CommentApiResponseModel} from "./models/CommentApiModel";
 import {commentsQueryRepository} from "./repositories/commentsQueryRepository";
-import {commentsService} from "./commentsService";
+import {commentsService} from "./services/commentsService";
 import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import createEditCommentValidation from "./middlewares/createEditCommentValidation";
 

@@ -2,9 +2,6 @@ import {CommentApiResponseModel, CommentsApiResponseModel} from "../models/Comme
 import {commentsCollection} from "../../../common/db/db";
 import {Filter, ObjectId} from "mongodb";
 import {CommentDbModel} from "../models/CommentDbModel";
-import {postsQueryRepository} from "../../posts/repositories/postsQueryRepository";
-import {ApiError} from "../../../common/utils/ApiError";
-import {HTTP_STATUSES} from "../../../common/utils/types";
 
 export const commentsQueryRepository = {
     async getCommentById(commentId: string): Promise<CommentApiResponseModel | null> {
@@ -25,12 +22,6 @@ export const commentsQueryRepository = {
 
     async getComments(postId: string, pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<CommentsApiResponseModel> {
         const filter: Filter<CommentDbModel> = {}
-
-        // TODO: нормально ли из одного квери репо ходить в другой только для проверки данньіх
-        const post = await postsQueryRepository.getPostById(postId)
-        if (!post) {
-            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
-        }
 
         if (postId) {
             filter.postId = postId

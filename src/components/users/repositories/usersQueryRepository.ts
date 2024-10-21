@@ -1,7 +1,7 @@
 import {UserApiResponseModel, UsersApiResponseModel} from "../models/UserApiModel";
 import {UserDbModel} from "../models/UserDbModel";
 import {Filter, ObjectId, WithId} from "mongodb";
-import {usersCollection} from "../../../db/db";
+import {usersCollection} from "../../../common/db/db";
 
 export const usersQueryRepository = {
     async getUserById(id: string): Promise<UserApiResponseModel | null> {

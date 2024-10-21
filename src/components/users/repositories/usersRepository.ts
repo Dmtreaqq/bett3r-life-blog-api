@@ -1,4 +1,4 @@
-import {usersCollection} from "../../../db/db";
+import {usersCollection} from "../../../common/db/db";
 import {UserDbModel} from "../models/UserDbModel";
 import {ObjectId} from "mongodb";
 

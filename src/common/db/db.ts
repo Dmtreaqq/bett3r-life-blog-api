@@ -1,10 +1,10 @@
 import { Collection, Db, MongoClient } from "mongodb";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { CONFIG } from "../utils/config";
-import { BlogDbModel } from "../components/blogs/models/BlogDbModel";
-import { PostDbModel } from "../components/posts/models/PostDbModel";
-import {UserDbModel} from "../components/users/models/UserDbModel";
-import {CommentDbModel} from "../components/comments/models/CommentDbModel";
+import { BlogDbModel } from "../../components/blogs/models/BlogDbModel";
+import { PostDbModel } from "../../components/posts/models/PostDbModel";
+import {UserDbModel} from "../../components/users/models/UserDbModel";
+import {CommentDbModel} from "../../components/comments/models/CommentDbModel";
 
 let db: Db;
 export let client: MongoClient;

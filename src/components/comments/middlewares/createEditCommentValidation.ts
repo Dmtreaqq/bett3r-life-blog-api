@@ -1,5 +1,5 @@
 import {body} from 'express-validator'
-import {validationMiddleware} from "../../../middlewares/validationMiddleware";
+import {validationMiddleware} from "../../../common/middlewares/validationMiddleware";
 
 const createContentChain = () => body('content')
     .isString().withMessage('Should be a string')

@@ -6,7 +6,7 @@ import {
     RequestWparamsAndBody,
     RequestWparamsAndQuery,
     RequestWquery
-} from "../../utils/types";
+} from "../../common/utils/types";
 import {
     BlogApiRequestModel,
     BlogApiResponseModel,
@@ -15,7 +15,7 @@ import {
 } from "./models/BlogApiModel";
 import { blogsService } from "./blogsService";
 import createEditBlogValidationChains from './middlewares/createEditBlogValidationChains';
-import { authMiddleware } from "../../middlewares/authMiddleware";
+import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
 import blogUrlParamValidation from "./middlewares/blogUrlParamValidation";
 import { BlogQueryGetModel } from "./models/BlogQueryGetModel";
 import blogQueryValidation from "./middlewares/blogQueryValidation";

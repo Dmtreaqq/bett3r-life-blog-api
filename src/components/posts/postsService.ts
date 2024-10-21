@@ -2,8 +2,8 @@ import {postsRepository} from "./repositories/postsRepository";
 import {PostApiRequestModel, PostApiResponseModel} from "./models/PostApiModel";
 import {PostDbModel} from "./models/PostDbModel";
 import {blogsRepository} from "../blogs/repositories/blogsRepository";
-import {ApiError} from "../../utils/ApiError";
-import {HTTP_STATUSES} from "../../utils/types";
+import {ApiError} from "../../common/utils/ApiError";
+import {HTTP_STATUSES} from "../../common/utils/types";
 
 export const postsService = {
     async createPost(postInput: PostApiRequestModel): Promise<string> {

@@ -1,5 +1,5 @@
 import { param } from "express-validator";
-import { validationMiddleware } from "../../../middlewares/validationMiddleware";
+import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 

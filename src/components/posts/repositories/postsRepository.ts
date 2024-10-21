@@ -1,4 +1,4 @@
-import { postsCollection } from "../../../db/db";
+import { postsCollection } from "../../../common/db/db";
 import { PostDbModel } from "../models/PostDbModel";
 import { ObjectId } from "mongodb";
 import { PostApiResponseModel } from "../models/PostApiModel";

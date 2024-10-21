@@ -1,7 +1,7 @@
 import {PostApiResponseModel, PostsApiResponseModel} from "../models/PostApiModel";
 import {Filter, ObjectId, WithId} from "mongodb";
 import {PostDbModel} from "../models/PostDbModel";
-import {postsCollection} from "../../../db/db";
+import {postsCollection} from "../../../common/db/db";
 
 export const postsQueryRepository = {
     async getPostById(id: string): Promise<PostApiResponseModel | null> {

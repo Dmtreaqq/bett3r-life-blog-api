@@ -6,10 +6,10 @@ import {
     RequestWparamsAndBody,
     RequestWparamsAndQuery,
     RequestWquery
-} from "../../utils/types";
+} from "../../common/utils/types";
 import { PostApiRequestModel, PostApiResponseModel, PostsApiResponseModel } from "./models/PostApiModel";
 import createEditPostValidationChains from "./middlewares/createEditPostValidationChains";
-import { authMiddleware } from "../../middlewares/authMiddleware";
+import { authMiddleware} from "../../common/middlewares/basicAuthMiddleware";
 import postUrlParamValidation from "./middlewares/postUrlParamValidation";
 import postQueryValidation from "./middlewares/postQueryValidation";
 import { PostQueryGetModel } from "./models/PostQueryGetModel";
@@ -20,7 +20,7 @@ import {
     CommentApiResponseModel,
     CommentsApiResponseModel
 } from "../comments/models/CommentApiModel";
-import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
+import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import {commentsService} from "../comments/commentsService";
 import {commentsQueryRepository} from "../comments/repositories/commentsQueryRepository";
 import {CommentQueryGetModel} from "../comments/models/CommentQueryGetModel";

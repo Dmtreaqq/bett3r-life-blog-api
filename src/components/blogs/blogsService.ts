@@ -2,8 +2,8 @@ import {BlogApiRequestModel} from "./models/BlogApiModel";
 import {blogsRepository} from "./repositories/blogsRepository";
 import {BlogDbModel} from "./models/BlogDbModel";
 import {PostApiRequestModel} from "../posts/models/PostApiModel";
-import {HTTP_STATUSES} from "../../utils/types";
-import {ApiError} from "../../utils/ApiError";
+import {HTTP_STATUSES} from "../../common/utils/types";
+import {ApiError} from "../../common/utils/ApiError";
 import {PostDbModel} from "../posts/models/PostDbModel";
 import {postsRepository} from "../posts/repositories/postsRepository";
 

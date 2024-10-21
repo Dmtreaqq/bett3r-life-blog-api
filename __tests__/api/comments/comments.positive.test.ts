@@ -1,18 +1,14 @@
 import {request} from "../test-helper";
-import {CONFIG} from "../../../src/utils/config";
-import {HTTP_STATUSES} from "../../../src/utils/types";
-import {fromUTF8ToBase64} from "../../../src/middlewares/authMiddleware";
-import {client, runDB, server} from "../../../src/db/db";
+import {CONFIG} from "../../../src/common/utils/config";
+import {HTTP_STATUSES} from "../../../src/common/utils/types";
+import {client, runDB, server} from "../../../src/common/db/db";
 import {ObjectId} from "mongodb";
 import {CommentApiResponseModel} from "../../../src/components/comments/models/CommentApiModel";
 import {CommentDbModel} from "../../../src/components/comments/models/CommentDbModel";
 import {commentsRepository} from "../../../src/components/comments/repositories/commentsRepository";
-import {jwtAuthService} from "../../../src/services/jwtService";
+import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {postsRepository} from "../../../src/components/posts/repositories/postsRepository";
-import {blogsRepository} from "../../../src/components/blogs/repositories/blogsRepository";
-import {BlogDbModel} from "../../../src/components/blogs/models/BlogDbModel";
 import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
-import {BlogsApiResponseModel} from "../../../src/components/blogs/models/BlogApiModel";
 
 const baseUrl = '/api';
 

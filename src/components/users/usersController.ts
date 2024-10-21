@@ -1,8 +1,8 @@
 import {Router, Response, NextFunction} from "express";
-import {HTTP_STATUSES, RequestWbody, RequestWparams, RequestWquery} from "../../utils/types";
+import {HTTP_STATUSES, RequestWbody, RequestWparams, RequestWquery} from "../../common/utils/types";
 import {UserApiRequestModel, UserApiResponseModel, UsersApiResponseModel} from "./models/UserApiModel";
 import {usersQueryRepository} from "./repositories/usersQueryRepository";
-import {authMiddleware} from "../../middlewares/authMiddleware";
+import {authMiddleware} from "../../common/middlewares/basicAuthMiddleware";
 import {usersService} from "./usersService";
 import {UserQueryGetModel} from "./models/UserQueryGetModel";
 import userUrlParamValidation from "./middlewares/userUrlParamValidation";

@@ -1,14 +1,14 @@
-import { CONFIG } from "../../../src/utils/config";
-import { HTTP_STATUSES } from "../../../src/utils/types";
+import { CONFIG } from "../../../src/common/utils/config";
+import { HTTP_STATUSES } from "../../../src/common/utils/types";
 import {
     BlogApiResponseModel,
     BlogsApiResponseModel
 } from "../../../src/components/blogs/models/BlogApiModel";
 import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
-import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
-import { client, runDB } from "../../../src/db/db";
+import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
+import { client, runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper'
-import { server } from "../../../src/db/db";
+import { server } from "../../../src/common/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
 import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";

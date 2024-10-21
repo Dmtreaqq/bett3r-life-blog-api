@@ -1,10 +1,10 @@
 import {CommentApiResponseModel, CommentsApiResponseModel} from "../models/CommentApiModel";
-import {commentsCollection} from "../../../db/db";
+import {commentsCollection} from "../../../common/db/db";
 import {Filter, ObjectId} from "mongodb";
 import {CommentDbModel} from "../models/CommentDbModel";
 import {postsQueryRepository} from "../../posts/repositories/postsQueryRepository";
-import {ApiError} from "../../../utils/ApiError";
-import {HTTP_STATUSES} from "../../../utils/types";
+import {ApiError} from "../../../common/utils/ApiError";
+import {HTTP_STATUSES} from "../../../common/utils/types";
 
 export const commentsQueryRepository = {
     async getCommentById(commentId: string): Promise<CommentApiResponseModel | null> {

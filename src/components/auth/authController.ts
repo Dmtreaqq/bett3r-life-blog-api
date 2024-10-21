@@ -1,9 +1,9 @@
 import {NextFunction, Response, Router, Request} from 'express'
-import {RequestWbody} from "../../utils/types";
+import {RequestWbody} from "../../common/utils/types";
 import {AuthLoginApiRequestModel, AuthMeInfoResponseModel} from "./models/AuthApiModel";
 import {authService} from "./authService";
 import authValidation from "./middlewares/authValidation";
-import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
+import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 
 export const authRouter = Router()
 

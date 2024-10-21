@@ -1,4 +1,4 @@
-import {validationMiddleware} from "../../../middlewares/validationMiddleware";
+import {validationMiddleware} from "../../../common/middlewares/validationMiddleware";
 import {body} from "express-validator";
 
 /*export type UserApiRequestModel = {

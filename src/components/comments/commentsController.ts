@@ -1,9 +1,9 @@
 import {Router, Response, NextFunction} from "express";
-import {HTTP_STATUSES, RequestWparams, RequestWparamsAndBody} from "../../utils/types";
+import {HTTP_STATUSES, RequestWparams, RequestWparamsAndBody} from "../../common/utils/types";
 import {CommentApiRequestModel, CommentApiResponseModel} from "./models/CommentApiModel";
 import {commentsQueryRepository} from "./repositories/commentsQueryRepository";
 import {commentsService} from "./commentsService";
-import {jwtAuthMiddleware} from "../../middlewares/jwtAuthMiddleware";
+import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import createEditCommentValidation from "./middlewares/createEditCommentValidation";
 
 export const commentsRouter = Router()

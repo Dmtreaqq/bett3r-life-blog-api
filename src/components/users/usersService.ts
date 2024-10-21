@@ -1,10 +1,10 @@
 import {usersRepository} from "./repositories/usersRepository";
 import {UserApiRequestModel} from "./models/UserApiModel";
 import {UserDbModel} from "./models/UserDbModel";
-import {ApiError} from "../../utils/ApiError";
-import {HTTP_STATUSES} from "../../utils/types";
+import {ApiError} from "../../common/utils/ApiError";
+import {HTTP_STATUSES} from "../../common/utils/types";
 import {usersQueryRepository} from "./repositories/usersQueryRepository";
-import {hashService} from "../../services/hashService";
+import {hashService} from "../../common/services/hashService";
 
 export const usersService = {
     async createUser(userInput: UserApiRequestModel): Promise<string> {

@@ -1,7 +1,7 @@
 import {request} from "../test-helper";
-import {CONFIG} from "../../../src/utils/config";
-import {HTTP_STATUSES} from "../../../src/utils/types";
-import {client, runDB, server} from "../../../src/db/db";
+import {CONFIG} from "../../../src/common/utils/config";
+import {HTTP_STATUSES} from "../../../src/common/utils/types";
+import {client, runDB, server} from "../../../src/common/db/db";
 
 import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";

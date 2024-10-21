@@ -1,5 +1,5 @@
 import {BlogApiResponseModel, BlogsApiResponseModel} from "../models/BlogApiModel";
-import {blogsCollection} from "../../../db/db";
+import {blogsCollection} from "../../../common/db/db";
 import {BlogDbModel} from "../models/BlogDbModel";
 import {Filter, ObjectId, WithId} from "mongodb";
 

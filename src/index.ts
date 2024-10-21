@@ -1,6 +1,6 @@
-import { runDB } from "./db/db";
+import { runDB } from "./common/db/db";
 import { app } from "./app";
-import { CONFIG } from "./utils/config";
+import { CONFIG } from "./common/utils/config";
 
 const startApp = async () => {
     await runDB();

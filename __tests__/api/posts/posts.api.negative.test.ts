@@ -1,9 +1,9 @@
-import { CONFIG } from "../../../src/utils/config";
-import { HTTP_STATUSES } from "../../../src/utils/types";
+import { CONFIG } from "../../../src/common/utils/config";
+import { HTTP_STATUSES } from "../../../src/common/utils/types";
 import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
-import { fromUTF8ToBase64 } from "../../../src/middlewares/authMiddleware";
+import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
 import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";
-import { client, runDB, server } from "../../../src/db/db";
+import { client, runDB, server } from "../../../src/common/db/db";
 import { request } from '../test-helper';
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";

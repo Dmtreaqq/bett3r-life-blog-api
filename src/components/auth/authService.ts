@@ -1,9 +1,9 @@
 import {AuthLoginApiRequestModel} from "./models/AuthApiModel";
 import {usersRepository} from "../users/repositories/usersRepository";
-import {ApiError} from "../../utils/ApiError";
-import {HTTP_STATUSES} from "../../utils/types";
-import {hashService} from "../../services/hashService";
-import {jwtAuthService} from "../../services/jwtService";
+import {ApiError} from "../../common/utils/ApiError";
+import {HTTP_STATUSES} from "../../common/utils/types";
+import {hashService} from "../../common/services/hashService";
+import {jwtAuthService} from "../../common/services/jwtService";
 
 export const authService = {
     async login(authInput: AuthLoginApiRequestModel): Promise<string> {

@@ -1,9 +1,9 @@
 import {request} from "../test-helper";
-import {CONFIG} from "../../../src/utils/config";
-import {HTTP_STATUSES} from "../../../src/utils/types";
-import {fromUTF8ToBase64} from "../../../src/middlewares/authMiddleware";
+import {CONFIG} from "../../../src/common/utils/config";
+import {HTTP_STATUSES} from "../../../src/common/utils/types";
+import {fromUTF8ToBase64} from "../../../src/common/middlewares/basicAuthMiddleware";
 import {UserApiRequestModel, UserApiResponseModel} from "../../../src/components/users/models/UserApiModel";
-import {client, runDB, server} from "../../../src/db/db";
+import {client, runDB, server} from "../../../src/common/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {usersQueryRepository} from "../../../src/components/users/repositories/usersQueryRepository";

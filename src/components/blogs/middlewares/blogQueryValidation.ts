@@ -1,5 +1,5 @@
 import { query } from "express-validator";
-import { validationMiddleware } from "../../../middlewares/validationMiddleware";
+import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
 
 const createQueryPaginationChain = () => query(['pageNumber', 'pageSize'])
     .optional()

@@ -5,6 +5,7 @@ import {authService} from "./authService";
 import authValidation from "./middlewares/authValidation";
 import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import {UserApiRequestModel} from "../users/models/UserApiModel";
+import {usersQueryRepository} from "../users/repositories/usersQueryRepository";
 
 export const authRouter = Router()
 
@@ -22,10 +23,11 @@ const authController = {
     },
 
     async getCurrentUserInfo(req: Request, res: Response<AuthMeInfoResponseModel>) {
+        const user = await usersQueryRepository.getUserById(req.user.id)
         const response: AuthMeInfoResponseModel = {
-            login: req.user.login,
-            email: req.user.email,
-            userId: req.user.id
+            login: user!.login,
+            email: user!.email,
+            userId: user!.id
         }
 
         return res.json(response)

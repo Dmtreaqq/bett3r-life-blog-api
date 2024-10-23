@@ -3,6 +3,10 @@ import {UserDbModel} from "../models/UserDbModel";
 import {ObjectId} from "mongodb";
 
 export const usersRepository = {
+    async getUserById(userId: string) {
+        return await usersCollection.findOne({ _id: new ObjectId(userId) })
+    },
+
     async createUser(user: UserDbModel): Promise<string> {
         const { insertedId } = await usersCollection.insertOne(user)
 

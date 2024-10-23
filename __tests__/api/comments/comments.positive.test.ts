@@ -6,11 +6,11 @@ import {ObjectId} from "mongodb";
 import {CommentApiResponseModel} from "../../../src/components/comments/models/CommentApiModel";
 import {CommentDbModel} from "../../../src/components/comments/models/CommentDbModel";
 import {commentsRepository} from "../../../src/components/comments/repositories/commentsRepository";
-import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {postsRepository} from "../../../src/components/posts/repositories/postsRepository";
 import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
 import {commentsTestManager} from "./commentsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
+import {authTestManager} from "../auth/authTestManager";
 
 const baseUrl = '/api';
 
@@ -43,7 +43,6 @@ const commentEntity: CommentApiResponseModel = {
     createdAt: ""
 }
 
-const token = jwtAuthService.createToken({login: 'userLogin', email: 'email', id: '123'})
 
 describe('/comments Positive', () => {
     beforeAll(async () => {
@@ -62,7 +61,8 @@ describe('/comments Positive', () => {
     })
 
     it('should POST a comment successfully', async () => {
-        const post = await postsTestManager.createPost()
+        const token = await authTestManager.getTokenOfLoggedInUser()
+        const post = await postsTestManager.createPost();
 
         const response = await request
             .post(`${baseUrl}${CONFIG.PATH.POSTS}/${post.id}${CONFIG.PATH.COMMENTS}`)
@@ -74,17 +74,22 @@ describe('/comments Positive', () => {
 
         expect(response.body).toEqual({
             ...commentEntity,
+            commentatorInfo: {
+                ...commentEntity.commentatorInfo,
+                userId: expect.any(String)
+            },
             id: expect.any(String),
             createdAt: expect.any(String)
         })
     })
 
     it('should GET a comment successfully', async () => {
-        const comment = await commentsTestManager.createComment()
+        const post = await postsTestManager.createPost();
+        const token = await authTestManager.getTokenOfLoggedInUser()
+        const comment = await commentsTestManager.createComment(post.id, token)
 
         const response = await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
-            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
@@ -102,7 +107,6 @@ describe('/comments Positive', () => {
 
         const response = await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/${postId}${CONFIG.PATH.COMMENTS}`)
-            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
@@ -115,7 +119,9 @@ describe('/comments Positive', () => {
     })
 
     it('should DELETE a comment successfully', async () => {
-        const comment = await commentsTestManager.createComment()
+        const post = await postsTestManager.createPost();
+        const token = await authTestManager.getTokenOfLoggedInUser()
+        const comment = await commentsTestManager.createComment(post.id, token)
 
         await request
             .del(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
@@ -128,7 +134,9 @@ describe('/comments Positive', () => {
     })
 
     it('should PUT a comment successfully', async () => {
-        const comment = await commentsTestManager.createComment()
+        const post = await postsTestManager.createPost();
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
 
         await request
             .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)

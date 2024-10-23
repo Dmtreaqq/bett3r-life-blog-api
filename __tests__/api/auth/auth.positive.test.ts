@@ -48,10 +48,7 @@ describe('/auth Positive', () => {
 
         expect(response.body).toEqual({
             accessToken: jwtAuthService.createToken({
-                id: userDbModel._id.toString(),
-                login: userDbModel.login,
-                email: userDbModel.email,
-                createdAt: userDbModel.createdAt
+                id: userDbModel._id.toString()
             })
         })
     })

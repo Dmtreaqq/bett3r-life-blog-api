@@ -98,7 +98,7 @@ const postsController = {
     async createCommentForPost(req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>, res: Response<CommentApiResponseModel>, next: NextFunction) {
         const { id: postId } = req.params
         try {
-            const commentId = await commentsService.createComment(postId, req.body, req.user)
+            const commentId = await commentsService.createComment(postId, req.body, req.user.id)
 
             const comment = await commentsQueryRepository.getCommentById(commentId)
 

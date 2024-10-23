@@ -4,21 +4,24 @@ import {HTTP_STATUSES} from "../../../common/utils/types";
 import {CommentDbModel} from "../models/CommentDbModel";
 import {postsRepository} from "../../posts/repositories/postsRepository";
 import {CommentApiRequestModel} from "../models/CommentApiModel";
+import {usersRepository} from "../../users/repositories/usersRepository";
 
 export const commentsService = {
-    async createComment(postId: string, comment: CommentApiRequestModel, user: any): Promise<string> {
+    async createComment(postId: string, comment: CommentApiRequestModel, userId: any): Promise<string> {
         const post = await postsRepository.getPostById(postId)
 
         if (!post) {
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
 
+        const user = await usersRepository.getUserById(userId)
+
         const commentDbModel: CommentDbModel = {
             content: comment.content,
             postId,
             commentatorInfo: {
-                userId: user.id,
-                userLogin: user.login
+                userId: userId,
+                userLogin: user!.login
             },
             createdAt: new Date().toISOString()
         }

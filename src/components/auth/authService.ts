@@ -25,10 +25,7 @@ export const authService = {
         }
 
         const token = jwtAuthService.createToken({
-            id: user._id.toString(),
-            login: user.login,
-            email: user.email,
-            createdAt: user.createdAt
+            id: user._id.toString()
         })
 
         return token

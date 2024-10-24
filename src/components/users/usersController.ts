@@ -40,19 +40,23 @@ const usersController = {
         }
     },
 
-    async getUsers(req: RequestWquery<UserQueryGetModel>, res: Response<UsersApiResponseModel>) {
-        const { searchLoginTerm: login, searchEmailTerm: email, pageNumber, pageSize, sortBy, sortDirection } = req.query;
+    async getUsers(req: RequestWquery<UserQueryGetModel>, res: Response<UsersApiResponseModel>, next: NextFunction) {
+        try {
+            const { searchLoginTerm: login, searchEmailTerm: email, pageNumber, pageSize, sortBy, sortDirection } = req.query;
 
-        const users = await usersQueryRepository.getUsers(
-            login,
-            email,
-            Number(pageNumber) || 1,
-            Number(pageSize) || 10,
-            sortDirection,
-            sortBy
-        )
+            const users = await usersQueryRepository.getUsers(
+                login,
+                email,
+                Number(pageNumber) || 1,
+                Number(pageSize) || 10,
+                sortDirection,
+                sortBy
+            )
 
-        return res.json(users)
+            return res.json(users)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
 

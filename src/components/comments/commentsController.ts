@@ -10,14 +10,18 @@ import commentUrlParamValidation from "./middlewares/commentUrlParamValidation";
 export const commentsRouter = Router()
 
 const commentsController = {
-    async getCommentById(req: RequestWparams<{ id: string }>, res: Response<CommentApiResponseModel>) {
-        const comment = await commentsQueryRepository.getCommentById(req.params.id)
+    async getCommentById(req: RequestWparams<{ id: string }>, res: Response<CommentApiResponseModel>, next: NextFunction) {
+        try {
+            const comment = await commentsQueryRepository.getCommentById(req.params.id)
 
-        if (!comment) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+            if (!comment) {
+                return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+            }
+
+            return res.json(comment)
+        } catch (err) {
+            return next(err)
         }
-
-        return res.json(comment)
     },
     async deleteCommentById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
         try {

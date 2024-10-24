@@ -30,28 +30,36 @@ import {commentsQueryService} from "../comments/services/commentsQueryService";
 export const postsRouter = Router();
 
 const postsController = {
-    async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostsApiResponseModel>){
-        const { pageNumber, pageSize, sortBy, sortDirection } = req.query
+    async getPosts(req: RequestWquery<PostQueryGetModel>, res: Response<PostsApiResponseModel>, next: NextFunction){
+        try {
+            const { pageNumber, pageSize, sortBy, sortDirection } = req.query
 
-        const result = await postsQueryRepository.getPosts(
-            '',
-            Number(pageNumber) || 1,
-            Number(pageSize) || 10,
-            sortBy,
-            sortDirection
-        )
+            const result = await postsQueryRepository.getPosts(
+                '',
+                Number(pageNumber) || 1,
+                Number(pageSize) || 10,
+                sortBy,
+                sortDirection
+            )
 
-        return res.json(result);
-    },
-    async getPostById(req: RequestWparams<{ id: string }>, res: Response<PostApiResponseModel>){
-        const { id } = req.params;
-        const foundPost = await postsQueryRepository.getPostById(id);
-
-        if (!foundPost) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return res.json(result);
+        } catch (err) {
+            return next(err)
         }
+    },
+    async getPostById(req: RequestWparams<{ id: string }>, res: Response<PostApiResponseModel>, next: NextFunction){
+        try {
+            const { id } = req.params;
+            const foundPost = await postsQueryRepository.getPostById(id);
 
-        return res.json(foundPost);
+            if (!foundPost) {
+                return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            }
+
+            return res.json(foundPost);
+        } catch (err) {
+            return next(err)
+        }
     },
     async createPost(req: RequestWbody<PostApiRequestModel>, res: Response<PostApiResponseModel>, next: NextFunction){
         try {

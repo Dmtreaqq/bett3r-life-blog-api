@@ -2,6 +2,7 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {baseUrl} from "../constants";
 import {usersTestManager} from "../users/usersTestManager";
+import {UserApiRequestModel} from "../../../src/components/users/models/UserApiModel";
 
 
 export const authTestManager = {
@@ -16,14 +17,16 @@ export const authTestManager = {
         return response.body
     },
 
-    async getTokenOfLoggedInUser(): Promise<string> {
-        await usersTestManager.createUser({
-            login: 'userLogin',
-            email: 'test@test.com',
+    async getTokenOfLoggedInUser(inputLogin = 'userLogin', inputEmail = 'test@test.com'): Promise<string> {
+        const user = {
+            login: inputLogin,
+            email: inputEmail,
             password: '123456'
-        });
+        }
 
-        const { accessToken } = await authTestManager.loginByEmail('test@test.com', '123456')
+        await usersTestManager.createUser(user);
+
+        const { accessToken } = await authTestManager.loginByEmail(user.email, user.password)
 
         return accessToken
     }

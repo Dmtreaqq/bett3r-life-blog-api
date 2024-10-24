@@ -26,33 +26,39 @@ import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 import {blogsQueryRepository} from "./repositories/blogsQueryRepository";
 import {postsQueryRepository} from "../posts/repositories/postsQueryRepository";
-import {blogsRepository} from "./repositories/blogsRepository";
 
 export const blogsRouter = Router();
 
 const blogsController = {
-    async getBlogs(req: RequestWquery<BlogQueryGetModel>, res: Response<BlogsApiResponseModel>){
-        const { searchNameTerm, pageSize, pageNumber, sortBy, sortDirection } = req.query
+    async getBlogs(req: RequestWquery<BlogQueryGetModel>, res: Response<BlogsApiResponseModel>, next: NextFunction){
+        try {
+            const { searchNameTerm, pageSize, pageNumber, sortBy, sortDirection } = req.query
 
-        const response = await blogsQueryRepository.getBlogs(
-            searchNameTerm,
-            Number(pageSize) || 10,
-            Number(pageNumber) || 1,
-            sortBy,
-            sortDirection
-        )
+            const response = await blogsQueryRepository.getBlogs(
+                searchNameTerm,
+                Number(pageSize) || 10,
+                Number(pageNumber) || 1,
+                sortBy,
+                sortDirection
+            )
 
-        return res.json(response);
-    },
-    async getBlogById(req: RequestWparams<{ id: string }>, res: Response<BlogApiResponseModel>){
-        // TODO where to throw error ???
-        const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
-
-        if (!foundBlog) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            return res.json(response);
+        } catch (err) {
+            return next(err)
         }
+    },
+    async getBlogById(req: RequestWparams<{ id: string }>, res: Response<BlogApiResponseModel>, next: NextFunction){
+        try {
+            const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
 
-        return res.json(foundBlog);
+            if (!foundBlog) {
+                return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            }
+
+            return res.json(foundBlog);
+        } catch (err) {
+            return next(err)
+        }
     },
     async createBlog(req: RequestWbody<BlogApiRequestModel>, res: Response<BlogApiResponseModel>, next: NextFunction){
         try {
@@ -80,8 +86,6 @@ const blogsController = {
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
         } catch (error: any) {
-            // TODO: How to do without return? Typescript argues
-            // TODO: We also dont see which status code was sent
             return next(error)
         }
     },
@@ -114,23 +118,27 @@ const blogsController = {
             return next(err)
         }
     },
-    async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostsApiResponseModel>) {
-        const { pageNumber, pageSize, sortDirection, sortBy } = req.query
+    async getPostsForBlog(req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>, res: Response<PostsApiResponseModel>, next: NextFunction) {
+        try {
+            const { pageNumber, pageSize, sortDirection, sortBy } = req.query
 
-        const blog = await blogsQueryRepository.getBlogById(req.params.id);
-        if (!blog) {
-            return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            const blog = await blogsQueryRepository.getBlogById(req.params.id);
+            if (!blog) {
+                return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+            }
+
+            const result = await postsQueryRepository.getPosts(
+                blog.id,
+                Number(pageNumber) || 1,
+                Number(pageSize) || 10,
+                sortBy,
+                sortDirection
+            )
+
+            return res.json(result);
+        } catch (err) {
+            return next(err)
         }
-
-        const result = await postsQueryRepository.getPosts(
-            blog.id,
-            Number(pageNumber) || 1,
-            Number(pageSize) || 10,
-            sortBy,
-            sortDirection
-        )
-
-        return res.json(result);
     }
 }
 

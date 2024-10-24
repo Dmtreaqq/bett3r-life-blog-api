@@ -24,7 +24,7 @@ export const usersQueryRepository = {
         if (login) {
             if (filter.$or) {
                 filter.$or.push({
-
+                    login: { $regex: login, $options: 'i' }
                 })
             } else {
                 filter.$or = [{login: { $regex: login, $options: 'i' }}]

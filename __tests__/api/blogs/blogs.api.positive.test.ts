@@ -1,22 +1,19 @@
 import { CONFIG } from "../../../src/common/utils/config";
 import { HTTP_STATUSES } from "../../../src/common/utils/types";
 import {
+    BlogApiRequestModel,
     BlogApiResponseModel,
-    BlogsApiResponseModel
 } from "../../../src/components/blogs/models/BlogApiModel";
-import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
 import { client, runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper'
 import { server } from "../../../src/common/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
-import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";
-import { ObjectId } from "mongodb";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
-import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
-import {postsQueryRepository} from "../../../src/components/posts/repositories/postsQueryRepository";
 import {blogsTestManager} from "./blogsTestManager";
+import {postsTestManager} from "../posts/postsTestManager";
+import {postApiRequestModel, postApiResponseModel} from "../constants";
 
 
 const baseUrl = '/api';
@@ -59,20 +56,9 @@ const postEntity: PostApiResponseModel = {
 }
 
 describe('/blogs positive', () => {
-    let createdBlogId: string;
-    let createdBlogResponse: BlogApiResponseModel | null;
-
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        createdBlogId = await blogsRepository.createBlog({ ...blogInput, _id: new ObjectId() } as any);
-        createdBlogResponse = await blogsQueryRepository.getBlogById(createdBlogId);
-
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor House', _id: new ObjectId() } as any);
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Who', _id: new ObjectId() } as any );
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Strange', _id: new ObjectId() } as any);
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Connors', _id: new ObjectId() } as any);
-        await blogsRepository.createBlog({ ...blogInput, name: 'Doctor Drake', _id: new ObjectId() } as any);
     })
 
     afterAll(async () => {
@@ -80,6 +66,10 @@ describe('/blogs positive', () => {
         await client.close();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
+    })
+
+    afterEach(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
     })
 
     it('should POST a blog successfully', async () => {
@@ -106,27 +96,26 @@ describe('/blogs positive', () => {
         expect(response.body).toEqual(blog);
     })
 
-    it('should GET blogs successfully', async () => {
+    it('should GET empty array blogs successfully', async () => {
         const response = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
-            items: expect.arrayContaining([createdBlogResponse]),
-            totalCount: 8,
+            items: expect.arrayContaining([]),
+            totalCount: 0,
             pagesCount: 1,
             pageSize: 10,
             page: 1
-        } as BlogsApiResponseModel);
+        });
     })
 
     it('should GET posts for a certain blog successfully', async () => {
-        const blogId = await blogsRepository.createBlog({...blogInput, _id: new ObjectId() } as any);
-        const postId = await postsRepository.createPost({ ...postInput, blogId: blogId })
-        const post = await postsQueryRepository.getPostById(postId);
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id)
 
         const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blogId}/posts`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog.id}/posts`)
             .expect(HTTP_STATUSES.OK_200)
 
         expect(getResponse.body).toEqual({
@@ -139,80 +128,94 @@ describe('/blogs positive', () => {
     })
 
     it('should GET blogs by searchNameTerm successfully', async () => {
-        const newBlogId = await blogsRepository.createBlog({ ...blogInput, name: 'Somebody House', _id: new ObjectId() } as any );
-        const responseNewBlog = await blogsQueryRepository.getBlogById(newBlogId);
+        const blog = await blogsTestManager.createBlog({
+            name: 'bOdY',
+            websiteUrl: 'https://test-domain.com',
+            description: 'This is a description for a blog name current'
+        })
 
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?searchNameTerm=BODY`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body.items).toEqual(expect.arrayContaining([createdBlogResponse, responseNewBlog]))
+        expect(response1.body.items).toEqual(expect.arrayContaining([blog]))
 
         const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?searchNameTerm=body`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body.items).toEqual(expect.arrayContaining([createdBlogResponse, responseNewBlog]))
+        expect(response2.body.items).toEqual(expect.arrayContaining([blog]))
     })
 
     it('should PUT blog successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const newBody: BlogApiRequestModel = {
+            name: 'newBlogName',
+            description: blog.description,
+            websiteUrl: blog.websiteUrl
+        }
+
         await request
-            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
-            .send(blogInput)
+            .put(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog.id}`)
+            .send(newBody)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.NO_CONTENT_204);
 
         const getResponse = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}`)
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog.id}`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(getResponse.body).toEqual(createdBlogResponse);
+        expect(getResponse.body).toEqual({ ...blog, name: newBody.name });
     })
 
     it('should GET blogs using sorting successfully', async () => {
+        const blogs = await blogsTestManager.createBlogs(5)
+
         const response1 = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=name&sortDirection=desc&searchNameTerm=tor`)
-            .expect(HTTP_STATUSES.OK_200);
-
-        expect(response1.body.items[0].name).toEqual('Doctor Who')
-
-        const response2 = await request
             .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=name&sortDirection=asc&searchNameTerm=tor`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response2.body.items[0].name).toEqual('Doctor Connors')
+        expect(response1.body.items[0].name).toEqual(blogs[0].name)
+
+        const response2 = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?sortBy=name&sortDirection=desc&searchNameTerm=tor`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response2.body.items[0].name).toEqual(blogs[blogs.length - 1].name)
     })
 
     it('should GET blogs using pagination successfully', async () => {
-        const response1 = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?pageSize=2&searchNameTerm=tor`)
+        const blogs = await blogsTestManager.createBlogs(5)
+
+        const getResponse = await request
+            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?pageSize=2&pageNumber=2&searchNameTerm=${blogs[0].name.slice(0, 3)}`)
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response1.body.items).toHaveLength(2)
-        expect(response1.body.pageSize).toEqual(2)
-        expect(response1.body.page).toEqual(1)
-
-        const response2 = await request
-            .get(`${baseUrl}${CONFIG.PATH.BLOGS}/?pageSize=2&pageNumber=3&searchNameTerm=tor`)
-            .expect(HTTP_STATUSES.OK_200);
-
-        expect(response2.body.items).toHaveLength(1)
-        expect(response2.body.pageSize).toEqual(2)
-        expect(response2.body.page).toEqual(3)
+        expect(getResponse.body).toEqual({
+            items: expect.any(Array),
+            totalCount: 5,
+            pagesCount: 3,
+            pageSize: 2,
+            page: 2
+        });
+        expect(getResponse.body.items).toHaveLength(2)
     })
 
     it('should POST post for a certain blog', async () => {
+        const blog = await blogsTestManager.createBlog()
+
         const response = await request
-            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${createdBlogId}/posts`)
-            .send(postInput)
+            .post(`${baseUrl}${CONFIG.PATH.BLOGS}/${blog.id}/posts`)
+            .send(postApiRequestModel)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.CREATED_201);
 
         expect(response.body).toEqual({
-            ...postEntity,
+            ...postApiResponseModel,
             id: expect.any(String),
             createdAt: expect.any(String),
-            blogId: createdBlogId.toString()
+            blogId: blog.id,
+            blogName: blog.name,
         })
 
         const getResponse = await request
@@ -220,10 +223,11 @@ describe('/blogs positive', () => {
             .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse.body).toEqual({
-            ...postEntity,
+            ...postApiResponseModel,
             id: expect.any(String),
             createdAt: expect.any(String),
-            blogId: createdBlogId.toString()
+            blogId: blog.id,
+            blogName: blog.name,
         })
     })
 

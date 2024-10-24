@@ -133,8 +133,8 @@ const postsController = {
     }
 }
 
-postsRouter.post('/:id/comments', jwtAuthMiddleware, ...createEditCommentValidation, postsController.createCommentForPost)
-postsRouter.get('/:id/comments', postsController.getCommentsForPost)
+postsRouter.post('/:id/comments', jwtAuthMiddleware, ...postUrlParamValidation, ...createEditCommentValidation, postsController.createCommentForPost)
+postsRouter.get('/:id/comments', ...postUrlParamValidation, postsController.getCommentsForPost)
 
 postsRouter.get('/', ...postQueryValidation, postsController.getPosts)
 postsRouter.get('/:id', ...postUrlParamValidation, postsController.getPostById)

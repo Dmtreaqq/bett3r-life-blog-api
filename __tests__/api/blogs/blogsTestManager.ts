@@ -4,7 +4,9 @@ import {authHeader, baseUrl, blogApiRequestModel} from "../constants";
 import {BlogApiRequestModel, BlogApiResponseModel} from "../../../src/components/blogs/models/BlogApiModel";
 
 export const blogsTestManager = {
-    async createBlog(blog: BlogApiRequestModel = blogApiRequestModel): Promise<BlogApiResponseModel> {
+    async createBlog(blogInput?: BlogApiRequestModel): Promise<BlogApiResponseModel> {
+        const blog = blogInput || blogApiRequestModel
+
         const response = await request
             .post(baseUrl + CONFIG.PATH.BLOGS)
             .set('authorization', authHeader)
@@ -18,12 +20,14 @@ export const blogsTestManager = {
         const rand = Math.floor(Math.random() * 5)
 
         for (let i = 0; i < blogsCount; i++) {
-            await this.createBlog({
+            const blog = await this.createBlog({
                 ...blogApiRequestModel,
                 name: `Doctor ${String.fromCharCode(65 + rand + i)}test`
             })
+
+            blogs.push(blog)
         }
 
-        return blogs
+        return blogs.sort()
     }
 }

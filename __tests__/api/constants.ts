@@ -2,7 +2,7 @@ import {BlogApiRequestModel} from "../../src/components/blogs/models/BlogApiMode
 import {fromUTF8ToBase64} from "../../src/common/middlewares/basicAuthMiddleware";
 import {CONFIG} from "../../src/common/utils/config";
 import {PostDbModel} from "../../src/components/posts/models/PostDbModel";
-import {PostApiRequestModel} from "../../src/components/posts/models/PostApiModel";
+import {PostApiRequestModel, PostApiResponseModel} from "../../src/components/posts/models/PostApiModel";
 import {UserApiRequestModel} from "../../src/components/users/models/UserApiModel";
 
 export const baseUrl = '/api';
@@ -20,6 +20,13 @@ export const postApiRequestModel: PostApiRequestModel = {
     content: 'PostContent',
     shortDescription: 'PostShortDesc',
     blogId: 'blogId'
+}
+
+export const postApiResponseModel: PostApiResponseModel = {
+    title: postApiRequestModel.title,
+    content: postApiRequestModel.content,
+    shortDescription: postApiRequestModel.shortDescription,
+    blogId: "", createdAt: "", id: "", blogName: ""
 }
 
 export const userApiRequestModel: UserApiRequestModel = {

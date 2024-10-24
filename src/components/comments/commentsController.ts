@@ -5,6 +5,7 @@ import {commentsQueryRepository} from "./repositories/commentsQueryRepository";
 import {commentsService} from "./services/commentsService";
 import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import createEditCommentValidation from "./middlewares/createEditCommentValidation";
+import commentUrlParamValidation from "./middlewares/commentUrlParamValidation";
 
 export const commentsRouter = Router()
 
@@ -47,6 +48,6 @@ const commentsController = {
     },
 }
 
-commentsRouter.get('/:id', commentsController.getCommentById)
-commentsRouter.delete('/:id', jwtAuthMiddleware, commentsController.deleteCommentById)
-commentsRouter.put('/:id', jwtAuthMiddleware, ...createEditCommentValidation, commentsController.updateCommentById)
+commentsRouter.get('/:id', ...commentUrlParamValidation, commentsController.getCommentById)
+commentsRouter.delete('/:id', jwtAuthMiddleware, ...commentUrlParamValidation, commentsController.deleteCommentById)
+commentsRouter.put('/:id', jwtAuthMiddleware, ...commentUrlParamValidation, ...createEditCommentValidation, commentsController.updateCommentById)

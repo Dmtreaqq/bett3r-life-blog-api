@@ -11,6 +11,7 @@ import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
 import {commentsTestManager} from "./commentsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
 import {authTestManager} from "../auth/authTestManager";
+import {blogsTestManager} from "../blogs/blogsTestManager";
 
 const baseUrl = '/api';
 
@@ -62,7 +63,8 @@ describe('/comments Positive', () => {
 
     it('should POST a comment successfully', async () => {
         const token = await authTestManager.getTokenOfLoggedInUser()
-        const post = await postsTestManager.createPost();
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
 
         const response = await request
             .post(`${baseUrl}${CONFIG.PATH.POSTS}/${post.id}${CONFIG.PATH.COMMENTS}`)
@@ -84,7 +86,8 @@ describe('/comments Positive', () => {
     })
 
     it('should GET a comment successfully', async () => {
-        const post = await postsTestManager.createPost();
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
         const token = await authTestManager.getTokenOfLoggedInUser()
         const comment = await commentsTestManager.createComment(post.id, token)
 
@@ -119,7 +122,8 @@ describe('/comments Positive', () => {
     })
 
     it('should DELETE a comment successfully', async () => {
-        const post = await postsTestManager.createPost();
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
         const token = await authTestManager.getTokenOfLoggedInUser()
         const comment = await commentsTestManager.createComment(post.id, token)
 
@@ -134,7 +138,8 @@ describe('/comments Positive', () => {
     })
 
     it('should PUT a comment successfully', async () => {
-        const post = await postsTestManager.createPost();
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
         const token = await authTestManager.getTokenOfLoggedInUser();
         const comment = await commentsTestManager.createComment(post.id, token)
 

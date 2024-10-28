@@ -5,10 +5,9 @@ import {client, runDB, server} from "../../../src/common/db/db";
 import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
-import {ObjectId, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
 import {emailService} from "../../../src/common/services/emailService";
 import {authService} from "../../../src/components/auth/authService";
-import {usersTestManager} from "../users/usersTestManager";
 import { sub } from 'date-fns'
 
 const baseUrl = '/api';
@@ -126,7 +125,7 @@ describe('/auth negative', () => {
     })
 
     it ('should return 400 when POST registration confirmation with wrong code', async () => {
-        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
         await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
 
         const response = await request
@@ -143,13 +142,18 @@ describe('/auth negative', () => {
     })
 
     it ('should return 400 when POST registration confirmation with already confirmed user', async () => {
-        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
-        const user = await usersTestManager.createUser()
-        const userDb = await usersRepository.getUserByLogin(user.login)
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail@gmail.com', password: '123456' })
+        const registeredUser = await usersRepository.getUserByLogin('login')
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: registeredUser!.confirmationCode })
+            .expect(HTTP_STATUSES.NO_CONTENT_204)
 
         const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
-            .send({ code: userDb!.confirmationCode })
+            .send({ code: registeredUser!.confirmationCode })
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
         expect(response.body).toEqual({
@@ -160,8 +164,7 @@ describe('/auth negative', () => {
         })
     })
 
-    it ('should return 400 when POST registration confirmation with already confirmed user', async () => {
-        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+    it ('should return 400 when POST registration confirmation when code is expired', async () => {
         await usersRepository.createUser({
             ...userDbModel,
             confirmationCode: '12345',
@@ -182,7 +185,7 @@ describe('/auth negative', () => {
     })
 
     it ('should return 400 when POST registration confirmation with empty code', async () => {
-        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
         await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
 
         const response = await request
@@ -199,7 +202,7 @@ describe('/auth negative', () => {
     })
 
     it ('should return 400 when POST registration confirmation with numeric code', async () => {
-        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
         await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
 
         const response = await request

@@ -45,31 +45,26 @@ export const authService = {
             throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400)
         }
 
+        const confirmationCode = randomUUID()
         const userDbModel: UserDbModel = {
             login: registerModel.login,
             email: registerModel.email,
             password: hashedPassword,
             createdAt: new Date().toISOString(),
             isConfirmed: false,
-            confirmationCode: randomUUID(),
+            confirmationCode,
             expirationDate: add(new Date(), {
                 minutes: 2
             }).toISOString()
             // TODO: что будет если положить дату в монгоДБ
         }
 
-        await usersRepository.createUser(userDbModel)
+        const userId = await usersRepository.createUser(userDbModel)
 
-        console.log('email was sent')
-        await emailService.sendEmail('message')
-        // try {
-        // TODO: dont use await
-        //     await emailService.sendEmail("Message")
-        // } catch (err) {
-        //     console.log('Email sent error: ', err)
-        // }
+        emailService.sendConfirmationEmail(confirmationCode, registerModel.email)
+            .catch(err => console.log(err))
 
-        return 'userId'
+        return userId
     },
 
     async confirmRegister(code: string): Promise<boolean | null> {
@@ -87,6 +82,24 @@ export const authService = {
         }
 
         const result = await usersRepository.updateConfirmation(user._id.toString())
+
+        return result
+    },
+
+    async resendConfirmationEmail(email: string) {
+        const user = await usersRepository.getUserByEmail(email)
+        if (!user) {
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'Bad Request - No User', 'email')
+        }
+
+        if (user.isConfirmed) {
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already confirmed', 'code')
+        }
+
+        emailService.sendConfirmationEmail(user.confirmationCode, email)
+            .catch(err => console.log(err))
+
+        const result = await usersRepository.updateCodeExpirationDate(user._id.toString())
 
         return result
     }

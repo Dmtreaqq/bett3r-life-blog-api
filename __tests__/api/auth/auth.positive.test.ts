@@ -2,10 +2,8 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {client, runDB, server} from "../../../src/common/db/db";
-
 import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
-import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {hashSync} from "bcrypt";
 import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {ObjectId} from "mongodb";
@@ -38,6 +36,10 @@ describe('/auth Positive', () => {
         await client.close();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
+    })
+
+    afterEach(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
     })
 
     it('should POST login successfully', async () => {
@@ -78,8 +80,8 @@ describe('/auth Positive', () => {
     })
 
     it ('should return 204 when POST successful registration confirmation', async () => {
-        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
-        await authService.register({ login: 'login', email: 'testemail@gmail.com', password: '123456' })
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail2@gmail.com', password: '123456' })
         const registeredUser = await usersRepository.getUserByLogin('login')
 
         await request

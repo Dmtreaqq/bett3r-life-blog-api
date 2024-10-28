@@ -1,6 +1,7 @@
 import {usersCollection} from "../../../common/db/db";
 import {UserDbModel} from "../models/UserDbModel";
 import {ObjectId} from "mongodb";
+import {add} from "date-fns/add";
 
 export const usersRepository = {
     async getUserById(userId: string) {
@@ -15,6 +16,15 @@ export const usersRepository = {
         const result = await usersCollection.updateOne(
             { _id: new ObjectId(userId) },
             { $set: { isConfirmed: true } }
+        )
+
+        return result.modifiedCount === 1
+    },
+
+    async updateCodeExpirationDate(userId: string): Promise<boolean> {
+        const result = await usersCollection.updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { expirationDate: add(new Date(), { minutes: 5 }).toISOString() } }
         )
 
         return result.modifiedCount === 1

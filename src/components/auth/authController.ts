@@ -6,6 +6,8 @@ import authValidation from "./middlewares/authValidation";
 import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import {usersQueryRepository} from "../users/repositories/usersQueryRepository";
 import confirmCodeValidation from "./middlewares/confirmCodeValidation";
+import registerValidation from "./middlewares/registerValidation";
+import emailResendValidation from "./middlewares/emailResendValidation";
 
 export const authRouter = Router()
 
@@ -55,10 +57,21 @@ const authController = {
         } catch (err) {
             return next(err)
         }
+    },
+
+    async resendConfirmationEmail(req: RequestWbody<{ email: string }>, res: Response, next: NextFunction) {
+        try {
+            await authService.resendConfirmationEmail(req.body.email)
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
 
 authRouter.post('/login', ...authValidation,  authController.login)
 authRouter.get('/me', jwtAuthMiddleware,  authController.getCurrentUserInfo)
-authRouter.post('/registration', authController.register)
+authRouter.post('/registration', ...registerValidation,  authController.register)
 authRouter.post('/registration-confirmation', ...confirmCodeValidation, authController.confirmRegister)
+authRouter.post('/registration-email-resending', ...emailResendValidation, authController.resendConfirmationEmail)

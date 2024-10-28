@@ -22,6 +22,9 @@ const userDbModel: UserDbModel = {
     login: userInput.login,
     password: userInput.password,
     createdAt: new Date().toISOString(),
+    isConfirmed: false,
+    expirationDate: '1',
+    confirmationCode: 'a'
 }
 
 const userEntity: UserApiResponseModel = {

@@ -5,6 +5,7 @@ import {ApiError} from "../../common/utils/ApiError";
 import {HTTP_STATUSES} from "../../common/utils/types";
 import {usersQueryRepository} from "./repositories/usersQueryRepository";
 import {hashService} from "../../common/services/hashService";
+import {randomUUID} from "node:crypto";
 
 export const usersService = {
     async createUser(userInput: UserApiRequestModel): Promise<string> {
@@ -26,6 +27,9 @@ export const usersService = {
             email: userInput.email,
             password: hashedPassword,
             createdAt: new Date().toISOString(),
+            isConfirmed: true,
+            confirmationCode: randomUUID(),
+            expirationDate: ''
         }
 
         return usersRepository.createUser(userDbModel);

@@ -5,6 +5,7 @@ import {authService} from "./authService";
 import authValidation from "./middlewares/authValidation";
 import {jwtAuthMiddleware} from "../../common/middlewares/jwtAuthMiddleware";
 import {usersQueryRepository} from "../users/repositories/usersQueryRepository";
+import confirmCodeValidation from "./middlewares/confirmCodeValidation";
 
 export const authRouter = Router()
 
@@ -44,9 +45,20 @@ const authController = {
         } catch (err) {
             return next(err)
         }
+    },
+
+    async confirmRegister(req: RequestWbody<{ code: string }>, res: Response, next: NextFunction) {
+        try {
+            await authService.confirmRegister(req.body.code)
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
 
 authRouter.post('/login', ...authValidation,  authController.login)
 authRouter.get('/me', jwtAuthMiddleware,  authController.getCurrentUserInfo)
 authRouter.post('/registration', authController.register)
+authRouter.post('/registration-confirmation', ...confirmCodeValidation, authController.confirmRegister)

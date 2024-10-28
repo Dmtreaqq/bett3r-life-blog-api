@@ -9,6 +9,8 @@ import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {hashSync} from "bcrypt";
 import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {ObjectId} from "mongodb";
+import {authService} from "../../../src/components/auth/authService";
+import {emailService} from "../../../src/common/services/emailService";
 
 const baseUrl = '/api';
 
@@ -73,5 +75,16 @@ describe('/auth Positive', () => {
             login: userDbModel.login,
             userId
         })
+    })
+
+    it ('should return 204 when POST successful registration confirmation', async () => {
+        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail@gmail.com', password: '123456' })
+        const registeredUser = await usersRepository.getUserByLogin('login')
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: registeredUser!.confirmationCode })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
     })
 })

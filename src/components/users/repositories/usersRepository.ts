@@ -7,6 +7,19 @@ export const usersRepository = {
         return await usersCollection.findOne({ _id: new ObjectId(userId) })
     },
 
+    async getUserByConfirmationCode(confirmCode: string) {
+        return await usersCollection.findOne({ confirmationCode: confirmCode })
+    },
+
+    async updateConfirmation(userId: string): Promise<boolean> {
+        const result = await usersCollection.updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { isConfirmed: true } }
+        )
+
+        return result.modifiedCount === 1
+    },
+
     async createUser(user: UserDbModel): Promise<string> {
         const { insertedId } = await usersCollection.insertOne(user)
 

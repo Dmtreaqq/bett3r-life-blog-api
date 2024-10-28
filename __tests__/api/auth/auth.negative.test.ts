@@ -2,11 +2,14 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {client, runDB, server} from "../../../src/common/db/db";
-
 import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {ObjectId, WithId} from "mongodb";
+import {emailService} from "../../../src/common/services/emailService";
+import {authService} from "../../../src/components/auth/authService";
+import {usersTestManager} from "../users/usersTestManager";
+import { sub } from 'date-fns'
 
 const baseUrl = '/api';
 
@@ -20,6 +23,9 @@ const userDbModel: UserDbModel = {
     login: authInput.loginOrEmail,
     password: authInput.password,
     createdAt: new Date().toISOString(),
+    isConfirmed: false,
+    expirationDate: '1',
+    confirmationCode: '1'
 }
 
 describe('/auth negative', () => {
@@ -31,6 +37,10 @@ describe('/auth negative', () => {
         await client.close();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
+    })
+
+    afterEach(async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
     })
 
     it('should return 401 while POST with incorrect password', async () => {
@@ -45,7 +55,7 @@ describe('/auth negative', () => {
     it('should return 401 while POST with not existing loginOrEmail', async () => {
         await usersRepository.createUser({ ...userDbModel, _id: new ObjectId() } as any);
 
-        const response = await request
+        await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/login')
             .send({...authInput, loginOrEmail: 'not-existing'})
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
@@ -110,6 +120,96 @@ describe('/auth negative', () => {
         expect(response.body).toEqual({
             errorsMessages: [{
                 field: 'password',
+                message: 'Should be a string'
+            }]
+        })
+    })
+
+    it ('should return 400 when POST registration confirmation with wrong code', async () => {
+        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: 'wrongCode' })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'code',
+                message: 'Bad Request - No User'
+            }]
+        })
+    })
+
+    it ('should return 400 when POST registration confirmation with already confirmed user', async () => {
+        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        const user = await usersTestManager.createUser()
+        const userDb = await usersRepository.getUserByLogin(user.login)
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: userDb!.confirmationCode })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'code',
+                message: 'User already confirmed'
+            }]
+        })
+    })
+
+    it ('should return 400 when POST registration confirmation with already confirmed user', async () => {
+        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        await usersRepository.createUser({
+            ...userDbModel,
+            confirmationCode: '12345',
+            expirationDate: sub(new Date(), { minutes: 4 }).toISOString()
+        })
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: '12345' })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'code',
+                message: 'Code is expired'
+            }]
+        })
+    })
+
+    it ('should return 400 when POST registration confirmation with empty code', async () => {
+        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: '' })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'code',
+                message: 'Should not be empty'
+            }]
+        })
+    })
+
+    it ('should return 400 when POST registration confirmation with numeric code', async () => {
+        jest.spyOn(emailService, 'sendEmail').mockResolvedValue()
+        await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: 12345 })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'code',
                 message: 'Should be a string'
             }]
         })

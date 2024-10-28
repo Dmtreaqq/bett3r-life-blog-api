@@ -3,4 +3,7 @@ export type UserDbModel = {
     email: string;
     password: string;
     createdAt: string;
+    isConfirmed: boolean;
+    confirmationCode: string;
+    expirationDate: string;
 }

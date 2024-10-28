@@ -2,7 +2,7 @@ import {ApiError} from "../utils/ApiError";
 import {NextFunction, Request, Response} from "express";
 import {ApiErrorResult, HTTP_STATUSES} from "../utils/types";
 
-export const apiErrorHandlerMiddleware = async (err: ApiError, req: Request, res: Response, next: NextFunction) => {
+export const errorHandlerMiddleware = async (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApiError) {
         if (err.message) {
             return res.status(err.httpCode).json({

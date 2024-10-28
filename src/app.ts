@@ -4,7 +4,7 @@ import { testingController } from "./components/tests/testingController";
 import { postsRouter } from "./components/posts/postsController";
 import { blogsRouter } from "./components/blogs/blogsController";
 import {usersRouter} from "./components/users/usersController";
-import {apiErrorHandlerMiddleware} from "./common/middlewares/apiErrorHandlerMiddleware";
+import {errorHandlerMiddleware} from "./common/middlewares/errorHandlerMiddleware";
 import {authRouter} from "./components/auth/authController";
 import {commentsRouter} from "./components/comments/commentsController";
 
@@ -27,4 +27,4 @@ app.use(blogsUsersUrl, usersRouter);
 app.use(authPathUrl, authRouter);
 app.use(commentsPathUrl, commentsRouter);
 
-app.use(apiErrorHandlerMiddleware);
+app.use(errorHandlerMiddleware);

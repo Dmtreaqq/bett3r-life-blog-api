@@ -28,7 +28,7 @@ export const emailService = {
         const content = `
         <h1>Thank for your registration</h1>
             <p>To finish registration please follow the link below:
-            <a href='https://modern-med.space/confirm-email?code=${confirmCode}'>complete registration</a>
+            <a href='https://somesite.com/confirm-email?code=${confirmCode}'>complete registration</a>
         </p>
         `
 

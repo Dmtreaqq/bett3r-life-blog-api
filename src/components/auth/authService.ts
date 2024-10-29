@@ -35,8 +35,12 @@ export const authService = {
         const userByEmail = await usersRepository.getUserByEmail(registerModel.email);
         const userByLogin = await usersRepository.getUserByLogin(registerModel.login);
 
-        if (userByEmail || userByLogin) {
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already exists', 'email or login');
+        if (userByEmail) {
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already exists', 'email');
+        }
+
+        if (userByLogin) {
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already exists', 'login');
         }
 
         const hashedPassword = await hashService.hashPassword(registerModel.password)
@@ -61,8 +65,7 @@ export const authService = {
 
         const userId = await usersRepository.createUser(userDbModel)
 
-        emailService.sendConfirmationEmail(confirmationCode, registerModel.email)
-            .catch(err => console.log(err))
+        await emailService.sendConfirmationEmail(confirmationCode, registerModel.email)
 
         return userId
     },
@@ -96,8 +99,7 @@ export const authService = {
             throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already confirmed', 'code')
         }
 
-        emailService.sendConfirmationEmail(user.confirmationCode, email)
-            .catch(err => console.log(err))
+        await emailService.sendConfirmationEmail(user.confirmationCode, email)
 
         const result = await usersRepository.updateCodeExpirationDate(user._id.toString())
 

@@ -241,7 +241,7 @@ describe('/auth negative', () => {
         })
     })
 
-    it ('should return 400 when POST email resend with already confirmed user', async () => {
+    it ('should return 400 when POST email resend with not existing user', async () => {
         const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/registration-email-resending')
             .send({ email: 'notexists@gmail.com' })

@@ -2,13 +2,15 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {client, runDB, server} from "../../../src/common/db/db";
-import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
+import {AuthLoginApiRequestModel, AuthRegisterApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {hashSync} from "bcrypt";
 import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {ObjectId} from "mongodb";
 import {authService} from "../../../src/components/auth/authService";
 import {emailService} from "../../../src/common/services/emailService";
+import {UserApiResponseModel} from "../../../src/components/users/models/UserApiModel";
+import {authHeader} from "../constants";
 
 const baseUrl = '/api';
 
@@ -88,5 +90,41 @@ describe('/auth Positive', () => {
             .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
             .send({ code: registeredUser!.confirmationCode })
             .expect(HTTP_STATUSES.NO_CONTENT_204);
+    })
+
+    it ('should return 204 when POST successful email resend', async () => {
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail2@gmail.com', password: '123456' })
+        const registeredUser = await usersRepository.getUserByLogin('login')
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-email-resending')
+            .send({ email: registeredUser!.email })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+    })
+
+    it ('should return 204 when POST successful registration', async () => {
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration')
+            .send({
+                email: 'new-email@test.com',
+                login: 'new-login',
+                password: '123456'
+            } as AuthRegisterApiRequestModel)
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const response = await request
+            .get(baseUrl + CONFIG.PATH.USERS)
+            .set('authorization', authHeader)
+            .expect(HTTP_STATUSES.OK_200)
+
+        expect(response.body.items).toEqual([{
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            login: 'new-login',
+            email: 'new-email@test.com',
+        } as UserApiResponseModel])
     })
 })

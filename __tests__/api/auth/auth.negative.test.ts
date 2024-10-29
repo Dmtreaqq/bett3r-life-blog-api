@@ -217,4 +217,41 @@ describe('/auth negative', () => {
             }]
         })
     })
+
+    it ('should return 400 when POST email resend with already confirmed user', async () => {
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail@gmail.com', password: '123456' })
+        const registeredUser = await usersRepository.getUserByLogin('login')
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
+            .send({ code: registeredUser!.confirmationCode })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-email-resending')
+            .send({ email: registeredUser!.email })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400)
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'code',
+                message: 'User already confirmed'
+            }]
+        })
+    })
+
+    it ('should return 400 when POST email resend with already confirmed user', async () => {
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/registration-email-resending')
+            .send({ email: 'notexists@gmail.com' })
+            .expect(HTTP_STATUSES.BAD_REQUEST_400)
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'email',
+                message: 'Bad Request - No User'
+            }]
+        })
+    })
 })

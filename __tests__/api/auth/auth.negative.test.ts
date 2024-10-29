@@ -235,7 +235,7 @@ describe('/auth negative', () => {
 
         expect(response.body).toEqual({
             errorsMessages: [{
-                field: 'code',
+                field: 'email',
                 message: 'User already confirmed'
             }]
         })

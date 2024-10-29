@@ -2,6 +2,7 @@ import {usersCollection} from "../../../common/db/db";
 import {UserDbModel} from "../models/UserDbModel";
 import {ObjectId} from "mongodb";
 import {add} from "date-fns/add";
+import {randomUUID} from "node:crypto";
 
 export const usersRepository = {
     async getUserById(userId: string) {
@@ -21,13 +22,17 @@ export const usersRepository = {
         return result.modifiedCount === 1
     },
 
-    async updateCodeExpirationDate(userId: string): Promise<boolean> {
-        const result = await usersCollection.updateOne(
+    async updateCodeForEmail(userId: string): Promise<string> {
+        const newCode = randomUUID()
+        await usersCollection.updateOne(
             { _id: new ObjectId(userId) },
-            { $set: { expirationDate: add(new Date(), { minutes: 5 }).toISOString() } }
+            { $set: {
+                expirationDate: add(new Date(), { minutes: 5 }).toISOString(),
+                confirmationCode: newCode
+            }}
         )
 
-        return result.modifiedCount === 1
+        return newCode
     },
 
     async createUser(user: UserDbModel): Promise<string> {

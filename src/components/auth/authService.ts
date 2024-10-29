@@ -96,13 +96,13 @@ export const authService = {
         }
 
         if (user.isConfirmed) {
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already confirmed', 'code')
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already confirmed', 'email')
         }
 
-        await emailService.sendConfirmationEmail(user.confirmationCode, email)
+        const code = await usersRepository.updateCodeForEmail(user._id.toString())
 
-        const result = await usersRepository.updateCodeExpirationDate(user._id.toString())
+        await emailService.sendConfirmationEmail(code, email)
 
-        return result
+        return code
     }
 }

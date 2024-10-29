@@ -35,12 +35,8 @@ export const authService = {
         const userByEmail = await usersRepository.getUserByEmail(registerModel.email);
         const userByLogin = await usersRepository.getUserByLogin(registerModel.login);
 
-        if (userByEmail) {
+        if (userByEmail || userByLogin) {
             throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already exists', 'email');
-        }
-
-        if (userByLogin) {
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'User already exists', 'login');
         }
 
         const hashedPassword = await hashService.hashPassword(registerModel.password)
@@ -65,7 +61,8 @@ export const authService = {
 
         const userId = await usersRepository.createUser(userDbModel)
 
-        await emailService.sendConfirmationEmail(confirmationCode, registerModel.email)
+        emailService.sendConfirmationEmail(confirmationCode, registerModel.email)
+            .catch(err => console.log(`Email wasn't sent for ${registerModel.email}. Err: ${err}`))
 
         return userId
     },
@@ -101,7 +98,8 @@ export const authService = {
 
         const code = await usersRepository.updateCodeForEmail(user._id.toString())
 
-        await emailService.sendConfirmationEmail(code, email)
+        emailService.sendConfirmationEmail(code, email)
+            .catch(err => console.log(`Email wasn't sent for ${email}. Err: ${err}`))
 
         return code
     }

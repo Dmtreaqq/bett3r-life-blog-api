@@ -6,4 +6,5 @@ export type UserDbModel = {
     isConfirmed: boolean;
     confirmationCode: string;
     expirationDate: string;
+    activeTokens: string[];
 }

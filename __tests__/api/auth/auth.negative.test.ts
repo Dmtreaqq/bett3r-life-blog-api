@@ -24,7 +24,8 @@ const userDbModel: UserDbModel = {
     createdAt: new Date().toISOString(),
     isConfirmed: false,
     expirationDate: '1',
-    confirmationCode: '1'
+    confirmationCode: '1',
+    activeTokens: []
 }
 
 describe('/auth negative', () => {

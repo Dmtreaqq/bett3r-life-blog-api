@@ -29,7 +29,8 @@ export const usersService = {
             createdAt: new Date().toISOString(),
             isConfirmed: true,
             confirmationCode: randomUUID(),
-            expirationDate: ''
+            expirationDate: '',
+            activeTokens: []
         }
 
         return usersRepository.createUser(userDbModel);

@@ -32,10 +32,36 @@ export const authService = {
             id: user._id.toString()
         })
 
+        await usersRepository.updateRefreshTokens(user._id.toString(), refreshToken)
+
         return {
             accessToken,
             refreshToken
         }
+    },
+
+    async logout(refreshToken: string) {
+        let oldRefreshTokenValid: any;
+
+        try {
+            oldRefreshTokenValid = jwtAuthService.verifyToken(refreshToken)
+        } catch (err) {
+            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
+        }
+
+        const { id } = oldRefreshTokenValid
+        const isTokenActive = await usersRepository.checkRefreshToken(id, refreshToken)
+
+        if (!isTokenActive) {
+            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
+        }
+
+        const result = await usersRepository.removeRefreshToken(id, refreshToken)
+        if (!result) {
+            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400)
+        }
+
+        return result
     },
 
     async register(registerModel: AuthRegisterApiRequestModel): Promise<string> {
@@ -62,7 +88,8 @@ export const authService = {
             confirmationCode,
             expirationDate: add(new Date(), {
                 minutes: 2
-            }).toISOString()
+            }).toISOString(),
+            activeTokens: []
             // TODO: что будет если положить дату в монгоДБ
         }
 
@@ -109,5 +136,34 @@ export const authService = {
             .catch(err => console.log(`Email wasn't sent for ${email}. Err: ${err}`))
 
         return code
+    },
+
+    async refreshToken(oldRefreshToken: string): Promise<{ accessToken: string, refreshToken: string }> {
+        let oldRefreshTokenValid: any;
+
+        try {
+            oldRefreshTokenValid = jwtAuthService.verifyToken(oldRefreshToken)
+        } catch (err) {
+            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
+        }
+
+        const { id } = oldRefreshTokenValid
+        const isTokenActive = await usersRepository.checkRefreshToken(id, oldRefreshToken)
+
+        if (!isTokenActive) {
+            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
+        }
+
+        await usersRepository.removeRefreshToken(id, oldRefreshToken)
+
+        const accessToken = jwtAuthService.createAccessToken({ id })
+        const refreshToken = jwtAuthService.createRefreshToken({ id })
+
+        await usersRepository.updateRefreshTokens(id, refreshToken)
+
+        return {
+            accessToken,
+            refreshToken
+        }
     }
 }

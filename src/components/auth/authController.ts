@@ -69,10 +69,45 @@ const authController = {
         } catch (err) {
             return next(err)
         }
+    },
+
+    async refreshToken(req: Request, res: Response, next: NextFunction) {
+        try {
+            const currentRefreshToken = req.cookies?.refreshToken
+            if (!currentRefreshToken) {
+                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            }
+
+            const { accessToken, refreshToken } = await authService.refreshToken(currentRefreshToken)
+
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
+
+            return res.json({ accessToken })
+
+        } catch (err) {
+            return next(err)
+        }
+    },
+
+    async logout(req: Request, res: Response, next: NextFunction) {
+        try {
+            const currentRefreshToken = req.cookies?.refreshToken
+            if (!currentRefreshToken) {
+                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            }
+
+            await authService.logout(currentRefreshToken)
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
 
 authRouter.post('/login', ...authValidation,  authController.login)
+authRouter.post('/logout',  authController.logout)
+authRouter.post('/refresh-token',  authController.refreshToken)
 authRouter.get('/me', jwtAuthMiddleware,  authController.getCurrentUserInfo)
 authRouter.post('/registration', ...registerValidation,  authController.register)
 authRouter.post('/registration-confirmation', ...confirmCodeValidation, authController.confirmRegister)

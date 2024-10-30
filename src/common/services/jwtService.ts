@@ -14,7 +14,7 @@ export const jwtAuthService = {
 
     createRefreshToken(user: any): string {
         const token = jwt.sign(user, String(secret), {
-            expiresIn: '20s'
+            expiresIn: '10m'
         });
 
         return token;

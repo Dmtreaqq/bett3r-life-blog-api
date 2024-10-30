@@ -24,8 +24,7 @@ const userDbModel: UserDbModel = {
     createdAt: new Date().toISOString(),
     isConfirmed: false,
     expirationDate: '1',
-    confirmationCode: 'a',
-    activeTokens: []
+    confirmationCode: 'a'
 }
 
 const userEntity: UserApiResponseModel = {

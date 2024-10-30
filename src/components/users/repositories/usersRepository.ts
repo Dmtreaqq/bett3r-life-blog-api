@@ -1,6 +1,6 @@
 import {usersCollection} from "../../../common/db/db";
 import {UserDbModel} from "../models/UserDbModel";
-import {ObjectId, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
 import {add} from "date-fns/add";
 import {randomUUID} from "node:crypto";
 
@@ -33,29 +33,6 @@ export const usersRepository = {
         )
 
         return newCode
-    },
-
-    async updateRefreshTokens(userId: string, refreshToken: string): Promise<boolean> {
-        const result = await usersCollection.updateOne(
-            { _id: new ObjectId(userId) },
-            { $push: { activeTokens: refreshToken } }
-        )
-
-        return result.modifiedCount === 1
-    },
-
-    async checkRefreshToken(userId: string, refreshToken: string): Promise<WithId<UserDbModel> | null> {
-        const result = await usersCollection.findOne(
-            { _id: new ObjectId(userId), activeTokens: refreshToken },
-        )
-
-        return result
-    },
-
-    async removeRefreshToken(userId: string, refreshToken: string): Promise<boolean> {
-        const result = await usersCollection.updateOne({ _id: new ObjectId(userId) }, { $pull: { activeTokens: refreshToken }})
-
-        return result.modifiedCount === 1
     },
 
     async createUser(user: UserDbModel): Promise<string> {

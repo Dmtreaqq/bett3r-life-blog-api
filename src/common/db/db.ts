@@ -5,6 +5,7 @@ import { BlogDbModel } from "../../components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../../components/posts/models/PostDbModel";
 import {UserDbModel} from "../../components/users/models/UserDbModel";
 import {CommentDbModel} from "../../components/comments/models/CommentDbModel";
+import {SessionDbModel} from "../../components/security/sessions/models/SessionDbModel";
 
 let db: Db;
 export let client: MongoClient;
@@ -14,6 +15,7 @@ export let blogsCollection: Collection<BlogDbModel>
 export let postsCollection: Collection<PostDbModel>
 export let usersCollection: Collection<UserDbModel>
 export let commentsCollection: Collection<CommentDbModel>
+export let sessionsCollection: Collection<SessionDbModel>
 
 export const runDB = async () => {
     if (CONFIG.IS_API_TEST === 'true') {
@@ -27,6 +29,7 @@ export const runDB = async () => {
         postsCollection = db.collection<PostDbModel>("posts");
         usersCollection = db.collection<UserDbModel>("users");
         commentsCollection = db.collection<CommentDbModel>("comments");
+        sessionsCollection = db.collection<SessionDbModel>("sessions");
 
         console.log('Using MongoDB in memory')
         return
@@ -40,6 +43,8 @@ export const runDB = async () => {
         postsCollection = db.collection<PostDbModel>("posts");
         usersCollection = db.collection<UserDbModel>("users");
         commentsCollection = db.collection<CommentDbModel>("comments");
+        sessionsCollection = db.collection<SessionDbModel>("sessions");
+
         console.log('Connected to MongoDB successfully')
     } catch (error) {
         console.error('MongoDB connection error: ', error)

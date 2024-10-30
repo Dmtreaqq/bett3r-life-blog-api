@@ -1,4 +1,4 @@
-import {NextFunction, Response, Router, Request} from 'express'
+import {NextFunction, Request, Response, Router} from 'express'
 import {HTTP_STATUSES, RequestWbody} from "../../common/utils/types";
 import {AuthLoginApiRequestModel, AuthMeInfoResponseModel, AuthRegisterApiRequestModel} from "./models/AuthApiModel";
 import {authService} from "./authService";
@@ -8,6 +8,7 @@ import {usersQueryRepository} from "../users/repositories/usersQueryRepository";
 import confirmCodeValidation from "./middlewares/confirmCodeValidation";
 import registerValidation from "./middlewares/registerValidation";
 import emailResendValidation from "./middlewares/emailResendValidation";
+import {sessionsService} from "../security/sessions/sessionsService";
 
 export const authRouter = Router()
 
@@ -15,6 +16,7 @@ const authController = {
     async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
         try {
             const { accessToken, refreshToken } = await authService.login(req.body)
+            await sessionsService.createSession(refreshToken, req.ip, req.header('user-agent'))
 
             res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
 
@@ -97,7 +99,11 @@ const authController = {
                 return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
             }
 
-            await authService.logout(currentRefreshToken)
+            const result = await authService.logout(currentRefreshToken)
+
+            if (!result) {
+                return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+            }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
         } catch (err) {

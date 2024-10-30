@@ -8,6 +8,7 @@ import {UserDbModel} from "../users/models/UserDbModel";
 import {randomUUID} from "node:crypto";
 import {add} from "date-fns/add";
 import {emailService} from "../../common/services/emailService";
+import {sessionsService} from "../security/sessions/sessionsService";
 
 export const authService = {
     async login(authInput: AuthLoginApiRequestModel): Promise<{ accessToken: string, refreshToken: string }> {
@@ -29,10 +30,9 @@ export const authService = {
         })
 
         const refreshToken = jwtAuthService.createRefreshToken({
-            id: user._id.toString()
+            id: user._id.toString(),
+            deviceId: randomUUID()
         })
-
-        await usersRepository.updateRefreshTokens(user._id.toString(), refreshToken)
 
         return {
             accessToken,
@@ -40,26 +40,14 @@ export const authService = {
         }
     },
 
-    async logout(refreshToken: string) {
-        let oldRefreshTokenValid: any;
+    async logout(refreshToken: string): Promise<boolean> {
+        const isSessionActive = await sessionsService.isActiveSession(refreshToken)
 
-        try {
-            oldRefreshTokenValid = jwtAuthService.verifyToken(refreshToken)
-        } catch (err) {
+        if (!isSessionActive) {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
-        const { id } = oldRefreshTokenValid
-        const isTokenActive = await usersRepository.checkRefreshToken(id, refreshToken)
-
-        if (!isTokenActive) {
-            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
-        }
-
-        const result = await usersRepository.removeRefreshToken(id, refreshToken)
-        if (!result) {
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400)
-        }
+        const result = await sessionsService.deleteSession(refreshToken)
 
         return result
     },
@@ -89,7 +77,6 @@ export const authService = {
             expirationDate: add(new Date(), {
                 minutes: 2
             }).toISOString(),
-            activeTokens: []
             // TODO: что будет если положить дату в монгоДБ
         }
 
@@ -147,19 +134,17 @@ export const authService = {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
-        const { id } = oldRefreshTokenValid
-        const isTokenActive = await usersRepository.checkRefreshToken(id, oldRefreshToken)
+        const { id, deviceId } = oldRefreshTokenValid
+        const isSessionActive = await sessionsService.isActiveSession(oldRefreshToken)
 
-        if (!isTokenActive) {
+        if (!isSessionActive) {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
-        await usersRepository.removeRefreshToken(id, oldRefreshToken)
-
         const accessToken = jwtAuthService.createAccessToken({ id })
-        const refreshToken = jwtAuthService.createRefreshToken({ id })
+        const refreshToken = jwtAuthService.createRefreshToken({ id, deviceId })
 
-        await usersRepository.updateRefreshTokens(id, refreshToken)
+        await sessionsService.updateSession(oldRefreshToken, refreshToken)
 
         return {
             accessToken,

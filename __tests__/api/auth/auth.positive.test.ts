@@ -11,6 +11,8 @@ import {authService} from "../../../src/components/auth/authService";
 import {emailService} from "../../../src/common/services/emailService";
 import {UserApiResponseModel} from "../../../src/components/users/models/UserApiModel";
 import {authHeader} from "../constants";
+import {usersTestManager} from "../users/usersTestManager";
+import {authTestManager} from "./authTestManager";
 
 const baseUrl = '/api';
 
@@ -128,5 +130,32 @@ describe('/auth Positive', () => {
             login: 'new-login',
             email: 'new-email@test.com',
         } as UserApiResponseModel])
+    })
+
+    it ('should return 200 when POST refreshToken', async () => {
+        const user = await usersTestManager.createUser()
+        const {refreshToken} = await authTestManager.loginByEmail(user.email, 'password')
+
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/refresh-token')
+            .set('Cookie', [refreshToken])
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(response.body.refreshToken).not.toEqual(refreshToken)
+    })
+
+    it ('should return 204 when POST logout', async () => {
+        const user = await usersTestManager.createUser()
+        const {refreshToken} = await authTestManager.loginByEmail(user.email, 'password')
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/logout')
+            .set('Cookie', [refreshToken])
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/refresh-token')
+            .set('Cookie', [refreshToken])
+            .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
     })
 })

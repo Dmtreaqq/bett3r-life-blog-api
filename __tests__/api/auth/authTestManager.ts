@@ -14,7 +14,10 @@ export const authTestManager = {
                 password: password
             })
 
-        return response.body
+        return {
+            accessToken: response.body.accessToken,
+            refreshToken: response.headers['set-cookie'][0]
+        }
     },
 
     async getTokenOfLoggedInUser(inputLogin = 'userLogin', inputEmail = 'test@test.com'): Promise<string> {

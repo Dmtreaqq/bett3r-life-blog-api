@@ -74,7 +74,8 @@ const authController = {
     async refreshToken(req: Request, res: Response, next: NextFunction) {
         try {
             const currentRefreshToken = req.cookies?.refreshToken
-            if (!currentRefreshToken) {
+
+            if (currentRefreshToken === "undefined") {
                 return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
             }
 
@@ -92,7 +93,7 @@ const authController = {
     async logout(req: Request, res: Response, next: NextFunction) {
         try {
             const currentRefreshToken = req.cookies?.refreshToken
-            if (!currentRefreshToken) {
+            if (currentRefreshToken === "undefined") {
                 return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
             }
 

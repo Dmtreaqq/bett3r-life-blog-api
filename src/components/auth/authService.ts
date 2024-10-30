@@ -10,7 +10,7 @@ import {add} from "date-fns/add";
 import {emailService} from "../../common/services/emailService";
 
 export const authService = {
-    async login(authInput: AuthLoginApiRequestModel): Promise<string> {
+    async login(authInput: AuthLoginApiRequestModel): Promise<{ accessToken: string, refreshToken: string }> {
         const userByLogin = await usersRepository.getUserByLogin(authInput.loginOrEmail)
         const userByEmail = await usersRepository.getUserByEmail(authInput.loginOrEmail)
 
@@ -24,11 +24,18 @@ export const authService = {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
-        const token = jwtAuthService.createToken({
+        const accessToken = jwtAuthService.createAccessToken({
             id: user._id.toString()
         })
 
-        return token
+        const refreshToken = jwtAuthService.createRefreshToken({
+            id: user._id.toString()
+        })
+
+        return {
+            accessToken,
+            refreshToken
+        }
     },
 
     async register(registerModel: AuthRegisterApiRequestModel): Promise<string> {

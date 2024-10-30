@@ -4,9 +4,17 @@ import {CONFIG} from "../utils/config";
 const secret = CONFIG.JWT_SECRET
 
 export const jwtAuthService = {
-    createToken(user: any): string {
+    createAccessToken(user: any): string {
         const token = jwt.sign(user, String(secret), {
-            expiresIn: '10m'
+            expiresIn: '10s'
+        });
+
+        return token;
+    },
+
+    createRefreshToken(user: any): string {
+        const token = jwt.sign(user, String(secret), {
+            expiresIn: '20s'
         });
 
         return token;

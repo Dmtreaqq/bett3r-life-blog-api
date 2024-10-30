@@ -53,16 +53,18 @@ describe('/auth Positive', () => {
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
-            accessToken: jwtAuthService.createToken({
+            accessToken: jwtAuthService.createAccessToken({
                 id: userDbModel._id.toString()
             })
         })
+
+        expect(response.headers['set-cookie'][0]).toMatch('refreshToken')
     })
 
     it('should GET userInfo successfully', async () => {
         const userId = await usersRepository.createUser({ ...userDbModel, _id: new ObjectId() } as any);
 
-        const token = jwtAuthService.createToken({
+        const token = jwtAuthService.createAccessToken({
             id: userId,
             login: userDbModel.login,
             email: userDbModel.email,

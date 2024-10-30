@@ -7,8 +7,11 @@ import {usersRouter} from "./components/users/usersController";
 import {errorHandlerMiddleware} from "./common/middlewares/errorHandlerMiddleware";
 import {authRouter} from "./components/auth/authController";
 import {commentsRouter} from "./components/comments/commentsController";
+import cookieParser from "cookie-parser";
 
 export const app = express();
+
+app.disable('x-powered-by');
 
 const baseUrl = '/api';
 const testingPathUrl = baseUrl + CONFIG.PATH.TESTING;
@@ -19,6 +22,7 @@ const authPathUrl = baseUrl + CONFIG.PATH.AUTH;
 const commentsPathUrl = baseUrl + CONFIG.PATH.COMMENTS
 
 app.use(express.json());
+app.use(cookieParser())
 
 app.use(testingPathUrl, testingController);
 app.use(postsPathUrl, postsRouter);

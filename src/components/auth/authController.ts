@@ -14,10 +14,12 @@ export const authRouter = Router()
 const authController = {
     async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
         try {
-            const token = await authService.login(req.body)
+            const { accessToken, refreshToken } = await authService.login(req.body)
+
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
 
             return res.json({
-                accessToken: `${token}`
+                accessToken: `${accessToken}`
             })
         } catch (err) {
             return next(err)

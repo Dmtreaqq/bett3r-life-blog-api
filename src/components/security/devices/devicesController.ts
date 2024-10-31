@@ -15,11 +15,11 @@ const devicesController = {
         try {
             const token = req.cookies.refreshToken
             const { id, iat } = jwtAuthService.verifyToken(token) as JwtPayload
-            const isActiveSession = await sessionsRepository.isActiveSession(id, iat!)
+            // const isActiveSession = await sessionsRepository.isActiveSession(id, iat!)
 
-            if (!isActiveSession) {
-                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            }
+            // if (!isActiveSession) {
+            //     return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            // }
 
             const sessions = await sessionsRepository.getAllSessions(id)
 
@@ -42,12 +42,12 @@ const devicesController = {
             const { refreshToken } = req.cookies
             const passedDeviceId = req.params.id
 
-            const { deviceId, iat } = jwtAuthService.decodeToken(refreshToken)
-            const isActiveSession = await sessionsRepository.isActiveSession(deviceId, iat!)
-
-            if (!isActiveSession) {
-                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            }
+            // const { deviceId, iat } = jwtAuthService.decodeToken(refreshToken)
+            // const isActiveSession = await sessionsRepository.isActiveSession(deviceId, iat!)
+            //
+            // if (!isActiveSession) {
+            //     return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            // }
 
             await sessionsService.deleteSession(refreshToken, passedDeviceId)
 
@@ -61,12 +61,12 @@ const devicesController = {
         try {
             const { refreshToken } = req.cookies
 
-            const { deviceId, iat } = jwtAuthService.decodeToken(refreshToken)
-            const isActiveSession = await sessionsRepository.isActiveSession(deviceId, iat!)
-
-            if (!isActiveSession) {
-                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            }
+            // const { deviceId, iat } = jwtAuthService.decodeToken(refreshToken)
+            // const isActiveSession = await sessionsRepository.isActiveSession(deviceId, iat!)
+            //
+            // if (!isActiveSession) {
+            //     return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            // }
 
             await sessionsService.deleteOtherSessions(refreshToken)
 

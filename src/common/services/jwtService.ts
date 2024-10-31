@@ -1,5 +1,7 @@
 import jwt, {JwtPayload} from 'jsonwebtoken'
 import {CONFIG} from "../utils/config";
+import {ApiError} from "../utils/ApiError";
+import {HTTP_STATUSES} from "../utils/types";
 
 const secret = CONFIG.JWT_SECRET
 
@@ -26,9 +28,14 @@ export const jwtAuthService = {
         return result
     },
 
-    // TODO переписать на декод
-    decodeToken(token: string) {
-        return jwt.decode(token, { json: true })
+    decodeToken(token: string): JwtPayload {
+        const decoded = jwt.decode(token, { json: true })
+
+        if (!decoded) {
+            throw new Error('Something wrong while decoding token')
+        }
+
+        return decoded
     }
 }
 

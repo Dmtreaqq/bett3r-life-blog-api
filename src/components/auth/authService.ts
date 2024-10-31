@@ -127,7 +127,7 @@ export const authService = {
     },
 
     async refreshToken(oldRefreshToken: string): Promise<{ accessToken: string, refreshToken: string }> {
-        const oldRefreshTokenValid = jwtAuthService.verifyToken(oldRefreshToken) as JwtPayload
+        const oldRefreshTokenValid = jwtAuthService.decodeToken(oldRefreshToken)
         const { id, deviceId } = oldRefreshTokenValid
         const isSessionActive = await sessionsService.isActiveSession(oldRefreshToken)
 

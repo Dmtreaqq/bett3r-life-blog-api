@@ -8,6 +8,7 @@ import {errorHandlerMiddleware} from "./common/middlewares/errorHandlerMiddlewar
 import {authRouter} from "./components/auth/authController";
 import {commentsRouter} from "./components/comments/commentsController";
 import cookieParser from "cookie-parser";
+import {securityDevicesRouter} from "./components/security/devices/devicesController";
 
 export const app = express();
 
@@ -20,6 +21,7 @@ const blogsPathsUrl = baseUrl + CONFIG.PATH.BLOGS;
 const blogsUsersUrl = baseUrl + CONFIG.PATH.USERS;
 const authPathUrl = baseUrl + CONFIG.PATH.AUTH;
 const commentsPathUrl = baseUrl + CONFIG.PATH.COMMENTS
+const securityPathUrl = baseUrl + CONFIG.PATH.SECURITY
 
 app.use(express.json());
 app.use(cookieParser())
@@ -30,5 +32,6 @@ app.use(blogsPathsUrl, blogsRouter);
 app.use(blogsUsersUrl, usersRouter);
 app.use(authPathUrl, authRouter);
 app.use(commentsPathUrl, commentsRouter);
+app.use(securityPathUrl, securityDevicesRouter)
 
 app.use(errorHandlerMiddleware);

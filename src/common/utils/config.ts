@@ -9,7 +9,8 @@ export const CONFIG = {
         BLOGS: '/blogs',
         USERS: '/users',
         AUTH: '/auth',
-        COMMENTS: '/comments'
+        COMMENTS: '/comments',
+        SECURITY: '/security'
     },
     LOGIN: process.env.LOGIN,
     LOCAL_MONGO_URL: 'mongodb://localhost:27017/?retryWrites=true',

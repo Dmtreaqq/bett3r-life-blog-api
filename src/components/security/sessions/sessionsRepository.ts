@@ -29,5 +29,9 @@ export const sessionsRepository = {
         })
 
         return result.deletedCount === 1
+    },
+
+    async getAllSessions(userId: string): Promise<SessionDbModel[]> {
+        return sessionsCollection.find({ userId }).toArray()
     }
 }

@@ -28,42 +28,26 @@ export const sessionsService = {
     },
 
     async updateSession(oldRefreshToken: string, newRefreshToken: string) {
-        try {
-            const { iat: oldIat, deviceId } = jwtAuthService.verifyToken(oldRefreshToken) as JwtPayload
-            const { iat: newIat, exp } = jwtAuthService.verifyToken(newRefreshToken) as JwtPayload
+        const { iat: oldIat, deviceId } = jwtAuthService.verifyToken(oldRefreshToken) as JwtPayload
+        const { iat: newIat, exp } = jwtAuthService.verifyToken(newRefreshToken) as JwtPayload
 
-            await sessionsRepository.updateSession(deviceId, oldIat!, newIat!, exp!)
-        } catch (err) {
-            console.log(err)
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'Unknown Error')
-        }
+        await sessionsRepository.updateSession(deviceId, oldIat!, newIat!, exp!)
     },
 
     async isActiveSession(refreshToken: string): Promise<boolean> {
-        try {
-            const { iat, deviceId } = jwtAuthService.verifyToken(refreshToken) as JwtPayload
-            const result = await sessionsRepository.isActiveSession(deviceId, iat!)
-            if (!result) {
-                return false
-            }
-
-            return true
-        } catch (err) {
-            console.log(err);
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'Unknown error while check isActiveSession')
+        const { iat, deviceId } = jwtAuthService.verifyToken(refreshToken) as JwtPayload
+        const result = await sessionsRepository.isActiveSession(deviceId, iat!)
+        if (!result) {
+            return false
         }
+
+        return true
     },
 
     async deleteSession(refreshToken: string) {
-        try {
-            const { iat, deviceId } = jwtAuthService.verifyToken(refreshToken) as JwtPayload
-            const result = await sessionsRepository.deleteSession(deviceId, iat!)
+        const { iat, deviceId } = jwtAuthService.verifyToken(refreshToken) as JwtPayload
+        const result = await sessionsRepository.deleteSession(deviceId, iat!)
 
-            return result
-
-        } catch (err) {
-            console.log(err);
-            throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, 'Unknown error while delete session')
-        }
+        return result
     }
 }

@@ -9,6 +9,7 @@ import {randomUUID} from "node:crypto";
 import {add} from "date-fns/add";
 import {emailService} from "../../common/services/emailService";
 import {sessionsService} from "../security/sessions/sessionsService";
+import {JwtPayload} from "jsonwebtoken";
 
 export const authService = {
     async login(authInput: AuthLoginApiRequestModel): Promise<{ accessToken: string, refreshToken: string }> {
@@ -126,14 +127,7 @@ export const authService = {
     },
 
     async refreshToken(oldRefreshToken: string): Promise<{ accessToken: string, refreshToken: string }> {
-        let oldRefreshTokenValid: any;
-
-        try {
-            oldRefreshTokenValid = jwtAuthService.verifyToken(oldRefreshToken)
-        } catch (err) {
-            throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
-        }
-
+        const oldRefreshTokenValid = jwtAuthService.verifyToken(oldRefreshToken) as JwtPayload
         const { id, deviceId } = oldRefreshTokenValid
         const isSessionActive = await sessionsService.isActiveSession(oldRefreshToken)
 

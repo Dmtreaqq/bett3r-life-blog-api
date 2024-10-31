@@ -24,6 +24,11 @@ export const jwtAuthService = {
         const result = jwt.verify(token, String(secret))
 
         return result
+    },
+
+    // TODO переписать на декод
+    decodeToken(token: string) {
+        return jwt.decode(token, { json: true })
     }
 }
 

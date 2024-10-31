@@ -9,6 +9,7 @@ import confirmCodeValidation from "./middlewares/confirmCodeValidation";
 import registerValidation from "./middlewares/registerValidation";
 import emailResendValidation from "./middlewares/emailResendValidation";
 import {sessionsService} from "../security/sessions/sessionsService";
+import {cookieValidationMiddleware} from "../../common/middlewares/cookieValidationMiddleware";
 
 export const authRouter = Router()
 
@@ -75,18 +76,12 @@ const authController = {
 
     async refreshToken(req: Request, res: Response, next: NextFunction) {
         try {
-            const currentRefreshToken = req.cookies?.refreshToken
-
-            if (currentRefreshToken === "undefined") {
-                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            }
-
+            const currentRefreshToken = req.cookies.refreshToken
             const { accessToken, refreshToken } = await authService.refreshToken(currentRefreshToken)
 
             res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
 
             return res.json({ accessToken })
-
         } catch (err) {
             return next(err)
         }
@@ -94,11 +89,7 @@ const authController = {
 
     async logout(req: Request, res: Response, next: NextFunction) {
         try {
-            const currentRefreshToken = req.cookies?.refreshToken
-            if (currentRefreshToken === "undefined") {
-                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            }
-
+            const currentRefreshToken = req.cookies.refreshToken
             const result = await authService.logout(currentRefreshToken)
 
             if (!result) {
@@ -113,8 +104,8 @@ const authController = {
 }
 
 authRouter.post('/login', ...authValidation,  authController.login)
-authRouter.post('/logout',  authController.logout)
-authRouter.post('/refresh-token',  authController.refreshToken)
+authRouter.post('/logout', cookieValidationMiddleware,  authController.logout)
+authRouter.post('/refresh-token', cookieValidationMiddleware,  authController.refreshToken)
 authRouter.get('/me', jwtAuthMiddleware,  authController.getCurrentUserInfo)
 authRouter.post('/registration', ...registerValidation,  authController.register)
 authRouter.post('/registration-confirmation', ...confirmCodeValidation, authController.confirmRegister)

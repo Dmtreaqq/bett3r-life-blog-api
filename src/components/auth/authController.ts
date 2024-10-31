@@ -96,6 +96,8 @@ const authController = {
                 return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
             }
 
+            res.clearCookie('refreshToken', { path: '/' })
+
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
         } catch (err) {
             return next(err)

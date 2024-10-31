@@ -31,6 +31,7 @@ const devicesController = {
     },
 
     async deleteDevice(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
+        // TODO: разрешаем ли мьі несколько сессий с одного девайса
         try {
             const { refreshToken } = req.cookies
             const passedDeviceId = req.params.id

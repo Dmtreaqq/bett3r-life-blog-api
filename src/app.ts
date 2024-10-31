@@ -9,10 +9,12 @@ import {authRouter} from "./components/auth/authController";
 import {commentsRouter} from "./components/comments/commentsController";
 import cookieParser from "cookie-parser";
 import {securityDevicesRouter} from "./components/security/devices/devicesController";
+import {rateLimitMiddleware} from "./common/middlewares/rateLimitMiddleware";
 
 export const app = express();
 
 app.disable('x-powered-by');
+app.set('trust proxy', true)
 
 const baseUrl = '/api';
 const testingPathUrl = baseUrl + CONFIG.PATH.TESTING;
@@ -30,7 +32,7 @@ app.use(testingPathUrl, testingController);
 app.use(postsPathUrl, postsRouter);
 app.use(blogsPathsUrl, blogsRouter);
 app.use(blogsUsersUrl, usersRouter);
-app.use(authPathUrl, authRouter);
+app.use(authPathUrl, rateLimitMiddleware, authRouter);
 app.use(commentsPathUrl, commentsRouter);
 app.use(securityPathUrl, securityDevicesRouter)
 

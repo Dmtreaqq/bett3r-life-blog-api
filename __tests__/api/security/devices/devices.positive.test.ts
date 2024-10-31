@@ -5,18 +5,22 @@ import {client, runDB, server} from "../../../../src/common/db/db";
 import {authTestManager} from "../../auth/authTestManager";
 import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
+import {sessionsRepository} from "../../../../src/components/security/sessions/sessionsRepository";
+import {UserApiResponseModel} from "../../../../src/components/users/models/UserApiModel";
 
 describe('/security/devices Positive', () => {
     let refreshToken1: string
     let refreshToken2: string
     let refreshToken3: string
     let refreshToken4: string
+    let user: UserApiResponseModel
+    let responseSessions1: any
 
     beforeAll(async () => {
         await runDB()
         await request.del(baseUrl + CONFIG.PATH.TESTING + '/all-data')
 
-        const user = await usersTestManager.createUser()
+        user = await usersTestManager.createUser()
         const tokens1 = await authTestManager
             .loginWithUserAgent(user.email, 'password', 'iPhone')
         const tokens2 = await authTestManager.loginWithUserAgent(user.email, 'password', 'Android')
@@ -41,7 +45,7 @@ describe('/security/devices Positive', () => {
     })
 
     it('Should get ALL sessions successfully with editing 1 session', async () => {
-        const responseSessions1 = await request
+        responseSessions1 = await request
             .get(baseUrl + CONFIG.PATH.SECURITY + '/devices')
             .set('Cookie', [refreshToken1])
             .expect(HTTP_STATUSES.OK_200)
@@ -112,5 +116,20 @@ describe('/security/devices Positive', () => {
 
         // Check third SESSION deleted
         expect(responseSessions1.body.some((obj: { title: string; }) => obj.title === 'Web')).toEqual(false)
+    })
+
+    it('Should return 204 while delete yours deviceId session', async () => {
+        await request
+            .delete(baseUrl + CONFIG.PATH.SECURITY + `/devices/${responseSessions1.body[1].deviceId}`)
+            .set('Cookie', [refreshToken4])
+            .expect(HTTP_STATUSES.NO_CONTENT_204)
+
+        const responseSessions3 = await request
+            .get(baseUrl + CONFIG.PATH.SECURITY + '/devices')
+            .set('Cookie', [refreshToken4])
+            .expect(HTTP_STATUSES.OK_200)
+
+        // Check third SESSION deleted
+        expect(responseSessions3.body.some((obj: { title: string; }) => obj.title === 'Android')).toEqual(false)
     })
 })

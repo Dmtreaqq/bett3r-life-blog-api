@@ -3,6 +3,7 @@ import {CONFIG} from "../../../src/common/utils/config";
 import {baseUrl} from "../constants";
 import {usersTestManager} from "../users/usersTestManager";
 import {UserApiRequestModel} from "../../../src/components/users/models/UserApiModel";
+import {HTTP_STATUSES} from "../../../src/common/utils/types";
 
 
 export const authTestManager = {
@@ -30,9 +31,10 @@ export const authTestManager = {
                 password
             })
 
+
         return {
             accessToken: response.body.accessToken,
-            refreshToken: response.headers['set-cookie'][0]
+            refreshToken: response.headers['set-cookie'][0],
         }
     },
 

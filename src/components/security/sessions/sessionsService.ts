@@ -1,6 +1,8 @@
 import {sessionsRepository} from "./sessionsRepository";
 import {SessionDbModel} from "./models/SessionDbModel";
 import {jwtAuthService} from "../../../common/services/jwtService";
+import {ApiError} from "../../../common/utils/ApiError";
+import {HTTP_STATUSES} from "../../../common/utils/types";
 
 
 export const sessionsService = {
@@ -26,19 +28,30 @@ export const sessionsService = {
         await sessionsRepository.updateSession(deviceId, oldIat!, newIat!, exp!)
     },
 
-    async isActiveSession(refreshToken: string): Promise<boolean> {
+    async isActiveSession(refreshToken: string): Promise<SessionDbModel | null> {
         const { iat, deviceId } = jwtAuthService.decodeToken(refreshToken)
         const result = await sessionsRepository.isActiveSession(deviceId, iat!)
         if (!result) {
-            return false
+           return null
         }
 
-        return true
+        return result
     },
 
-    async deleteSession(refreshToken: string) {
-        const { iat, deviceId } = jwtAuthService.decodeToken(refreshToken)
-        const result = await sessionsRepository.deleteSession(deviceId, iat!)
+    async deleteSession(refreshToken: string, passedDeviceId: string) {
+        const { iat, id: userId } = jwtAuthService.decodeToken(refreshToken)
+
+        const userSession = await sessionsRepository.getSessionByDeviceId(passedDeviceId)
+
+        if (!userSession) {
+            throw new ApiError(HTTP_STATUSES.NOT_FOUND_404, 'No Session By Device Id')
+        }
+
+        if (userSession.userId !== userId) {
+            throw new ApiError(HTTP_STATUSES.FORBIDDEN_403)
+        }
+
+        const result = await sessionsRepository.deleteSession(passedDeviceId, iat!)
 
         return result
     }

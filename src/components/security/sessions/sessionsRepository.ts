@@ -33,5 +33,14 @@ export const sessionsRepository = {
 
     async getAllSessions(userId: string): Promise<SessionDbModel[]> {
         return sessionsCollection.find({ userId }).toArray()
+    },
+
+    async getSessionByDeviceId(deviceId: string) {
+        // TODO а если с одного девайса 2 сессии
+        return sessionsCollection.findOne({ deviceId })
+    },
+
+    async deleteAllSessions() {
+        await sessionsCollection.deleteMany({})
     }
 }

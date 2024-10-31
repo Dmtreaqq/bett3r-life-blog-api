@@ -42,13 +42,13 @@ export const authService = {
     },
 
     async logout(refreshToken: string): Promise<boolean> {
-        const isSessionActive = await sessionsService.isActiveSession(refreshToken)
+        const session = await sessionsService.isActiveSession(refreshToken)
 
-        if (!isSessionActive) {
+        if (!session) {
             throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
         }
 
-        const result = await sessionsService.deleteSession(refreshToken)
+        const result = await sessionsService.deleteSession(refreshToken, session.deviceId)
 
         return result
     },

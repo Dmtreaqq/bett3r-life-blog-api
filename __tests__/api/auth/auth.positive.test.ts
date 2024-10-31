@@ -141,7 +141,7 @@ describe('/auth Positive', () => {
             .set('Cookie', [refreshToken])
             .expect(HTTP_STATUSES.OK_200);
 
-        expect(response.body.refreshToken).not.toEqual(refreshToken)
+        expect(response.header['set-cookie'][0]).not.toEqual(refreshToken)
     })
 
     it ('should return 204 when POST logout', async () => {

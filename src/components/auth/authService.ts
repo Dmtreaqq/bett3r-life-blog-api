@@ -9,7 +9,6 @@ import {randomUUID} from "node:crypto";
 import {add} from "date-fns/add";
 import {emailService} from "../../common/services/emailService";
 import {sessionsService} from "../security/sessions/sessionsService";
-import {JwtPayload} from "jsonwebtoken";
 
 export const authService = {
     async login(authInput: AuthLoginApiRequestModel): Promise<{ accessToken: string, refreshToken: string }> {
@@ -32,7 +31,8 @@ export const authService = {
 
         const refreshToken = jwtAuthService.createRefreshToken({
             id: user._id.toString(),
-            deviceId: randomUUID()
+            deviceId: randomUUID(),
+            versionId: randomUUID() + 1
         })
 
         return {
@@ -136,7 +136,7 @@ export const authService = {
         }
 
         const accessToken = jwtAuthService.createAccessToken({ id })
-        const refreshToken = jwtAuthService.createRefreshToken({ id, deviceId })
+        const refreshToken = jwtAuthService.createRefreshToken({ id, deviceId, versionId: randomUUID() + 1 })
 
         await sessionsService.updateSession(oldRefreshToken, refreshToken)
 

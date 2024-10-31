@@ -16,6 +16,22 @@ export const authTestManager = {
 
         return {
             accessToken: response.body.accessToken,
+            // TODO: how to get token normally
+            refreshToken: response.headers['set-cookie'][0]
+        }
+    },
+
+    async loginWithUserAgent(email: string, password: string, userAgent: string) {
+        const response = await request
+            .post(baseUrl + CONFIG.PATH.AUTH + '/login')
+            .set('user-agent', userAgent)
+            .send({
+                loginOrEmail: email,
+                password
+            })
+
+        return {
+            accessToken: response.body.accessToken,
             refreshToken: response.headers['set-cookie'][0]
         }
     },

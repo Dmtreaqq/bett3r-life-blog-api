@@ -42,5 +42,12 @@ export const sessionsRepository = {
 
     async deleteAllSessions() {
         await sessionsCollection.deleteMany({})
+    },
+
+    async deleteOtherSessions(userId: string, currentDeviceId: string) {
+        await sessionsCollection.deleteMany({
+            userId,
+            deviceId: { $ne: currentDeviceId }
+        })
     }
 }

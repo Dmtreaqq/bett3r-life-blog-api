@@ -54,5 +54,11 @@ export const sessionsService = {
         const result = await sessionsRepository.deleteSession(passedDeviceId, iat!)
 
         return result
+    },
+
+    async deleteOtherSessions(refreshToken: string) {
+        const { id: userId, deviceId: currentDeviceId } = jwtAuthService.decodeToken(refreshToken)
+
+        await sessionsRepository.deleteOtherSessions(userId, currentDeviceId)
     }
 }

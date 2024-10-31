@@ -41,8 +41,21 @@ const devicesController = {
         } catch (err) {
             return next(err)
         }
+    },
+
+    async deleteOtherDevices(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { refreshToken } = req.cookies
+
+            await sessionsService.deleteOtherSessions(refreshToken)
+
+            return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+        } catch (err) {
+            return next(err)
+        }
     }
 }
 
 securityDevicesRouter.get('/devices', cookieValidationMiddleware, devicesController.getAllDevices)
+securityDevicesRouter.delete('/devices', cookieValidationMiddleware, devicesController.deleteOtherDevices)
 securityDevicesRouter.delete('/devices/:id', cookieValidationMiddleware, devicesController.deleteDevice)

@@ -5,7 +5,6 @@ import {client, runDB, server} from "../../../../src/common/db/db";
 import {authTestManager} from "../../auth/authTestManager";
 import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
-import {sessionsRepository} from "../../../../src/components/security/sessions/sessionsRepository";
 import {UserApiResponseModel} from "../../../../src/components/users/models/UserApiModel";
 
 describe('/security/devices Positive', () => {
@@ -131,5 +130,20 @@ describe('/security/devices Positive', () => {
 
         // Check third SESSION deleted
         expect(responseSessions3.body.some((obj: { title: string; }) => obj.title === 'Android')).toEqual(false)
+    })
+
+    it('Should return 204 while delete all other sessions', async () => {
+        await request
+            .delete(baseUrl + CONFIG.PATH.SECURITY + `/devices`)
+            .set('Cookie', [refreshToken4])
+            .expect(HTTP_STATUSES.NO_CONTENT_204)
+
+        const responseSessions4 = await request
+            .get(baseUrl + CONFIG.PATH.SECURITY + '/devices')
+            .set('Cookie', [refreshToken4])
+            .expect(HTTP_STATUSES.OK_200)
+
+        // Check ALL SESSIONs are deleted
+        expect(responseSessions4.body).toEqual([responseSessions1.body[3]])
     })
 })

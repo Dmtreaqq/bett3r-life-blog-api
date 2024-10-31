@@ -8,7 +8,7 @@ const secret = CONFIG.JWT_SECRET
 export const jwtAuthService = {
     createAccessToken(user: any): string {
         const token = jwt.sign(user, String(secret), {
-            expiresIn: '20s'
+            expiresIn: '10s'
         });
 
         return token;
@@ -16,7 +16,7 @@ export const jwtAuthService = {
 
     createRefreshToken(user: any): string {
         const token = jwt.sign(user, String(secret), {
-            expiresIn: '10m'
+            expiresIn: '20s'
         });
 
         return token;

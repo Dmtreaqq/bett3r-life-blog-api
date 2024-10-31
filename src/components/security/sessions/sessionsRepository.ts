@@ -23,10 +23,11 @@ export const sessionsRepository = {
         return session
     },
 
-    async deleteSession(deviceId: string, issuedAt: number) {
+    async deleteSession(deviceId: string, userId: string) {
         const result = await sessionsCollection.deleteOne({
-            deviceId, issuedAt
+            deviceId, userId
         })
+
 
         return result.deletedCount === 1
     },

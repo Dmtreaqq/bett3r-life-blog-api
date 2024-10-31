@@ -39,7 +39,7 @@ export const sessionsService = {
     },
 
     async deleteSession(refreshToken: string, passedDeviceId: string) {
-        const { iat, id: userId } = jwtAuthService.decodeToken(refreshToken)
+        const { id: userId } = jwtAuthService.decodeToken(refreshToken)
 
         const userSession = await sessionsRepository.getSessionByDeviceId(passedDeviceId)
 
@@ -51,7 +51,7 @@ export const sessionsService = {
             throw new ApiError(HTTP_STATUSES.FORBIDDEN_403)
         }
 
-        const result = await sessionsRepository.deleteSession(passedDeviceId, iat!)
+        const result = await sessionsRepository.deleteSession(passedDeviceId, userId)
 
         return result
     },

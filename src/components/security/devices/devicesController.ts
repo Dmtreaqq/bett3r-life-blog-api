@@ -14,7 +14,13 @@ const devicesController = {
         // TODO: перенести в сервис, сделать queryRepo
         try {
             const token = req.cookies.refreshToken
-            const { id } = jwtAuthService.verifyToken(token) as JwtPayload
+            const { id, iat } = jwtAuthService.verifyToken(token) as JwtPayload
+            const isActiveSession = await sessionsRepository.isActiveSession(id, iat!)
+
+            if (!isActiveSession) {
+                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            }
+
             const sessions = await sessionsRepository.getAllSessions(id)
 
             const responseSessions: DeviceApiResponseModel[] = sessions.map(session => ({
@@ -36,6 +42,13 @@ const devicesController = {
             const { refreshToken } = req.cookies
             const passedDeviceId = req.params.id
 
+            const { deviceId, iat } = jwtAuthService.decodeToken(refreshToken)
+            const isActiveSession = await sessionsRepository.isActiveSession(deviceId, iat!)
+
+            if (!isActiveSession) {
+                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            }
+
             await sessionsService.deleteSession(refreshToken, passedDeviceId)
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
@@ -47,6 +60,13 @@ const devicesController = {
     async deleteOtherDevices(req: Request, res: Response, next: NextFunction) {
         try {
             const { refreshToken } = req.cookies
+
+            const { deviceId, iat } = jwtAuthService.decodeToken(refreshToken)
+            const isActiveSession = await sessionsRepository.isActiveSession(deviceId, iat!)
+
+            if (!isActiveSession) {
+                return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
+            }
 
             await sessionsService.deleteOtherSessions(refreshToken)
 

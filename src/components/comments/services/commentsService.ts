@@ -7,7 +7,7 @@ import {CommentApiRequestModel} from "../models/CommentApiModel";
 import {usersRepository} from "../../users/repositories/usersRepository";
 
 export const commentsService = {
-    async createComment(postId: string, comment: CommentApiRequestModel, userId: any): Promise<string> {
+    async createComment(postId: string, comment: CommentApiRequestModel, userId: string): Promise<string> {
         const post = await postsRepository.getPostById(postId)
 
         if (!post) {
@@ -29,7 +29,7 @@ export const commentsService = {
         return commentsRepository.createComment(commentDbModel)
     },
     // TODO: user: any описать
-    async deleteCommentById(commentId: string, user: any): Promise<boolean> {
+    async deleteCommentById(commentId: string, userId: string): Promise<boolean> {
         const comment = await commentsRepository.getCommentById(commentId)
 
         if (!comment) {
@@ -37,21 +37,21 @@ export const commentsService = {
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
 
-        if (comment.commentatorInfo.userId !== user.id) {
+        if (comment.commentatorInfo.userId !== userId) {
             throw new ApiError(HTTP_STATUSES.FORBIDDEN_403)
         }
 
         return commentsRepository.deleteCommentById(commentId)
     },
 
-    async updateCommentById(commentId: string, content: string, user: any): Promise<boolean> {
+    async updateCommentById(commentId: string, content: string, userId: string): Promise<boolean> {
         const comment = await commentsRepository.getCommentById(commentId)
 
         if (!comment) {
             throw new ApiError(HTTP_STATUSES.NOT_FOUND_404)
         }
 
-        if (comment.commentatorInfo.userId !== user.id) {
+        if (comment.commentatorInfo.userId !== userId) {
             throw new ApiError(HTTP_STATUSES.FORBIDDEN_403)
         }
 

@@ -25,7 +25,7 @@ const commentsController = {
     },
     async deleteCommentById(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
         try {
-            const result = await commentsService.deleteCommentById(req.params.id, req.user)
+            const result = await commentsService.deleteCommentById(req.params.id, req.user.id)
 
             if (!result) {
                 return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)
@@ -39,7 +39,7 @@ const commentsController = {
 
     async updateCommentById(req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>, res: Response, next: NextFunction) {
         try {
-            const result = await commentsService.updateCommentById(req.params.id, req.body.content, req.user)
+            const result = await commentsService.updateCommentById(req.params.id, req.body.content, req.user.id)
 
             if (!result) {
                 return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500)

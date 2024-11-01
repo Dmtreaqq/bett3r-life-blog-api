@@ -43,7 +43,6 @@ const createBlogIdChain = () =>
     .withMessage("Should not be empty")
     .matches(objectIdRegex)
     .withMessage("Blog ID should be an ObjectId type")
-    // TODO, тестьі ругаются если тут убирать валидацию на существование блога
     .custom(async (value) => {
       const foundBlog = await blogsQueryRepository.getBlogById(value);
 

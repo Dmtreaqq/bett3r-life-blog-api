@@ -12,7 +12,6 @@ export const jwtAuthService = {
     return token;
   },
 
-  // TODO; req.user separately
   createRefreshToken(user: { id: string; deviceId: string; versionId: string }): string {
     const token = jwt.sign(user, String(secret), {
       expiresIn: "20s",

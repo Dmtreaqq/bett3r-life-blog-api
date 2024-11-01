@@ -1,17 +1,16 @@
-import {delay, request} from "../../test-helper";
+import {request} from "../../test-helper";
 import {baseUrl} from "../../constants";
 import {CONFIG} from "../../../../src/common/utils/config";
 import {client, runDB, server} from "../../../../src/common/db/db";
 import {authTestManager} from "../../auth/authTestManager";
 import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
-import {jwtAuthService} from "../../../../src/common/services/jwtService";
-import {sessionsRepository} from "../../../../src/components/security/sessions/sessionsRepository";
 import {UserApiResponseModel} from "../../../../src/components/users/models/UserApiModel";
+import { deviceQueryRepository } from "../../../../src/components/security/devices/deviceQueryRepository";
 
 describe('/security/devices Positive', () => {
-    let refreshToken1: string
-    let refreshToken2: string
+    let cookieRefreshToken1: string
+    let cookieRefreshToken2: string
     let user2: UserApiResponseModel
 
     beforeAll(async () => {
@@ -29,9 +28,8 @@ describe('/security/devices Positive', () => {
             .loginWithUserAgent(user2.email, '123456', 'iPhone')
 
 
-
-        refreshToken1 = tokens1.refreshToken
-        refreshToken2 = tokens2.refreshToken
+        cookieRefreshToken1 = tokens1.refreshToken
+        cookieRefreshToken2 = tokens2.refreshToken
     })
 
     afterAll(async() => {
@@ -48,17 +46,17 @@ describe('/security/devices Positive', () => {
     it('Should return 404 while delete not existing deviceId session', async () => {
         const response = await request
             .delete(baseUrl + CONFIG.PATH.SECURITY + '/devices/12345')
-            .set('Cookie', [refreshToken1])
+            .set('Cookie', [cookieRefreshToken1])
             .expect(HTTP_STATUSES.NOT_FOUND_404)
     })
 
     it('Should return 403 while delete not yours deviceId session', async () => {
-        const deviceSessions = await sessionsRepository.getAllSessions(user2.id)
-        const { deviceId } = deviceSessions.find(session => session.userId === user2.id)!
+        const token = cookieRefreshToken2.split(';')[0].slice(13)
+        const deviceSessions = await deviceQueryRepository.getAllDevices(token)
 
         await request
-            .delete(baseUrl + CONFIG.PATH.SECURITY + `/devices/${deviceId}`)
-            .set('Cookie', [refreshToken1])
+            .delete(baseUrl + CONFIG.PATH.SECURITY + `/devices/${deviceSessions[0].deviceId}`)
+            .set('Cookie', [cookieRefreshToken1])
             .expect(HTTP_STATUSES.FORBIDDEN_403)
     })
 })

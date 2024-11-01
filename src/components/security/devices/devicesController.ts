@@ -1,31 +1,18 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { sessionsRepository } from "../sessions/sessionsRepository";
-import { DeviceApiResponseModel } from "./DeviceApiResponseModel";
-import { jwtAuthService } from "../../../common/services/jwtService";
-import { JwtPayload } from "jsonwebtoken";
 import { cookieValidationMiddleware } from "../../../common/middlewares/cookieValidationMiddleware";
 import { sessionsService } from "../sessions/sessionsService";
 import { HTTP_STATUSES, RequestWparams } from "../../../common/utils/types";
+import { deviceQueryRepository } from "./deviceQueryRepository";
 
 export const securityDevicesRouter = Router();
 
 const devicesController = {
   async getAllDevices(req: Request, res: Response, next: NextFunction) {
-    // TODO: перенести в сервис, сделать queryRepo
     try {
-      const token = req.cookies.refreshToken;
-      const { id } = jwtAuthService.verifyToken(token) as JwtPayload;
+      const { refreshToken } = req.cookies;
+      const devices = await deviceQueryRepository.getAllDevices(refreshToken);
 
-      const sessions = await sessionsRepository.getAllSessions(id);
-
-      const responseSessions: DeviceApiResponseModel[] = sessions.map((session) => ({
-        ip: session.ip,
-        title: session.deviceName,
-        lastActiveDate: new Date(session.issuedAt * 1000).toISOString(),
-        deviceId: session.deviceId,
-      }));
-
-      return res.json(responseSessions);
+      return res.json(devices);
     } catch (err) {
       return next(err);
     }

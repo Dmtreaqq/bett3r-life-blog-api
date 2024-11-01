@@ -1,13 +1,8 @@
 import bcrypt from "bcrypt";
 
 export const hashService = {
-  async hashPassword(password: string): Promise<string | null> {
-    try {
-      return await bcrypt.hash(password, 10);
-    } catch (err) {
-      console.log(err);
-      return null;
-    }
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
   },
 
   async checkPassword(password: string, hashedPassword: string): Promise<boolean> {

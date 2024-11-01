@@ -64,10 +64,6 @@ export const authService = {
     }
 
     const hashedPassword = await hashService.hashPassword(registerModel.password);
-    if (!hashedPassword) {
-      // TODO: Что тут делать? Бросать ли етот статус код просто или по другому обработать, как клиент поймет
-      throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400);
-    }
 
     const confirmationCode = randomUUID();
     const userDbModel: UserDbModel = {
@@ -80,7 +76,6 @@ export const authService = {
       expirationDate: add(new Date(), {
         minutes: 2,
       }).toISOString(),
-      // TODO: что будет если положить дату в монгоДБ
     };
 
     const userId = await usersRepository.createUser(userDbModel);

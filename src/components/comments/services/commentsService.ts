@@ -32,12 +32,10 @@ export const commentsService = {
 
     return commentsRepository.createComment(commentDbModel);
   },
-  // TODO: user: any описать
   async deleteCommentById(commentId: string, userId: string): Promise<boolean> {
     const comment = await commentsRepository.getCommentById(commentId);
 
     if (!comment) {
-      // TODO - лучше возвращать что-то..
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
     }
 

@@ -5,7 +5,6 @@ import { Filter, ObjectId, WithId } from "mongodb";
 
 export const blogsQueryRepository = {
   async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
-    // TODO: Ask. Do we need try/catch here???
     const blog = await blogsCollection.findOne({ _id: new ObjectId(id) });
 
     if (!blog) return null;

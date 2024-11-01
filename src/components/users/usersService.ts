@@ -21,10 +21,6 @@ export const usersService = {
     }
 
     const hashedPassword = await hashService.hashPassword(userInput.password);
-    if (!hashedPassword) {
-      // TODO: Что тут делать? Бросать ли етот статус код просто или по другому обработать, как клиент поймет
-      throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400);
-    }
 
     const userDbModel: UserDbModel = {
       login: userInput.login,

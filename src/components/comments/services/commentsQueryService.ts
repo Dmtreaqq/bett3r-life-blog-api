@@ -12,7 +12,6 @@ export const commentsQueryService = {
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
   ): Promise<CommentsApiResponseModel> {
-    // TODO: нормально ли из одного квериРепо ходить в другой только для проверки данньіх (или квериСервис)
     const post = await postsQueryRepository.getPostById(postId);
     if (!post) {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);

@@ -126,7 +126,6 @@ const postsController = {
     }
   },
 
-  // TODO или ложить етот метод в контроллер коментов?
   async createCommentForPost(
     req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>,
     res: Response<CommentApiResponseModel>,

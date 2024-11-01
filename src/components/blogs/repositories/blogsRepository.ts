@@ -35,10 +35,6 @@ export const blogsRepository = {
   async deleteAllBlogs(): Promise<void> {
     await blogsCollection.deleteMany({});
   },
-  async getBlogs() {
-    // TODO: Implement if we need to return Blogs model that differs from BlogApiResponseModel.
-    // TODO: Now use blogsQueryRepository.ts
-  },
   async getBlogById(id: string): Promise<BlogDbModel | null> {
     const blog = await blogsCollection.findOne(
       { _id: new ObjectId(id) },

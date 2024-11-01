@@ -1,6 +1,7 @@
 import { body } from "express-validator"
 import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
 
+// eslint-disable-next-line
 const urlRegex = new RegExp('^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$');
 
 const createNameChain = () => body('name')

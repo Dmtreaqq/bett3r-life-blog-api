@@ -33,10 +33,6 @@ export const postsRepository = {
     async deleteAllPosts(): Promise<void> {
         await postsCollection.deleteMany({})
     },
-    async getPosts(blogId: string, pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<void> {
-        // TODO: Implement if we need to return model that differs from PostApiResponseModel
-        // TODO: Please use postsQueryRepository.ts
-    },
     async getPostById(id: string): Promise<PostDbModel | null> {
         const post = await postsCollection.findOne({ _id: new ObjectId(id) })
 

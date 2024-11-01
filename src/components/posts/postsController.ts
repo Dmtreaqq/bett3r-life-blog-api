@@ -71,7 +71,7 @@ const postsController = {
             }
 
             return res.status(HTTP_STATUSES.CREATED_201).json(post);
-        } catch (err: any) {
+        } catch (err: unknown) {
             return next(err)
         }
     },
@@ -84,7 +84,7 @@ const postsController = {
             }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-        } catch (err: any) {
+        } catch (err: unknown) {
             return next(err)
         }
     },

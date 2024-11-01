@@ -85,7 +85,7 @@ const blogsController = {
             }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-        } catch (error: any) {
+        } catch (error: unknown) {
             return next(error)
         }
     },
@@ -114,7 +114,7 @@ const blogsController = {
             }
 
             return res.status(HTTP_STATUSES.CREATED_201).json(post)
-        } catch (err: any) {
+        } catch (err: unknown) {
             return next(err)
         }
     },

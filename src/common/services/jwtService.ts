@@ -1,12 +1,10 @@
 import jwt, {JwtPayload} from 'jsonwebtoken'
 import {CONFIG} from "../utils/config";
-import {ApiError} from "../utils/ApiError";
-import {HTTP_STATUSES} from "../utils/types";
 
 const secret = CONFIG.JWT_SECRET
 
 export const jwtAuthService = {
-    createAccessToken(user: any): string {
+    createAccessToken(user: { id: string }): string {
         const token = jwt.sign(user, String(secret), {
             expiresIn: '10s'
         });
@@ -14,7 +12,8 @@ export const jwtAuthService = {
         return token;
     },
 
-    createRefreshToken(user: any): string {
+    // TODO; req.user separately
+    createRefreshToken(user: { id: string }): string {
         const token = jwt.sign(user, String(secret), {
             expiresIn: '20s'
         });

@@ -40,7 +40,7 @@ export const blogsQueryRepository = {
     },
 
     async getBlogsCount(name: string): Promise<number> {
-        const filter: Filter<any> = {}
+        const filter: Filter<BlogDbModel> = {}
 
         if (name !== undefined) {
             filter.name = { $regex: name, $options: 'i' }

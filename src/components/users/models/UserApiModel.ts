@@ -1,5 +1,3 @@
-import {PostApiResponseModel} from "../../posts/models/PostApiModel";
-
 export type UserApiRequestModel = {
     login: string;
     password: string;

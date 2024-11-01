@@ -2,6 +2,7 @@ import {ApiError} from "../utils/ApiError";
 import {NextFunction, Request, Response} from "express";
 import {ApiErrorResult, HTTP_STATUSES} from "../utils/types";
 
+// eslint-disable-next-line
 export const errorHandlerMiddleware = async (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApiError) {
         if (err.message) {

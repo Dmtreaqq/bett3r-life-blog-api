@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import { CONFIG } from "./common/utils/config";
 import { testingController } from "./components/tests/testingController";
 import { postsRouter } from "./components/posts/postsController";

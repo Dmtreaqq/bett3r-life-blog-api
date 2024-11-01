@@ -14,12 +14,7 @@ const devicesController = {
         // TODO: перенести в сервис, сделать queryRepo
         try {
             const token = req.cookies.refreshToken
-            const { id, iat } = jwtAuthService.verifyToken(token) as JwtPayload
-            // const isActiveSession = await sessionsRepository.isActiveSession(id, iat!)
-
-            // if (!isActiveSession) {
-            //     return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401)
-            // }
+            const { id } = jwtAuthService.verifyToken(token) as JwtPayload
 
             const sessions = await sessionsRepository.getAllSessions(id)
 

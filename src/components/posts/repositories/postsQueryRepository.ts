@@ -13,7 +13,7 @@ export const postsQueryRepository = {
     },
 
     async getPosts(blogId: string, pageNumber: number = 1, pageSize: number = 10, sortBy = 'createdAt', sortDirection: 'asc' | 'desc' = 'desc'): Promise<PostsApiResponseModel> {
-        const filter: Filter<any> = {}
+        const filter: Filter<PostDbModel> = {}
 
         if (blogId) {
             filter.blogId = blogId
@@ -39,7 +39,7 @@ export const postsQueryRepository = {
     },
 
     async getPostsCount(blogId: string): Promise<number> {
-        const filter: Filter<any> = {}
+        const filter: Filter<PostDbModel> = {}
 
         if (blogId) {
             filter.blogId = blogId

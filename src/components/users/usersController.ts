@@ -21,7 +21,7 @@ const usersController = {
             }
 
             return res.status(HTTP_STATUSES.CREATED_201).json(user);
-        } catch (err: any) {
+        } catch (err: unknown) {
             return next(err)
         }
     },
@@ -35,7 +35,7 @@ const usersController = {
             }
 
             return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-        } catch (err: any) {
+        } catch (err: unknown) {
             return next(err)
         }
     },

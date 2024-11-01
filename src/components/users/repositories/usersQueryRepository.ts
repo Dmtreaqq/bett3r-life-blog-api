@@ -19,7 +19,7 @@ export const usersQueryRepository = {
                    sortDirection: 'asc' | 'desc' = 'desc',
                    sortBy: string = 'createdAt',
     ): Promise<UsersApiResponseModel> {
-        const filter: Filter<any> = {}
+        const filter: Filter<UserDbModel> = {}
 
         if (login) {
             if (filter.$or) {
@@ -61,7 +61,7 @@ export const usersQueryRepository = {
     },
 
     async getUsersCount(login: string, email: string): Promise<number> {
-        const filter: Filter<any> = {}
+        const filter: Filter<UserDbModel> = {}
 
         if (login) {
             if (filter.$or) {

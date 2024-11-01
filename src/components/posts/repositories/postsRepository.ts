@@ -4,47 +4,50 @@ import { ObjectId } from "mongodb";
 import { PostApiResponseModel } from "../models/PostApiModel";
 
 export const postsRepository = {
-    async createPost(postInput: PostDbModel): Promise<string> {
-        const result = await postsCollection.insertOne(postInput)
+  async createPost(postInput: PostDbModel): Promise<string> {
+    const result = await postsCollection.insertOne(postInput);
 
-        return result.insertedId.toString();
-    },
-    async updatePostById(postResponseModel: PostApiResponseModel): Promise<boolean> {
-        await postsCollection.updateOne({
-            _id: new ObjectId(postResponseModel.id)
-        },{
-            $set: {
-                title: postResponseModel.title,
-                shortDescription: postResponseModel.shortDescription,
-                content: postResponseModel.content,
-                blogId: postResponseModel.blogId,
-                blogName: postResponseModel.blogName,
-                createdAt: postResponseModel.createdAt
-            }
-        })
+    return result.insertedId.toString();
+  },
+  async updatePostById(postResponseModel: PostApiResponseModel): Promise<boolean> {
+    await postsCollection.updateOne(
+      {
+        _id: new ObjectId(postResponseModel.id),
+      },
+      {
+        $set: {
+          title: postResponseModel.title,
+          shortDescription: postResponseModel.shortDescription,
+          content: postResponseModel.content,
+          blogId: postResponseModel.blogId,
+          blogName: postResponseModel.blogName,
+          createdAt: postResponseModel.createdAt,
+        },
+      },
+    );
 
-        return true
-    },
-    async deletePostById(id: string): Promise<boolean> {
-        await postsCollection.deleteOne({ _id: new ObjectId(id) })
+    return true;
+  },
+  async deletePostById(id: string): Promise<boolean> {
+    await postsCollection.deleteOne({ _id: new ObjectId(id) });
 
-        return true
-    },
-    async deleteAllPosts(): Promise<void> {
-        await postsCollection.deleteMany({})
-    },
-    async getPostById(id: string): Promise<PostDbModel | null> {
-        const post = await postsCollection.findOne({ _id: new ObjectId(id) })
+    return true;
+  },
+  async deleteAllPosts(): Promise<void> {
+    await postsCollection.deleteMany({});
+  },
+  async getPostById(id: string): Promise<PostDbModel | null> {
+    const post = await postsCollection.findOne({ _id: new ObjectId(id) });
 
-        if (!post) return null
+    if (!post) return null;
 
-        return {
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            createdAt: post.createdAt
-        }
-    }
-}
+    return {
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: post.blogName,
+      createdAt: post.createdAt,
+    };
+  },
+};

@@ -68,9 +68,6 @@ describe('/auth Positive', () => {
 
         const token = jwtAuthService.createAccessToken({
             id: userId,
-            login: userDbModel.login,
-            email: userDbModel.email,
-            createdAt: userDbModel.createdAt
         })
 
         const response = await request

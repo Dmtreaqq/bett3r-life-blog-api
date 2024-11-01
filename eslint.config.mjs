@@ -1,23 +1,16 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-
+import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  {files: ["**/*.{js,mjs,cjs,ts}"]},
-  {ignores: [
-    "coverage",
-    "dist",
-    "__tests__/*",
-      "jest.config.js"
-    ]},
-  {languageOptions: { globals: globals.browser }},
+  { files: ["**/*.ts"] },
+  {
+    ignores: ["coverage", "dist", "__tests__/*", "jest.config.js", "eslint.config.mjs"],
+  },
+  { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  {
-    rules: {
-      'no-useless-escape': 'warn'
-    },
-  },
+  eslintPluginPrettier,
 ];

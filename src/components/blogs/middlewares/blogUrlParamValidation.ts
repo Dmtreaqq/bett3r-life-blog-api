@@ -3,11 +3,7 @@ import { validationMiddleware } from "../../../common/middlewares/validationMidd
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
-const createIdChain = () => param('id')
-    .trim()
-    .matches(objectIdRegex).withMessage('Blog ID should be an ObjectId type');
+const createIdChain = () =>
+  param("id").trim().matches(objectIdRegex).withMessage("Blog ID should be an ObjectId type");
 
-export default [
-    createIdChain(),
-    validationMiddleware
-]
+export default [createIdChain(), validationMiddleware];

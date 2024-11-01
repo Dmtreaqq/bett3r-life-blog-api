@@ -1,31 +1,43 @@
-import { body } from "express-validator"
+import { body } from "express-validator";
 import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
 
-// eslint-disable-next-line
-const urlRegex = new RegExp('^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$');
+const urlRegex = new RegExp("^https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$");
 
-const createNameChain = () => body('name')
-    .isString().withMessage('Should be a string')
+const createNameChain = () =>
+  body("name")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .isLength({ max: 15 }).withMessage('Max - 15 symbols');
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .isLength({ max: 15 })
+    .withMessage("Max - 15 symbols");
 
-const createDescriptionChain = () => body('description')
-    .isString().withMessage('Should be a string')
+const createDescriptionChain = () =>
+  body("description")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .isLength({ max: 500 }).withMessage('Max - 500 symbols');
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .isLength({ max: 500 })
+    .withMessage("Max - 500 symbols");
 
-const createWebsiteUrlChain = () => body('websiteUrl')
-    .isString().withMessage('Should be a string')
+const createWebsiteUrlChain = () =>
+  body("websiteUrl")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .isLength({ max: 100 }).withMessage('Max - 100 symbols')
-    .matches(urlRegex).withMessage((value) => `Should follow URL regex with HTTPS://, received ${value}`);
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .isLength({ max: 100 })
+    .withMessage("Max - 100 symbols")
+    .matches(urlRegex)
+    .withMessage((value) => `Should follow URL regex with HTTPS://, received ${value}`);
 
 export default [
-    createNameChain(),
-    createDescriptionChain(),
-    createWebsiteUrlChain(),
-    validationMiddleware
+  createNameChain(),
+  createDescriptionChain(),
+  createWebsiteUrlChain(),
+  validationMiddleware,
 ];

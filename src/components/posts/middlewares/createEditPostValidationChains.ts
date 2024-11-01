@@ -1,48 +1,64 @@
-import { body } from "express-validator"
+import { body } from "express-validator";
 import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
-import {blogsQueryRepository} from "../../blogs/repositories/blogsQueryRepository";
+import { blogsQueryRepository } from "../../blogs/repositories/blogsQueryRepository";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
-const createTitleChain = () => body('title')
-    .isString().withMessage('Should be a string')
+const createTitleChain = () =>
+  body("title")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .isLength({ max: 30 }).withMessage('Max - 30 symbols');
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .isLength({ max: 30 })
+    .withMessage("Max - 30 symbols");
 
-const createDescriptionChain = () => body('shortDescription')
-    .isString().withMessage('Should be a string')
+const createDescriptionChain = () =>
+  body("shortDescription")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .isLength({ max: 100 }).withMessage('Max - 100 symbols');
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .isLength({ max: 100 })
+    .withMessage("Max - 100 symbols");
 
-const createContentChain = () => body('content')
-    .isString().withMessage('Should be a string')
+const createContentChain = () =>
+  body("content")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .isLength({ max: 1000 }).withMessage('Max - 1000 symbols');
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .isLength({ max: 1000 })
+    .withMessage("Max - 1000 symbols");
 
-const createBlogIdChain = () => body('blogId')
-    .isString().withMessage('Should be a string')
+const createBlogIdChain = () =>
+  body("blogId")
+    .isString()
+    .withMessage("Should be a string")
     .trim()
-    .notEmpty().withMessage('Should not be empty')
-    .matches(objectIdRegex).withMessage('Blog ID should be an ObjectId type')
+    .notEmpty()
+    .withMessage("Should not be empty")
+    .matches(objectIdRegex)
+    .withMessage("Blog ID should be an ObjectId type")
     // TODO, тестьі ругаются если тут убирать валидацию на существование блога
-    .custom(async value => {
-        const foundBlog = await blogsQueryRepository.getBlogById(value);
+    .custom(async (value) => {
+      const foundBlog = await blogsQueryRepository.getBlogById(value);
 
-        if (!foundBlog) {
-            throw new Error(`Blog ${value} not found`);
-        }
+      if (!foundBlog) {
+        throw new Error(`Blog ${value} not found`);
+      }
 
-        return true
-    })
+      return true;
+    });
 
 export default [
-    createBlogIdChain(),
-    createTitleChain(),
-    createDescriptionChain(),
-    createContentChain(),
+  createBlogIdChain(),
+  createTitleChain(),
+  createDescriptionChain(),
+  createContentChain(),
 
-    validationMiddleware
+  validationMiddleware,
 ];

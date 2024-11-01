@@ -6,7 +6,7 @@ export const apiLogsRepository = {
         await apiLogsCollection.insertOne(log)
     },
 
-    async getLogsCountByIpAndUrl(ip: string, url: string) {
+    async getLogsCountLastTenSeconds(ip: string, url: string) {
         const count = await apiLogsCollection.countDocuments({
             ip,
             url,

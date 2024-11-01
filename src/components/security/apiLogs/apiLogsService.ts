@@ -12,7 +12,7 @@ export const apiLogsService = {
         await apiLogsRepository.createApiLog(log)
     },
 
-    async getApiLogByIpAndUrl(ip: string, url: string) {
-        return apiLogsRepository.getLogsCountByIpAndUrl(ip, url)
+    async getLogsCountLastTenSeconds(ip: string, url: string) {
+        return apiLogsRepository.getLogsCountLastTenSeconds(ip, url)
     }
 }

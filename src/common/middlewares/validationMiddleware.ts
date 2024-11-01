@@ -7,8 +7,8 @@ export const validationMiddleware = (req: Request, res: Response, next: NextFunc
         const resultArray: any = result.array({ onlyFirstError: true });
         const errorsMessages = resultArray.map((err: { path: any; msg: any; }) => ({ field: err.path, message: err.msg }));
 
-        res.status(400).json({ errorsMessages })
+        return res.status(400).json({ errorsMessages })
     } else {
-        next();
+        return next();
     }
 }

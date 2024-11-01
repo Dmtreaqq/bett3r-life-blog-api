@@ -17,5 +17,5 @@ export const cookieValidationMiddleware = (req: Request, res: Response, next: Ne
         throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401)
     }
 
-    next()
+    return next()
 }

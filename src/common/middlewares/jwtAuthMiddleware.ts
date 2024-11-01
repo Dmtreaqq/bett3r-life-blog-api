@@ -3,7 +3,6 @@ import {jwtAuthService} from "../services/jwtService";
 import {HTTP_STATUSES} from "../utils/types";
 import {JwtPayload} from "jsonwebtoken";
 
-// @ts-ignore
 export const jwtAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
@@ -19,5 +18,5 @@ export const jwtAuthMiddleware = (req: Request, res: Response, next: NextFunctio
         return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401);
     }
 
-    next();
+    return next();
 }

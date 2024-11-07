@@ -1,7 +1,7 @@
 import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
-import {client, runDB, server} from "../../../src/common/db/db";
+import {runDB} from "../../../src/common/db/db";
 import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
@@ -34,10 +34,9 @@ describe('/auth negative', () => {
     })
 
     afterAll(async () => {
-        await client.close();
         await mongoose.disconnect();
 
-        if (CONFIG.IS_API_TEST === 'true') await server.stop();
+        // if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 
     afterEach(async () => {

@@ -1,7 +1,7 @@
 import {delay, request} from "../../test-helper";
 import {baseUrl} from "../../constants";
 import {CONFIG} from "../../../../src/common/utils/config";
-import {client, runDB, server} from "../../../../src/common/db/db";
+import {runDB} from "../../../../src/common/db/db";
 import {authTestManager} from "../../auth/authTestManager";
 import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
@@ -35,10 +35,9 @@ describe('/security/devices Positive', () => {
 
     afterAll(async() => {
         await request.del(baseUrl + CONFIG.PATH.TESTING + '/all-data')
-        await client.close();
         await mongoose.disconnect();
 
-        if (CONFIG.IS_API_TEST === 'true') await server.stop();
+        // if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 
     afterEach(async () => {

@@ -2,8 +2,8 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {fromUTF8ToBase64} from "../../../src/common/middlewares/basicAuthMiddleware";
-import {UserApiRequestModel, UserApiResponseModel} from "../../../src/components/users/models/UserApiModel";
-import {client, runDB, server} from "../../../src/common/db/db";
+import {UserApiRequestModel} from "../../../src/components/users/models/UserApiModel";
+import {runDB} from "../../../src/common/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {ObjectId} from "mongodb";
@@ -34,10 +34,9 @@ describe('/users Negative', () => {
     })
 
     afterAll(async () => {
-        await client.close();
         await mongoose.disconnect();
 
-        if (CONFIG.IS_API_TEST === 'true') await server.stop();
+        // if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 
     afterEach(async () => {

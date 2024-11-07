@@ -5,9 +5,8 @@ import {
     BlogApiResponseModel,
 } from "../../../src/components/blogs/models/BlogApiModel";
 import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
-import { client, runDB } from "../../../src/common/db/db";
+import { runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper'
-import { server } from "../../../src/common/db/db";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
@@ -64,10 +63,9 @@ describe('/blogs positive', () => {
 
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        await client.close();
         await mongoose.disconnect()
 
-        if (CONFIG.IS_API_TEST === 'true') await server.stop();
+        // if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 
     afterEach(async () => {

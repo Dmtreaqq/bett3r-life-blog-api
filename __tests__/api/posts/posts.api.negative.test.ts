@@ -3,7 +3,7 @@ import { HTTP_STATUSES } from "../../../src/common/utils/types";
 import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
 import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";
-import { client, runDB, server } from "../../../src/common/db/db";
+import { runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper';
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
@@ -48,9 +48,8 @@ describe('/posts negative tests', () => {
 
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        await client.close();
         await mongoose.disconnect()
-        if (CONFIG.IS_API_TEST === 'true') await server.stop();
+        // if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 
     it('should return 404 for GET not existing post', async () => {

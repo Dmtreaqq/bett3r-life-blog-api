@@ -1,16 +1,16 @@
-import { blogsCollection } from "../../../common/db/db";
+import { BlogModelClass } from "../../../common/db/models/Blog";
 import { BlogApiResponseModel } from "../models/BlogApiModel";
 import { BlogDbModel } from "../models/BlogDbModel";
 import { ObjectId } from "mongodb";
 
 export const blogsRepository = {
   async createBlog(blogInput: BlogDbModel): Promise<string> {
-    const result = await blogsCollection.insertOne(blogInput);
+    const result = await BlogModelClass.create(blogInput);
 
-    return result.insertedId.toString();
+    return result._id.toString();
   },
   async updateBlogById(blogResponseModel: BlogApiResponseModel): Promise<boolean> {
-    await blogsCollection.updateOne(
+    await BlogModelClass.updateOne(
       {
         _id: new ObjectId(blogResponseModel.id),
       },
@@ -28,15 +28,16 @@ export const blogsRepository = {
     return true;
   },
   async deleteBlogById(id: string): Promise<boolean> {
-    await blogsCollection.deleteOne({ _id: new ObjectId(id) });
+    await BlogModelClass.deleteOne({ _id: new ObjectId(id) });
 
     return true;
   },
   async deleteAllBlogs(): Promise<void> {
-    await blogsCollection.deleteMany({});
+    await BlogModelClass.deleteMany({});
+    return;
   },
   async getBlogById(id: string): Promise<BlogDbModel | null> {
-    const blog = await blogsCollection.findOne(
+    const blog = await BlogModelClass.findOne(
       { _id: new ObjectId(id) },
       { projection: { _id: 0 } },
     );

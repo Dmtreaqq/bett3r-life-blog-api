@@ -1,11 +1,12 @@
 import { BlogApiResponseModel, BlogsApiResponseModel } from "../models/BlogApiModel";
-import { blogsCollection } from "../../../common/db/db";
+import { BlogModelClass } from "../../../common/db/models/Blog";
 import { BlogDbModel } from "../models/BlogDbModel";
-import { Filter, ObjectId, WithId } from "mongodb";
+import { ObjectId, WithId } from "mongodb";
+import { RootFilterQuery } from "mongoose";
 
 export const blogsQueryRepository = {
   async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
-    const blog = await blogsCollection.findOne({ _id: new ObjectId(id) });
+    const blog = await BlogModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!blog) return null;
 
@@ -19,18 +20,17 @@ export const blogsQueryRepository = {
     sortBy: string = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
   ): Promise<BlogsApiResponseModel> {
-    const filter: Filter<BlogDbModel> = {};
+    const filter: RootFilterQuery<BlogDbModel> = {};
 
     if (name !== undefined) {
       filter.name = { $regex: name, $options: "i" };
     }
 
-    const blogs = await blogsCollection
-      .find(filter)
-      .sort(sortBy, sortDirection)
+    const blogs = await BlogModelClass.find(filter)
+      .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .lean();
 
     const blogsCount = await this.getBlogsCount(name);
     const blogsResponse = blogs.map((blog) => this._mapFromDbModelToResponseModel(blog));
@@ -45,13 +45,13 @@ export const blogsQueryRepository = {
   },
 
   async getBlogsCount(name: string): Promise<number> {
-    const filter: Filter<BlogDbModel> = {};
+    const filter: RootFilterQuery<BlogDbModel> = {};
 
     if (name !== undefined) {
       filter.name = { $regex: name, $options: "i" };
     }
 
-    return blogsCollection.countDocuments(filter);
+    return BlogModelClass.countDocuments(filter);
   },
 
   _mapFromDbModelToResponseModel(blogDbModel: WithId<BlogDbModel>): BlogApiResponseModel {

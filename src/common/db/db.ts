@@ -1,4 +1,5 @@
 import { Collection, Db, MongoClient } from "mongodb";
+import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { CONFIG } from "../utils/config";
 import { BlogDbModel } from "../../components/blogs/models/BlogDbModel";
@@ -12,7 +13,6 @@ let db: Db;
 export let client: MongoClient;
 export let server: MongoMemoryServer;
 
-export let blogsCollection: Collection<BlogDbModel>;
 export let postsCollection: Collection<PostDbModel>;
 export let usersCollection: Collection<UserDbModel>;
 export let commentsCollection: Collection<CommentDbModel>;
@@ -27,7 +27,6 @@ export const runDB = async () => {
 
     db = client.db("better-life-blog");
 
-    blogsCollection = db.collection<BlogDbModel>("blogs");
     postsCollection = db.collection<PostDbModel>("posts");
     usersCollection = db.collection<UserDbModel>("users");
     commentsCollection = db.collection<CommentDbModel>("comments");
@@ -39,17 +38,19 @@ export const runDB = async () => {
   }
 
   try {
-    client = new MongoClient(CONFIG.MONGO_URL);
+    client = new MongoClient(CONFIG.LOCAL_MONGO_URL);
     await client.connect();
     db = client.db("better-life-blog");
-    blogsCollection = db.collection<BlogDbModel>("blogs");
+
     postsCollection = db.collection<PostDbModel>("posts");
     usersCollection = db.collection<UserDbModel>("users");
     commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");
-
     console.log("Connected to MongoDB successfully");
+
+    await mongoose.connect(CONFIG.LOCAL_MONGO_URL, { dbName: "better-life-blog" });
+    console.log("Connected via mongoose successfully");
   } catch (error) {
     console.error("MongoDB connection error: ", error);
     await client.close();

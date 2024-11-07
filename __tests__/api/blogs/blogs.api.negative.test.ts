@@ -7,6 +7,7 @@ import { client, runDB, server } from "../../../src/common/db/db";
 import { request } from "../test-helper";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -38,6 +39,7 @@ describe('/blogs negative tests', () => {
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
+        await mongoose.disconnect()
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 

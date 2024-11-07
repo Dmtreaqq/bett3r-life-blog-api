@@ -14,6 +14,7 @@ import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import {blogsTestManager} from "./blogsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
 import {postApiRequestModel, postApiResponseModel} from "../constants";
+import mongoose from "mongoose";
 
 
 const baseUrl = '/api';
@@ -64,6 +65,7 @@ describe('/blogs positive', () => {
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
+        await mongoose.disconnect()
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })

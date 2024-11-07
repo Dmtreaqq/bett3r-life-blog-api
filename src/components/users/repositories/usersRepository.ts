@@ -1,20 +1,20 @@
-import { usersCollection } from "../../../common/db/db";
 import { UserDbModel } from "../models/UserDbModel";
 import { ObjectId } from "mongodb";
 import { add } from "date-fns/add";
 import { randomUUID } from "node:crypto";
+import { UserModelClass } from "../../../common/db/models/User";
 
 export const usersRepository = {
   async getUserById(userId: string) {
-    return await usersCollection.findOne({ _id: new ObjectId(userId) });
+    return await UserModelClass.findOne({ _id: new ObjectId(userId) });
   },
 
   async getUserByConfirmationCode(confirmCode: string) {
-    return await usersCollection.findOne({ confirmationCode: confirmCode });
+    return await UserModelClass.findOne({ confirmationCode: confirmCode });
   },
 
   async updateConfirmation(userId: string): Promise<boolean> {
-    const result = await usersCollection.updateOne(
+    const result = await UserModelClass.updateOne(
       { _id: new ObjectId(userId) },
       { $set: { isConfirmed: true } },
     );
@@ -24,7 +24,7 @@ export const usersRepository = {
 
   async updateCodeForEmail(userId: string): Promise<string> {
     const newCode = randomUUID();
-    await usersCollection.updateOne(
+    await UserModelClass.updateOne(
       { _id: new ObjectId(userId) },
       {
         $set: {
@@ -38,13 +38,13 @@ export const usersRepository = {
   },
 
   async createUser(user: UserDbModel): Promise<string> {
-    const { insertedId } = await usersCollection.insertOne(user);
+    const { _id } = await UserModelClass.create(user);
 
-    return insertedId.toString();
+    return _id.toString();
   },
 
   async deleteUserById(userId: string): Promise<boolean> {
-    const result = await usersCollection.deleteOne({
+    const result = await UserModelClass.deleteOne({
       _id: new ObjectId(userId),
     });
 
@@ -52,14 +52,14 @@ export const usersRepository = {
   },
 
   async deleteAllUsers() {
-    await usersCollection.deleteMany({});
+    await UserModelClass.deleteMany({});
   },
 
   async getUserByEmail(email: string) {
-    return usersCollection.findOne({ email });
+    return UserModelClass.findOne({ email });
   },
 
   async getUserByLogin(login: string) {
-    return usersCollection.findOne({ login });
+    return UserModelClass.findOne({ login });
   },
 };

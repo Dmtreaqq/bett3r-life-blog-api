@@ -1,12 +1,6 @@
 import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
 import { body } from "express-validator";
 
-/*export type UserApiRequestModel = {
-    login: string;
-    password: string;
-    email: string;
-}*/
-
 const loginRegex = new RegExp("^[a-zA-Z0-9_-]*$");
 const emailRegex = new RegExp("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 

@@ -8,6 +8,7 @@ import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {usersQueryRepository} from "../../../src/components/users/repositories/usersQueryRepository";
 import {ObjectId} from "mongodb";
+import mongoose from "mongoose";
 
 
 const baseUrl = '/api';
@@ -42,6 +43,7 @@ describe('/users Positive', () => {
 
     afterAll(async () => {
         await client.close();
+        await mongoose.disconnect()
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
@@ -87,7 +89,7 @@ describe('/users Positive', () => {
 
     it('should GET users by searchEmailTerm successfully', async () => {
         await usersRepository.createUser({ ...userDbModel, _id: new ObjectId() } as any);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), email: 'another' } as any);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), email: 'another@test.com' } as any);
 
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.USERS}/?searchEmailTerm=${userInput.email}`)
@@ -171,39 +173,39 @@ describe('/users Positive', () => {
     })
 
     it('should GET users with sorting successfully', async () => {
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'a1' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'b2' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'c3' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'd4' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'a1a' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'b2b' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'c3c' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'd4d' } as UserDbModel);
 
         // Default sortDir = desc
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.USERS}/?sortBy=login`)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.OK_200);
-        expect(response1.body.items[0].login).toEqual('d4')
-        expect(response1.body.items[3].login).toEqual('a1')
+        expect(response1.body.items[0].login).toEqual('d4d')
+        expect(response1.body.items[3].login).toEqual('a1a')
     })
 
     it('should GET users with sorting successfully', async () => {
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'a1' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'b2' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'c3' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'd4' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'a1a' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'b2b' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'c3c' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'd4d' } as UserDbModel);
 
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.USERS}/?sortBy=login&sortDirection=asc`)
             .set('authorization', authHeader)
             .expect(HTTP_STATUSES.OK_200);
-        expect(response1.body.items[0].login).toEqual('a1')
-        expect(response1.body.items[3].login).toEqual('d4')
+        expect(response1.body.items[0].login).toEqual('a1a')
+        expect(response1.body.items[3].login).toEqual('d4d')
     })
 
     it('should GET users with all query parameters used', async () => {
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), email: 'another' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), email: 'another@test.com' } as UserDbModel);
         await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'ahell1' } as UserDbModel);
         await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'bhell2' } as UserDbModel);
-        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'c3' } as UserDbModel);
+        await usersRepository.createUser({ ...userDbModel, _id: new ObjectId(), login: 'c3c' } as UserDbModel);
 
         const response1 = await request
             .get(`${baseUrl}${CONFIG.PATH.USERS}/?sortBy=login&sortDirection=asc&searchEmailTerm=${userInput.email}&searchLoginTerm=hell`)
@@ -212,6 +214,6 @@ describe('/users Positive', () => {
         expect(response1.body.items.length).toEqual(3)
         expect(response1.body.items[0].login).toEqual('ahell1')
         expect(response1.body.items[1].login).toEqual('bhell2')
-        expect(response1.body.items[2].login).toEqual('c3')
+        expect(response1.body.items[2].login).toEqual('c3c')
     })
 })

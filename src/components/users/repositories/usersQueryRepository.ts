@@ -1,11 +1,12 @@
 import { UserApiResponseModel, UsersApiResponseModel } from "../models/UserApiModel";
 import { UserDbModel } from "../models/UserDbModel";
-import { Filter, ObjectId, WithId } from "mongodb";
-import { usersCollection } from "../../../common/db/db";
+import { ObjectId, WithId } from "mongodb";
+import { UserModelClass } from "../../../common/db/models/User";
+import { RootFilterQuery } from "mongoose";
 
 export const usersQueryRepository = {
   async getUserById(id: string): Promise<UserApiResponseModel | null> {
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    const user = await UserModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!user) return null;
 
@@ -20,7 +21,7 @@ export const usersQueryRepository = {
     sortDirection: "asc" | "desc" = "desc",
     sortBy: string = "createdAt",
   ): Promise<UsersApiResponseModel> {
-    const filter: Filter<UserDbModel> = {};
+    const filter: RootFilterQuery<UserDbModel> = {};
 
     if (login) {
       if (filter.$or) {
@@ -42,12 +43,11 @@ export const usersQueryRepository = {
       }
     }
 
-    const users = await usersCollection
-      .find(filter)
-      .sort(sortBy, sortDirection)
+    const users = await UserModelClass.find(filter)
+      .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .lean();
 
     const usersResponse = users.map((user) => this._mapFromDbModelToResponseModel(user));
     const usersCount = await this.getUsersCount(login, email);
@@ -62,7 +62,7 @@ export const usersQueryRepository = {
   },
 
   async getUsersCount(login: string, email: string): Promise<number> {
-    const filter: Filter<UserDbModel> = {};
+    const filter: RootFilterQuery<UserDbModel> = {};
 
     if (login) {
       if (filter.$or) {
@@ -82,7 +82,7 @@ export const usersQueryRepository = {
       }
     }
 
-    return usersCollection.countDocuments(filter);
+    return UserModelClass.countDocuments(filter);
   },
 
   _mapFromDbModelToResponseModel(userDbModel: WithId<UserDbModel>): UserApiResponseModel {

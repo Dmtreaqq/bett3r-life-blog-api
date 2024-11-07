@@ -7,6 +7,7 @@ import {client, runDB, server} from "../../../src/common/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {ObjectId} from "mongodb";
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -25,12 +26,6 @@ const userDbModel: UserDbModel = {
     expirationDate: '2'
 }
 
-const userEntity: UserApiResponseModel = {
-    id: "",
-    email: userInput.email,
-    login: userInput.login,
-    createdAt: ""
-}
 
 describe('/users Negative', () => {
     beforeAll(async () => {
@@ -40,6 +35,7 @@ describe('/users Negative', () => {
 
     afterAll(async () => {
         await client.close();
+        await mongoose.disconnect();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
@@ -66,7 +62,7 @@ describe('/users Negative', () => {
     })
 
     it('should return 400 when POST a user with same EMAIL twice', async () => {
-        await usersRepository.createUser({...userDbModel, login: 'anotherLogin'} as UserDbModel);
+        await usersRepository.createUser({...userDbModel, login: 'anotLogin'} as UserDbModel);
 
         const response = await request
             .post(baseUrl + CONFIG.PATH.USERS)

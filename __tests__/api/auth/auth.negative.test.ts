@@ -8,7 +8,8 @@ import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {ObjectId} from "mongodb";
 import {emailService} from "../../../src/common/services/emailService";
 import {authService} from "../../../src/components/auth/authService";
-import { sub } from 'date-fns'
+import { sub } from 'date-fns';
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
 
@@ -34,6 +35,7 @@ describe('/auth negative', () => {
 
     afterAll(async () => {
         await client.close();
+        await mongoose.disconnect();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
@@ -126,7 +128,7 @@ describe('/auth negative', () => {
 
     it ('should return 400 when POST registration confirmation with wrong code', async () => {
         jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
-        await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
+        await authService.register({ login: 'regLogin', email: 'testemail@gmail.com', password: '123456' })
 
         const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
@@ -186,7 +188,7 @@ describe('/auth negative', () => {
 
     it ('should return 400 when POST registration confirmation with empty code', async () => {
         jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
-        await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
+        await authService.register({ login: 'regLogin', email: 'testemail@gmail.com', password: '123456' })
 
         const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')
@@ -203,7 +205,7 @@ describe('/auth negative', () => {
 
     it ('should return 400 when POST registration confirmation with numeric code', async () => {
         jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
-        await authService.register({ login: 'register-login', email: 'testemail@gmail.com', password: '123456' })
+        await authService.register({ login: 'regLogin', email: 'testemail@gmail.com', password: '123456' })
 
         const response = await request
             .post(baseUrl + CONFIG.PATH.AUTH + '/registration-confirmation')

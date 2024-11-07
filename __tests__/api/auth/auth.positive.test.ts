@@ -13,6 +13,7 @@ import {UserApiResponseModel} from "../../../src/components/users/models/UserApi
 import {authHeader} from "../constants";
 import {usersTestManager} from "../users/usersTestManager";
 import {authTestManager} from "./authTestManager";
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
 
@@ -38,6 +39,7 @@ describe('/auth Positive', () => {
 
     afterAll(async () => {
         await client.close();
+        await mongoose.disconnect();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })

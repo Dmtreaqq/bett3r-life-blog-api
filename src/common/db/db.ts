@@ -11,7 +11,6 @@ let db: Db;
 export let client: MongoClient;
 export let server: MongoMemoryServer;
 
-export let usersCollection: Collection<UserDbModel>;
 export let commentsCollection: Collection<CommentDbModel>;
 export let sessionsCollection: Collection<SessionDbModel>;
 export let apiLogsCollection: Collection<ApiLogDbModel>;
@@ -24,7 +23,6 @@ export const runDB = async () => {
 
     db = client.db("better-life-blog");
 
-    usersCollection = db.collection<UserDbModel>("users");
     commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");
@@ -38,7 +36,6 @@ export const runDB = async () => {
     await client.connect();
     db = client.db("better-life-blog");
 
-    usersCollection = db.collection<UserDbModel>("users");
     commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");

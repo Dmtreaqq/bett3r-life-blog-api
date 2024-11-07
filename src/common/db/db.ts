@@ -2,7 +2,6 @@ import { Collection, Db, MongoClient } from "mongodb";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { CONFIG } from "../utils/config";
-import { BlogDbModel } from "../../components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../../components/posts/models/PostDbModel";
 import { UserDbModel } from "../../components/users/models/UserDbModel";
 import { CommentDbModel } from "../../components/comments/models/CommentDbModel";
@@ -13,7 +12,6 @@ let db: Db;
 export let client: MongoClient;
 export let server: MongoMemoryServer;
 
-export let postsCollection: Collection<PostDbModel>;
 export let usersCollection: Collection<UserDbModel>;
 export let commentsCollection: Collection<CommentDbModel>;
 export let sessionsCollection: Collection<SessionDbModel>;
@@ -27,7 +25,6 @@ export const runDB = async () => {
 
     db = client.db("better-life-blog");
 
-    postsCollection = db.collection<PostDbModel>("posts");
     usersCollection = db.collection<UserDbModel>("users");
     commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");
@@ -42,7 +39,6 @@ export const runDB = async () => {
     await client.connect();
     db = client.db("better-life-blog");
 
-    postsCollection = db.collection<PostDbModel>("posts");
     usersCollection = db.collection<UserDbModel>("users");
     commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");

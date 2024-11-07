@@ -1,16 +1,16 @@
-import { postsCollection } from "../../../common/db/db";
 import { PostDbModel } from "../models/PostDbModel";
 import { ObjectId } from "mongodb";
 import { PostApiResponseModel } from "../models/PostApiModel";
+import { PostModelClass } from "../../../common/db/models/Post";
 
 export const postsRepository = {
   async createPost(postInput: PostDbModel): Promise<string> {
-    const result = await postsCollection.insertOne(postInput);
+    const result = await PostModelClass.create(postInput);
 
-    return result.insertedId.toString();
+    return result._id.toString();
   },
   async updatePostById(postResponseModel: PostApiResponseModel): Promise<boolean> {
-    await postsCollection.updateOne(
+    await PostModelClass.updateOne(
       {
         _id: new ObjectId(postResponseModel.id),
       },
@@ -29,15 +29,15 @@ export const postsRepository = {
     return true;
   },
   async deletePostById(id: string): Promise<boolean> {
-    await postsCollection.deleteOne({ _id: new ObjectId(id) });
+    await PostModelClass.deleteOne({ _id: new ObjectId(id) });
 
     return true;
   },
   async deleteAllPosts(): Promise<void> {
-    await postsCollection.deleteMany({});
+    await PostModelClass.deleteMany({});
   },
   async getPostById(id: string): Promise<PostDbModel | null> {
-    const post = await postsCollection.findOne({ _id: new ObjectId(id) });
+    const post = await PostModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!post) return null;
 

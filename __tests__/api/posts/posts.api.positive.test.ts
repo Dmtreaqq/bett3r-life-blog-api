@@ -10,6 +10,7 @@ import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import {blogsQueryRepository} from "../../../src/components/blogs/repositories/blogsQueryRepository";
 import {postsQueryRepository} from "../../../src/components/posts/repositories/postsQueryRepository";
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -66,6 +67,7 @@ describe('/posts positive', () => {
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
+        await mongoose.disconnect()
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 

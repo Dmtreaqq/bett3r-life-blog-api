@@ -8,6 +8,7 @@ import { request } from '../test-helper';
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 
 const baseUrl = '/api';
@@ -48,6 +49,7 @@ describe('/posts negative tests', () => {
     afterAll(async () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
         await client.close();
+        await mongoose.disconnect()
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })
 

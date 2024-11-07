@@ -1,11 +1,12 @@
 import { PostApiResponseModel, PostsApiResponseModel } from "../models/PostApiModel";
-import { Filter, ObjectId, WithId } from "mongodb";
+import { ObjectId, WithId } from "mongodb";
 import { PostDbModel } from "../models/PostDbModel";
-import { postsCollection } from "../../../common/db/db";
+import { PostModelClass } from "../../../common/db/models/Post";
+import { RootFilterQuery } from "mongoose";
 
 export const postsQueryRepository = {
   async getPostById(id: string): Promise<PostApiResponseModel | null> {
-    const post = await postsCollection.findOne({ _id: new ObjectId(id) });
+    const post = await PostModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!post) return null;
 
@@ -19,18 +20,17 @@ export const postsQueryRepository = {
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
   ): Promise<PostsApiResponseModel> {
-    const filter: Filter<PostDbModel> = {};
+    const filter: RootFilterQuery<PostDbModel> = {};
 
     if (blogId) {
       filter.blogId = blogId;
     }
 
-    const posts = await postsCollection
-      .find(filter)
-      .sort(sortBy, sortDirection)
+    const posts = await PostModelClass.find(filter)
+      .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .lean();
 
     const postsResponse = posts.map((post) => this._mapFromDbModelToResponseModel(post));
     const postsCount = await this.getPostsCount(blogId);
@@ -45,13 +45,13 @@ export const postsQueryRepository = {
   },
 
   async getPostsCount(blogId: string): Promise<number> {
-    const filter: Filter<PostDbModel> = {};
+    const filter: RootFilterQuery<PostDbModel> = {};
 
     if (blogId) {
       filter.blogId = blogId;
     }
 
-    return postsCollection.countDocuments(filter);
+    return PostModelClass.countDocuments(filter);
   },
 
   _mapFromDbModelToResponseModel(postDbModel: WithId<PostDbModel>): PostApiResponseModel {

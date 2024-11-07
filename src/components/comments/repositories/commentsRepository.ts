@@ -1,20 +1,20 @@
 import { CommentDbModel } from "../models/CommentDbModel";
-import { commentsCollection } from "../../../common/db/db";
 import { ObjectId } from "mongodb";
+import { CommentClassModel } from "../../../common/db/models/Comment";
 
 export const commentsRepository = {
   async getCommentById(commentId: string): Promise<CommentDbModel | null> {
-    return commentsCollection.findOne({ _id: new ObjectId(commentId) });
+    return CommentClassModel.findOne({ _id: new ObjectId(commentId) });
   },
 
   async createComment(comment: CommentDbModel): Promise<string> {
-    const result = await commentsCollection.insertOne(comment);
+    const result = await CommentClassModel.create(comment);
 
-    return result.insertedId.toString();
+    return result._id.toString();
   },
 
   async deleteCommentById(commentId: string): Promise<boolean> {
-    const result = await commentsCollection.deleteOne({
+    const result = await CommentClassModel.deleteOne({
       _id: new ObjectId(commentId),
     });
 
@@ -22,7 +22,7 @@ export const commentsRepository = {
   },
 
   async updateCommentById(commentId: string, commentContent: string) {
-    const result = await commentsCollection.updateOne(
+    const result = await CommentClassModel.updateOne(
       {
         _id: new ObjectId(commentId),
       },

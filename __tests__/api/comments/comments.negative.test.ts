@@ -4,33 +4,13 @@ import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {client, runDB, server} from "../../../src/common/db/db";
 import {ObjectId} from "mongodb";
 import {CommentApiResponseModel} from "../../../src/components/comments/models/CommentApiModel";
-import {CommentDbModel} from "../../../src/components/comments/models/CommentDbModel";
-import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
 import {commentsTestManager} from "./commentsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
 import {authTestManager} from "../auth/authTestManager";
 import {blogsTestManager} from "../blogs/blogsTestManager";
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
-
-const postInput: PostDbModel = {
-    blogName: 'Name',
-    createdAt: new Date().toISOString(),
-    title: 'z 9',
-    content: 'Abcdefg',
-    shortDescription: 'dsadadas',
-    blogId: '123'
-} as PostDbModel;
-
-const commentDbModel: CommentDbModel = {
-    content: "Comment",
-    commentatorInfo: {
-        userId: '123',
-        userLogin: 'userLogin'
-    },
-    createdAt: "",
-    postId: ""
-}
 
 const commentEntity: CommentApiResponseModel = {
     id: "",
@@ -51,6 +31,7 @@ describe('/comments Negative', () => {
 
     afterAll(async () => {
         await client.close();
+        await mongoose.disconnect();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })

@@ -12,6 +12,7 @@ import {commentsTestManager} from "./commentsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
 import {authTestManager} from "../auth/authTestManager";
 import {blogsTestManager} from "../blogs/blogsTestManager";
+import mongoose from "mongoose";
 
 const baseUrl = '/api';
 
@@ -25,13 +26,13 @@ const postInput: PostDbModel = {
 } as PostDbModel;
 
 const commentDbModel: CommentDbModel = {
-    content: "Comment",
+    content: "Comment".repeat(5),
     commentatorInfo: {
         userId: '123',
         userLogin: 'userLogin'
     },
-    createdAt: "",
-    postId: ""
+    createdAt: new Date().toISOString(),
+    postId: "1"
 }
 
 const commentEntity: CommentApiResponseModel = {
@@ -53,6 +54,7 @@ describe('/comments Positive', () => {
 
     afterAll(async () => {
         await client.close();
+        await mongoose.disconnect()
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })

@@ -2,8 +2,6 @@ import { Collection, Db, MongoClient } from "mongodb";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { CONFIG } from "../utils/config";
-import { UserDbModel } from "../../components/users/models/UserDbModel";
-import { CommentDbModel } from "../../components/comments/models/CommentDbModel";
 import { SessionDbModel } from "../../components/security/sessions/models/SessionDbModel";
 import { ApiLogDbModel } from "../../components/security/apiLogs/models/ApiLogDbModel";
 
@@ -11,7 +9,6 @@ let db: Db;
 export let client: MongoClient;
 export let server: MongoMemoryServer;
 
-export let commentsCollection: Collection<CommentDbModel>;
 export let sessionsCollection: Collection<SessionDbModel>;
 export let apiLogsCollection: Collection<ApiLogDbModel>;
 
@@ -23,7 +20,6 @@ export const runDB = async () => {
 
     db = client.db("better-life-blog");
 
-    commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");
 
@@ -36,7 +32,6 @@ export const runDB = async () => {
     await client.connect();
     db = client.db("better-life-blog");
 
-    commentsCollection = db.collection<CommentDbModel>("comments");
     sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");
     console.log("Connected to MongoDB successfully");

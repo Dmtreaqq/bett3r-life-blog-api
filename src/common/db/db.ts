@@ -2,7 +2,6 @@ import { Collection, Db, MongoClient } from "mongodb";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { CONFIG } from "../utils/config";
-import { PostDbModel } from "../../components/posts/models/PostDbModel";
 import { UserDbModel } from "../../components/users/models/UserDbModel";
 import { CommentDbModel } from "../../components/comments/models/CommentDbModel";
 import { SessionDbModel } from "../../components/security/sessions/models/SessionDbModel";

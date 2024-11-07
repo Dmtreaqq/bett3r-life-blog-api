@@ -1,9 +1,9 @@
-import { sessionsCollection } from "../../../common/db/db";
 import { SessionDbModel } from "./models/SessionDbModel";
+import { SessionModelClass } from "../../../common/db/models/Session";
 
 export const sessionsRepository = {
   async createSession(sessionDbModel: SessionDbModel) {
-    await sessionsCollection.insertOne(sessionDbModel);
+    await SessionModelClass.create(sessionDbModel);
   },
 
   async updateSession(
@@ -12,7 +12,7 @@ export const sessionsRepository = {
     newIssuedAt: number,
     expDate: number,
   ) {
-    const result = await sessionsCollection.updateOne(
+    const result = await SessionModelClass.updateOne(
       { issuedAt, deviceId },
       {
         $set: { issuedAt: newIssuedAt, expirationDate: expDate },
@@ -23,7 +23,7 @@ export const sessionsRepository = {
   },
 
   async isActiveSession(deviceId: string, issuedAt: number) {
-    const session = await sessionsCollection.findOne({
+    const session = await SessionModelClass.findOne({
       deviceId,
       issuedAt,
     });
@@ -32,7 +32,7 @@ export const sessionsRepository = {
   },
 
   async deleteSession(deviceId: string, userId: string) {
-    const result = await sessionsCollection.deleteOne({
+    const result = await SessionModelClass.deleteOne({
       deviceId,
       userId,
     });
@@ -42,15 +42,15 @@ export const sessionsRepository = {
 
   async getSessionByDeviceId(deviceId: string) {
     // TODO а если с одного девайса 2 сессии
-    return sessionsCollection.findOne({ deviceId });
+    return SessionModelClass.findOne({ deviceId });
   },
 
   async deleteAllSessions() {
-    await sessionsCollection.deleteMany({});
+    await SessionModelClass.deleteMany({});
   },
 
   async deleteOtherSessions(userId: string, currentDeviceId: string) {
-    await sessionsCollection.deleteMany({
+    await SessionModelClass.deleteMany({
       userId,
       deviceId: { $ne: currentDeviceId },
     });

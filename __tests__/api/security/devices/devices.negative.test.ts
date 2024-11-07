@@ -7,6 +7,7 @@ import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
 import {UserApiResponseModel} from "../../../../src/components/users/models/UserApiModel";
 import { deviceQueryRepository } from "../../../../src/components/security/devices/deviceQueryRepository";
+import mongoose from "mongoose";
 
 describe('/security/devices Positive', () => {
     let cookieRefreshToken1: string
@@ -35,6 +36,7 @@ describe('/security/devices Positive', () => {
     afterAll(async() => {
         await request.del(baseUrl + CONFIG.PATH.TESTING + '/all-data')
         await client.close();
+        await mongoose.disconnect();
 
         if (CONFIG.IS_API_TEST === 'true') await server.stop();
     })

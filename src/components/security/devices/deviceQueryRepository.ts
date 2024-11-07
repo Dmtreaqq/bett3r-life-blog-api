@@ -1,13 +1,13 @@
 import { DeviceApiResponseModel } from "./models/DeviceApiResponseModel";
-import { sessionsCollection } from "../../../common/db/db";
 import { jwtAuthService } from "../../../common/services/jwtService";
 import { JwtPayload } from "jsonwebtoken";
+import { SessionModelClass } from "../../../common/db/models/Session";
 
 export const deviceQueryRepository = {
   async getAllDevices(refreshToken: string): Promise<DeviceApiResponseModel[]> {
     const { id } = jwtAuthService.decodeToken(refreshToken) as JwtPayload;
 
-    const sessions = await sessionsCollection.find({ userId: id }).toArray();
+    const sessions = await SessionModelClass.find({ userId: id }).lean();
 
     const responseSessions: DeviceApiResponseModel[] = sessions.map((session) => ({
       ip: session.ip,

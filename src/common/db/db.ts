@@ -9,7 +9,6 @@ let db: Db;
 export let client: MongoClient;
 export let server: MongoMemoryServer;
 
-export let sessionsCollection: Collection<SessionDbModel>;
 export let apiLogsCollection: Collection<ApiLogDbModel>;
 
 export const runDB = async () => {
@@ -20,7 +19,6 @@ export const runDB = async () => {
 
     db = client.db("better-life-blog");
 
-    sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");
 
     console.log("Using MongoDB in memory");
@@ -32,7 +30,6 @@ export const runDB = async () => {
     await client.connect();
     db = client.db("better-life-blog");
 
-    sessionsCollection = db.collection<SessionDbModel>("sessions");
     apiLogsCollection = db.collection<ApiLogDbModel>("api-logs");
     console.log("Connected to MongoDB successfully");
 

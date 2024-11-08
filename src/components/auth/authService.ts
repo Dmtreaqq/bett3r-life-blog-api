@@ -169,4 +169,19 @@ export const authService = {
 
     emailService.sendRecoverPasswordEmail(code, email).catch((err) => console.log(err));
   },
+
+  async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {
+    const userByCode = await usersRepository.getUserByRecoveryCode(recoveryCode);
+
+    if (!userByCode) {
+      throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "incorrect", "recoveryCode");
+    }
+
+    if (userByCode.recoveryCodeExpirationDate < new Date().toISOString()) {
+      throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "expired", "recoveryCode");
+    }
+
+    const newHashedPassword = await hashService.hashPassword(newPassword);
+    await usersRepository.updatePassword(userByCode._id.toString(), newHashedPassword);
+  },
 };

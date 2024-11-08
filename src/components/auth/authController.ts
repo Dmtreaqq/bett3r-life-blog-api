@@ -14,6 +14,7 @@ import registerValidation from "./middlewares/registerValidation";
 import emailResendValidation from "./middlewares/emailResendValidation";
 import { sessionsService } from "../security/sessions/sessionsService";
 import { cookieValidationMiddleware } from "../../common/middlewares/cookieValidationMiddleware";
+import confirmPasswordValidation from "./middlewares/confirmPasswordValidation";
 
 export const authRouter = Router();
 
@@ -131,12 +132,35 @@ const authController = {
     }
   },
 
-  async recoverPassword(req: RequestWbody<{ email: string }>, res: Response) {
-    const { email } = req.body;
+  async recoverPassword(
+    req: RequestWbody<{ email: string }>,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { email } = req.body;
 
-    await authService.recoverPassword(email);
+      await authService.recoverPassword(email);
 
-    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+      return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    } catch (err) {
+      return next(err);
+    }
+  },
+
+  async confirmPasswordRecovery(
+    req: RequestWbody<{ newPassword: string; recoveryCode: string }>,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { newPassword, recoveryCode } = req.body;
+      await authService.confirmPasswordRecovery(newPassword, recoveryCode);
+
+      return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    } catch (err) {
+      return next(err);
+    }
   },
 };
 
@@ -159,4 +183,9 @@ authRouter.post(
   "/password-recovery",
   ...emailResendValidation,
   authController.recoverPassword,
+);
+authRouter.post(
+  "/new-password",
+  confirmPasswordValidation,
+  authController.confirmPasswordRecovery,
 );

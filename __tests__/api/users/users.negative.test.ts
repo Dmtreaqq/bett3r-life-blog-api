@@ -23,6 +23,8 @@ const userDbModel: UserDbModel = {
     createdAt: new Date().toISOString(),
     isConfirmed: false,
     confirmationCode: '1',
+    recoveryCodeExpirationDate: '',
+    recoveryCode: '',
     expirationDate: '2'
 }
 

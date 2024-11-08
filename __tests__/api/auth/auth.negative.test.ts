@@ -269,4 +269,18 @@ describe('/auth negative', () => {
 
         expect(sendEmailMock).toHaveBeenCalledTimes(0);
     })
+
+    it ('should return 400 when POST new-password with incorrect recover code', async () => {
+        const response = await request
+          .post(baseUrl + CONFIG.PATH.AUTH + '/new-password')
+          .send({ recoveryCode: 'incorrect code', newPassword: '654321' })
+          .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: 'recoveryCode',
+                message: 'incorrect'
+            }]
+        })
+    })
 })

@@ -13,6 +13,10 @@ export const usersRepository = {
     return await UserModelClass.findOne({ confirmationCode: confirmCode });
   },
 
+  async getUserByRecoveryCode(recoveryCode: string) {
+    return await UserModelClass.findOne({ recoveryCode });
+  },
+
   async updateConfirmation(userId: string): Promise<boolean> {
     const result = await UserModelClass.updateOne(
       { _id: new ObjectId(userId) },
@@ -50,6 +54,17 @@ export const usersRepository = {
     );
 
     return newCode;
+  },
+
+  async updatePassword(userId: string, hashedPassword: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $set: {
+          password: hashedPassword,
+        },
+      },
+    );
   },
 
   async createUser(user: UserDbModel): Promise<string> {

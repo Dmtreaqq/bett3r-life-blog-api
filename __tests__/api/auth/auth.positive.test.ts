@@ -169,4 +169,15 @@ describe('/auth Positive', () => {
 
         expect(sendEmailMock).toHaveBeenCalledTimes(1);
     })
+
+    it ('should return 204 when POST successful new password confirmation', async () => {
+        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail2@gmail.com', password: '123456' })
+        const registeredUser = await usersRepository.getUserByLogin('login')
+
+        await request
+          .post(baseUrl + CONFIG.PATH.AUTH + '/new-password')
+          .send({ recoveryCode: registeredUser!.recoveryCode, newPassword: '654321' })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+    })
 })

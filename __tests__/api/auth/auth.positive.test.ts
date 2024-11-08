@@ -94,7 +94,7 @@ describe('/auth Positive', () => {
             .expect(HTTP_STATUSES.NO_CONTENT_204);
     })
 
-    it ('should return 204 when POST successful email resend', async () => {
+    it ('should return 204 when POST successful email resend while confirm email', async () => {
         jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue()
         await authService.register({ login: 'login', email: 'testemail2@gmail.com', password: '123456' })
         const registeredUser = await usersRepository.getUserByLogin('login')
@@ -155,5 +155,18 @@ describe('/auth Positive', () => {
             .post(baseUrl + CONFIG.PATH.AUTH + '/refresh-token')
             .set('Cookie', [refreshToken])
             .expect(HTTP_STATUSES.NOT_AUTHORIZED_401);
+    })
+
+    it ('should return 204 when POST successful email send while password recover with EXISTING user', async () => {
+        const sendEmailMock = jest.spyOn(emailService, 'sendRecoverPasswordEmail').mockResolvedValue()
+        await authService.register({ login: 'login', email: 'testemail2@gmail.com', password: '123456' })
+        const registeredUser = await usersRepository.getUserByLogin('login')
+
+        await request
+          .post(baseUrl + CONFIG.PATH.AUTH + '/password-recovery')
+          .send({ email: registeredUser!.email })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        expect(sendEmailMock).toHaveBeenCalledTimes(1);
     })
 })

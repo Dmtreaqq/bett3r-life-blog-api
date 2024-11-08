@@ -5,5 +5,7 @@ export type UserDbModel = {
   createdAt: string;
   isConfirmed: boolean;
   confirmationCode: string;
+  recoveryCode: string;
+  recoveryCodeExpirationDate: string;
   expirationDate: string;
 };

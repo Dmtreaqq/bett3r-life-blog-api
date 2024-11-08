@@ -10,6 +10,7 @@ import {emailService} from "../../../src/common/services/emailService";
 import {authService} from "../../../src/components/auth/authService";
 import { sub } from 'date-fns';
 import mongoose from "mongoose";
+import { randomUUID } from "node:crypto";
 
 const baseUrl = '/api';
 
@@ -25,7 +26,9 @@ const userDbModel: UserDbModel = {
     createdAt: new Date().toISOString(),
     isConfirmed: false,
     expirationDate: '1',
-    confirmationCode: '1'
+    confirmationCode: '1',
+    recoveryCode: randomUUID(),
+    recoveryCodeExpirationDate: ''
 }
 
 describe('/auth negative', () => {
@@ -254,5 +257,16 @@ describe('/auth negative', () => {
                 message: 'Bad Request - No User'
             }]
         })
+    })
+
+    it ('should return 204 when POST successful email send while password recover with NOT EXISTING user', async () => {
+        const sendEmailMock = jest.spyOn(emailService, 'sendRecoverPasswordEmail').mockResolvedValue()
+
+        await request
+          .post(baseUrl + CONFIG.PATH.AUTH + '/password-recovery')
+          .send({ email: 'someemail@gmail.com' })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        expect(sendEmailMock).toHaveBeenCalledTimes(0);
     })
 })

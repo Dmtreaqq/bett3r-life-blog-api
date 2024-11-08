@@ -130,6 +130,14 @@ const authController = {
       return next(err);
     }
   },
+
+  async recoverPassword(req: RequestWbody<{ email: string }>, res: Response) {
+    const { email } = req.body;
+
+    await authService.recoverPassword(email);
+
+    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  },
 };
 
 authRouter.post("/login", ...authValidation, authController.login);
@@ -146,4 +154,9 @@ authRouter.post(
   "/registration-email-resending",
   ...emailResendValidation,
   authController.resendConfirmationEmail,
+);
+authRouter.post(
+  "/password-recovery",
+  ...emailResendValidation,
+  authController.recoverPassword,
 );

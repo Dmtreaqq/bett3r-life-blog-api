@@ -30,6 +30,8 @@ export const usersService = {
       isConfirmed: true,
       confirmationCode: randomUUID(),
       expirationDate: "",
+      recoveryCode: randomUUID(),
+      recoveryCodeExpirationDate: "",
     };
 
     return usersRepository.createUser(userDbModel);

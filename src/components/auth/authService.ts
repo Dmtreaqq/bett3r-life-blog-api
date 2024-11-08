@@ -66,6 +66,7 @@ export const authService = {
     const hashedPassword = await hashService.hashPassword(registerModel.password);
 
     const confirmationCode = randomUUID();
+    const recoveryCode = randomUUID();
     const userDbModel: UserDbModel = {
       login: registerModel.login,
       email: registerModel.email,
@@ -73,6 +74,10 @@ export const authService = {
       createdAt: new Date().toISOString(),
       isConfirmed: false,
       confirmationCode,
+      recoveryCode,
+      recoveryCodeExpirationDate: add(new Date(), {
+        minutes: 2,
+      }).toISOString(),
       expirationDate: add(new Date(), {
         minutes: 2,
       }).toISOString(),
@@ -151,5 +156,17 @@ export const authService = {
       accessToken,
       refreshToken,
     };
+  },
+
+  async recoverPassword(email: string) {
+    const user = await usersRepository.getUserByEmail(email);
+
+    if (!user) {
+      return;
+    }
+
+    const code = await usersRepository.updateCodeForPassword(user._id.toString());
+
+    emailService.sendRecoverPasswordEmail(code, email).catch((err) => console.log(err));
   },
 };

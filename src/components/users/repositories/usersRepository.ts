@@ -37,6 +37,21 @@ export const usersRepository = {
     return newCode;
   },
 
+  async updateCodeForPassword(userId: string): Promise<string> {
+    const newCode = randomUUID();
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $set: {
+          recoveryCodeExpirationDate: add(new Date(), { minutes: 5 }).toISOString(),
+          recoveryCode: newCode,
+        },
+      },
+    );
+
+    return newCode;
+  },
+
   async createUser(user: UserDbModel): Promise<string> {
     const { _id } = await UserModelClass.create(user);
 

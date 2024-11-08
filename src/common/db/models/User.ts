@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema<UserDbModel>({
   password: { type: String, required: true },
   isConfirmed: { type: Boolean, default: true },
   confirmationCode: { type: String, default: "0" },
+  recoveryCode: { type: String, default: "0" },
+  recoveryCodeExpirationDate: { type: String, default: new Date().toISOString() },
   expirationDate: { type: String, default: new Date().toISOString() },
   createdAt: { type: String, required: true },
 });

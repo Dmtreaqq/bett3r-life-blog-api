@@ -6,12 +6,12 @@ import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddl
 import { runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper'
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
-import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiModel";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import {blogsTestManager} from "./blogsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
 import {postApiRequestModel, postApiResponseModel} from "../constants";
 import mongoose from "mongoose";
+import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiResponseModel";
 
 
 const baseUrl = '/api';

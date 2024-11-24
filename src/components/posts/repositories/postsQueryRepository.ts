@@ -1,17 +1,18 @@
-import { PostApiResponseModel, PostsApiResponseModel } from "../models/PostApiModel";
 import { ObjectId, WithId } from "mongodb";
 import { PostDbModel } from "../models/PostDbModel";
 import { PostModelClass } from "../../../common/db/models/Post";
 import { RootFilterQuery } from "mongoose";
+import { PostApiResponseModel } from "../models/PostApiResponseModel";
+import { PostsPaginatorApiResponseModel } from "../models/PostsPaginatorApiResponseModel";
 
-export const postsQueryRepository = {
+class PostsQueryRepository {
   async getPostById(id: string): Promise<PostApiResponseModel | null> {
     const post = await PostModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!post) return null;
 
     return this._mapFromDbModelToResponseModel(post);
-  },
+  }
 
   async getPosts(
     blogId: string,
@@ -19,7 +20,7 @@ export const postsQueryRepository = {
     pageSize: number = 10,
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
-  ): Promise<PostsApiResponseModel> {
+  ): Promise<PostsPaginatorApiResponseModel> {
     const filter: RootFilterQuery<PostDbModel> = {};
 
     if (blogId) {
@@ -42,7 +43,7 @@ export const postsQueryRepository = {
       totalCount: postsCount,
       pagesCount: postsCount <= pageSize ? 1 : Math.ceil(postsCount / Number(pageSize)),
     };
-  },
+  }
 
   async getPostsCount(blogId: string): Promise<number> {
     const filter: RootFilterQuery<PostDbModel> = {};
@@ -52,7 +53,7 @@ export const postsQueryRepository = {
     }
 
     return PostModelClass.countDocuments(filter);
-  },
+  }
 
   _mapFromDbModelToResponseModel(postDbModel: WithId<PostDbModel>): PostApiResponseModel {
     return {
@@ -64,5 +65,7 @@ export const postsQueryRepository = {
       blogId: postDbModel.blogId,
       createdAt: postDbModel.createdAt,
     };
-  },
-};
+  }
+}
+
+export const postsQueryRepository = new PostsQueryRepository();

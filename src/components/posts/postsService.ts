@@ -1,11 +1,12 @@
 import { postsRepository } from "./repositories/postsRepository";
-import { PostApiRequestModel, PostApiResponseModel } from "./models/PostApiModel";
 import { PostDbModel } from "./models/PostDbModel";
 import { blogsRepository } from "../blogs/repositories/blogsRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
+import { PostApiResponseModel } from "./models/PostApiResponseModel";
+import { PostApiRequestModel } from "./models/PostApiRequestModel";
 
-export const postsService = {
+class PostsService {
   async createPost(postInput: PostApiRequestModel): Promise<string> {
     const blog = await blogsRepository.getBlogById(postInput.blogId);
 
@@ -27,7 +28,7 @@ export const postsService = {
     };
 
     return postsRepository.createPost(post);
-  },
+  }
 
   async updatePost(postId: string, post: PostApiRequestModel): Promise<boolean> {
     const foundPost = await postsRepository.getPostById(postId);
@@ -38,7 +39,7 @@ export const postsService = {
     const newPost: PostApiResponseModel = { ...foundPost, ...post, id: postId };
 
     return postsRepository.updatePostById(newPost);
-  },
+  }
 
   async deletePostById(postId: string): Promise<boolean> {
     const foundPost = await postsRepository.getPostById(postId);
@@ -47,5 +48,7 @@ export const postsService = {
     }
 
     return postsRepository.deletePostById(postId);
-  },
-};
+  }
+}
+
+export const postsService = new PostsService();

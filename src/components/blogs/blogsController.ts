@@ -16,12 +16,13 @@ import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
 import blogUrlParamValidation from "./middlewares/blogUrlParamValidation";
 import { BlogQueryGetModel } from "./models/BlogQueryGetModel";
 import blogQueryValidation from "./middlewares/blogQueryValidation";
-import { PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
 import createPostForBlogValidationChains from "./middlewares/createPostForBlogValidationChains";
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 import { blogsQueryRepository } from "./repositories/blogsQueryRepository";
 import { postsQueryRepository } from "../posts/repositories/postsQueryRepository";
+import { PostApiResponseModel } from "../posts/models/PostApiResponseModel";
+import { PostsPaginatorApiResponseModel } from "../posts/models/PostsPaginatorApiResponseModel";
 
 export const blogsRouter = Router();
 
@@ -149,7 +150,7 @@ class BlogsController {
 
   async getPostsForBlog(
     req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>,
-    res: Response<PostsApiResponseModel>,
+    res: Response<PostsPaginatorApiResponseModel>,
     next: NextFunction,
   ) {
     try {

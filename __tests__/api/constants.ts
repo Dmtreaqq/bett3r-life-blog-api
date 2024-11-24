@@ -1,8 +1,9 @@
 import { BlogApiRequestModel } from "../../src/components/blogs/models/BlogApiRequestModel";
 import {fromUTF8ToBase64} from "../../src/common/middlewares/basicAuthMiddleware";
 import {CONFIG} from "../../src/common/utils/config";
-import {PostApiRequestModel, PostApiResponseModel} from "../../src/components/posts/models/PostApiModel";
 import {UserApiRequestModel} from "../../src/components/users/models/UserApiModel";
+import { PostApiResponseModel } from "../../src/components/posts/models/PostApiResponseModel";
+import { PostApiRequestModel } from "../../src/components/posts/models/PostApiRequestModel";
 
 export const baseUrl = '/api';
 export const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;

@@ -7,11 +7,6 @@ import {
   RequestWparamsAndQuery,
   RequestWquery,
 } from "../../common/utils/types";
-import {
-  PostApiRequestModel,
-  PostApiResponseModel,
-  PostsApiResponseModel,
-} from "./models/PostApiModel";
 import createEditPostValidationChains from "./middlewares/createEditPostValidationChains";
 import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
 import postUrlParamValidation from "./middlewares/postUrlParamValidation";
@@ -30,13 +25,16 @@ import { commentsQueryRepository } from "../comments/repositories/commentsQueryR
 import { CommentQueryGetModel } from "../comments/models/CommentQueryGetModel";
 import createEditCommentValidation from "../comments/middlewares/createEditCommentValidation";
 import { commentsQueryService } from "../comments/services/commentsQueryService";
+import { PostApiResponseModel } from "./models/PostApiResponseModel";
+import { PostsPaginatorApiResponseModel } from "./models/PostsPaginatorApiResponseModel";
+import { PostApiRequestModel } from "./models/PostApiRequestModel";
 
 export const postsRouter = Router();
 
-const postsController = {
+class PostsController {
   async getPosts(
     req: RequestWquery<PostQueryGetModel>,
-    res: Response<PostsApiResponseModel>,
+    res: Response<PostsPaginatorApiResponseModel>,
     next: NextFunction,
   ) {
     try {
@@ -54,7 +52,8 @@ const postsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
+
   async getPostById(
     req: RequestWparams<{ id: string }>,
     res: Response<PostApiResponseModel>,
@@ -72,7 +71,8 @@ const postsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
+
   async createPost(
     req: RequestWbody<PostApiRequestModel>,
     res: Response<PostApiResponseModel>,
@@ -90,7 +90,8 @@ const postsController = {
     } catch (err: unknown) {
       return next(err);
     }
-  },
+  }
+
   async editPost(
     req: RequestWparamsAndBody<{ id: string }, PostApiRequestModel>,
     res: Response,
@@ -107,7 +108,8 @@ const postsController = {
     } catch (err: unknown) {
       return next(err);
     }
-  },
+  }
+
   async deletePostById(
     req: RequestWparams<{ id: string }>,
     res: Response,
@@ -124,7 +126,7 @@ const postsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async createCommentForPost(
     req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>,
@@ -145,7 +147,7 @@ const postsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async getCommentsForPost(
     req: RequestWparamsAndQuery<{ id: string }, CommentQueryGetModel>,
@@ -169,8 +171,10 @@ const postsController = {
     } catch (err) {
       return next(err);
     }
-  },
-};
+  }
+}
+
+const postsController = new PostsController();
 
 postsRouter.post(
   "/:id/comments",

@@ -1,11 +1,11 @@
 import { BlogApiRequestModel } from "./models/BlogApiRequestModel";
 import { blogsRepository } from "./repositories/blogsRepository";
 import { BlogDbModel } from "./models/BlogDbModel";
-import { PostApiRequestModel } from "../posts/models/PostApiModel";
 import { HTTP_STATUSES } from "../../common/utils/types";
 import { ApiError } from "../../common/utils/ApiError";
 import { PostDbModel } from "../posts/models/PostDbModel";
 import { postsRepository } from "../posts/repositories/postsRepository";
+import { PostApiRequestModel } from "../posts/models/PostApiRequestModel";
 
 class BlogsService {
   async createBlog(blogInput: BlogApiRequestModel): Promise<string> {

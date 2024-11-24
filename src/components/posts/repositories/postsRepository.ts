@@ -1,14 +1,15 @@
 import { PostDbModel } from "../models/PostDbModel";
 import { ObjectId } from "mongodb";
-import { PostApiResponseModel } from "../models/PostApiModel";
 import { PostModelClass } from "../../../common/db/models/Post";
+import { PostApiResponseModel } from "../models/PostApiResponseModel";
 
-export const postsRepository = {
+export class PostsRepository {
   async createPost(postInput: PostDbModel): Promise<string> {
     const result = await PostModelClass.create(postInput);
 
     return result._id.toString();
-  },
+  }
+
   async updatePostById(postResponseModel: PostApiResponseModel): Promise<boolean> {
     await PostModelClass.updateOne(
       {
@@ -27,15 +28,18 @@ export const postsRepository = {
     );
 
     return true;
-  },
+  }
+
   async deletePostById(id: string): Promise<boolean> {
     await PostModelClass.deleteOne({ _id: new ObjectId(id) });
 
     return true;
-  },
+  }
+
   async deleteAllPosts(): Promise<void> {
     await PostModelClass.deleteMany({});
-  },
+  }
+
   async getPostById(id: string): Promise<PostDbModel | null> {
     const post = await PostModelClass.findOne({ _id: new ObjectId(id) });
 
@@ -49,5 +53,7 @@ export const postsRepository = {
       blogName: post.blogName,
       createdAt: post.createdAt,
     };
-  },
-};
+  }
+}
+
+export const postsRepository = new PostsRepository();

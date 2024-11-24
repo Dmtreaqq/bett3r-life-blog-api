@@ -2,12 +2,12 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {fromUTF8ToBase64} from "../../../src/common/middlewares/basicAuthMiddleware";
-import {UserApiRequestModel} from "../../../src/components/users/models/UserApiModel";
 import {runDB} from "../../../src/common/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {ObjectId} from "mongodb";
 import mongoose from "mongoose";
+import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;

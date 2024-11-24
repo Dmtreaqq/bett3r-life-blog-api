@@ -5,9 +5,9 @@ import {runDB} from "../../../../src/common/db/db";
 import {authTestManager} from "../../auth/authTestManager";
 import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
-import {UserApiResponseModel} from "../../../../src/components/users/models/UserApiModel";
 import { deviceQueryRepository } from "../../../../src/components/security/devices/deviceQueryRepository";
 import mongoose from "mongoose";
+import { UserApiResponseModel } from "../../../../src/components/users/models/UserApiResponseModel";
 
 describe('/security/devices Positive', () => {
     let cookieRefreshToken1: string

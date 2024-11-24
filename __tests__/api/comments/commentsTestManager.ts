@@ -5,7 +5,8 @@ import {postsTestManager} from "../posts/postsTestManager";
 import {CommentApiResponseModel} from "../../../src/components/comments/models/CommentApiModel";
 import {usersTestManager} from "../users/usersTestManager";
 import {authTestManager} from "../auth/authTestManager";
-import {UserApiRequestModel} from "../../../src/components/users/models/UserApiModel";
+
+import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
 
 export const commentsTestManager = {
     async createComment(postId: string, token: string, comment?: string): Promise<CommentApiResponseModel> {

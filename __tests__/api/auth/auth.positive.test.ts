@@ -9,11 +9,11 @@ import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {ObjectId} from "mongodb";
 import {authService} from "../../../src/components/auth/authService";
 import {emailService} from "../../../src/common/services/emailService";
-import {UserApiResponseModel} from "../../../src/components/users/models/UserApiModel";
 import {authHeader} from "../constants";
 import {usersTestManager} from "../users/usersTestManager";
 import {authTestManager} from "./authTestManager";
 import mongoose from "mongoose";
+import { UserApiResponseModel } from "../../../src/components/users/models/UserApiResponseModel";
 
 const baseUrl = '/api';
 

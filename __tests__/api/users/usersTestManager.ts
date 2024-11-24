@@ -1,7 +1,8 @@
 import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {authHeader, baseUrl, userApiRequestModel} from "../constants";
-import {UserApiRequestModel, UserApiResponseModel} from "../../../src/components/users/models/UserApiModel";
+import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
+import { UserApiResponseModel } from "../../../src/components/users/models/UserApiResponseModel";
 
 export const usersTestManager = {
     async createUser(userApiRequest?: UserApiRequestModel): Promise<UserApiResponseModel> {

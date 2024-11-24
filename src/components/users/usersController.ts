@@ -5,21 +5,19 @@ import {
   RequestWparams,
   RequestWquery,
 } from "../../common/utils/types";
-import {
-  UserApiRequestModel,
-  UserApiResponseModel,
-  UsersApiResponseModel,
-} from "./models/UserApiModel";
 import { usersQueryRepository } from "./repositories/usersQueryRepository";
 import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
 import { usersService } from "./usersService";
 import { UserQueryGetModel } from "./models/UserQueryGetModel";
 import userUrlParamValidation from "./middlewares/userUrlParamValidation";
 import userValidation from "./middlewares/userValidation";
+import { UserApiRequestModel } from "./models/UserApiRequestModel";
+import { UserApiResponseModel } from "./models/UserApiResponseModel";
+import { UsersPaginatorApiResponseModel } from "./models/UsersPaginatorApiResponseModel";
 
 export const usersRouter = Router();
 
-const usersController = {
+class UsersController {
   async createUser(
     req: RequestWbody<UserApiRequestModel>,
     res: Response<UserApiResponseModel>,
@@ -37,7 +35,7 @@ const usersController = {
     } catch (err: unknown) {
       return next(err);
     }
-  },
+  }
 
   async deleteUserById(
     req: RequestWparams<{ id: string }>,
@@ -55,11 +53,11 @@ const usersController = {
     } catch (err: unknown) {
       return next(err);
     }
-  },
+  }
 
   async getUsers(
     req: RequestWquery<UserQueryGetModel>,
-    res: Response<UsersApiResponseModel>,
+    res: Response<UsersPaginatorApiResponseModel>,
     next: NextFunction,
   ) {
     try {
@@ -85,8 +83,10 @@ const usersController = {
     } catch (err) {
       return next(err);
     }
-  },
-};
+  }
+}
+
+const usersController = new UsersController();
 
 usersRouter.delete(
   "/:id",

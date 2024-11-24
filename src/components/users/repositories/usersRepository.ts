@@ -4,18 +4,18 @@ import { add } from "date-fns/add";
 import { randomUUID } from "node:crypto";
 import { UserModelClass } from "../../../common/db/models/User";
 
-export const usersRepository = {
+class UsersRepository {
   async getUserById(userId: string) {
     return await UserModelClass.findOne({ _id: new ObjectId(userId) });
-  },
+  }
 
   async getUserByConfirmationCode(confirmCode: string) {
     return await UserModelClass.findOne({ confirmationCode: confirmCode });
-  },
+  }
 
   async getUserByRecoveryCode(recoveryCode: string) {
     return await UserModelClass.findOne({ recoveryCode });
-  },
+  }
 
   async updateConfirmation(userId: string): Promise<boolean> {
     const result = await UserModelClass.updateOne(
@@ -24,7 +24,7 @@ export const usersRepository = {
     );
 
     return result.modifiedCount === 1;
-  },
+  }
 
   async updateCodeForEmail(userId: string): Promise<string> {
     const newCode = randomUUID();
@@ -39,7 +39,7 @@ export const usersRepository = {
     );
 
     return newCode;
-  },
+  }
 
   async updateCodeForPassword(userId: string): Promise<string> {
     const newCode = randomUUID();
@@ -54,7 +54,7 @@ export const usersRepository = {
     );
 
     return newCode;
-  },
+  }
 
   async updatePassword(userId: string, hashedPassword: string) {
     await UserModelClass.updateOne(
@@ -65,13 +65,13 @@ export const usersRepository = {
         },
       },
     );
-  },
+  }
 
   async createUser(user: UserDbModel): Promise<string> {
     const { _id } = await UserModelClass.create(user);
 
     return _id.toString();
-  },
+  }
 
   async deleteUserById(userId: string): Promise<boolean> {
     const result = await UserModelClass.deleteOne({
@@ -79,17 +79,19 @@ export const usersRepository = {
     });
 
     return result.deletedCount === 1;
-  },
+  }
 
   async deleteAllUsers() {
     await UserModelClass.deleteMany({});
-  },
+  }
 
   async getUserByEmail(email: string) {
     return UserModelClass.findOne({ email });
-  },
+  }
 
   async getUserByLogin(login: string) {
     return UserModelClass.findOne({ login });
-  },
-};
+  }
+}
+
+export const usersRepository = new UsersRepository();

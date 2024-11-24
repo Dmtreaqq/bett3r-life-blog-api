@@ -1,17 +1,18 @@
-import { UserApiResponseModel, UsersApiResponseModel } from "../models/UserApiModel";
 import { UserDbModel } from "../models/UserDbModel";
 import { ObjectId, WithId } from "mongodb";
 import { UserModelClass } from "../../../common/db/models/User";
 import { RootFilterQuery } from "mongoose";
+import { UserApiResponseModel } from "../models/UserApiResponseModel";
+import { UsersPaginatorApiResponseModel } from "../models/UsersPaginatorApiResponseModel";
 
-export const usersQueryRepository = {
+class UsersQueryRepository {
   async getUserById(id: string): Promise<UserApiResponseModel | null> {
     const user = await UserModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!user) return null;
 
     return this._mapFromDbModelToResponseModel(user);
-  },
+  }
 
   async getUsers(
     login: string = "",
@@ -20,7 +21,7 @@ export const usersQueryRepository = {
     pageSize: number = 10,
     sortDirection: "asc" | "desc" = "desc",
     sortBy: string = "createdAt",
-  ): Promise<UsersApiResponseModel> {
+  ): Promise<UsersPaginatorApiResponseModel> {
     const filter: RootFilterQuery<UserDbModel> = {};
 
     if (login) {
@@ -59,7 +60,7 @@ export const usersQueryRepository = {
       totalCount: usersCount,
       pagesCount: usersCount <= pageSize ? 1 : Math.ceil(usersCount / Number(pageSize)),
     };
-  },
+  }
 
   async getUsersCount(login: string, email: string): Promise<number> {
     const filter: RootFilterQuery<UserDbModel> = {};
@@ -83,7 +84,7 @@ export const usersQueryRepository = {
     }
 
     return UserModelClass.countDocuments(filter);
-  },
+  }
 
   _mapFromDbModelToResponseModel(userDbModel: WithId<UserDbModel>): UserApiResponseModel {
     return {
@@ -92,5 +93,7 @@ export const usersQueryRepository = {
       login: userDbModel.login,
       createdAt: userDbModel.createdAt,
     };
-  },
-};
+  }
+}
+
+export const usersQueryRepository = new UsersQueryRepository();

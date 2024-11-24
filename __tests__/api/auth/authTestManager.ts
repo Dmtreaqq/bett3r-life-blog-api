@@ -2,8 +2,8 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {baseUrl} from "../constants";
 import {usersTestManager} from "../users/usersTestManager";
-import {UserApiRequestModel} from "../../../src/components/users/models/UserApiModel";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
+import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
 
 
 export const authTestManager = {

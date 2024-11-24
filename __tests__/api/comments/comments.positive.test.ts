@@ -5,7 +5,7 @@ import {runDB} from "../../../src/common/db/db";
 import {ObjectId} from "mongodb";
 import {CommentDbModel} from "../../../src/components/comments/models/CommentDbModel";
 import {commentsRepository} from "../../../src/components/comments/repositories/commentsRepository";
-import {postsRepository} from "../../../src/components/posts/repositories/postsRepository";
+import {PostsRepository} from "../../../src/components/posts/repositories/postsRepository";
 import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
 import {commentsTestManager} from "./commentsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
@@ -47,9 +47,12 @@ const commentEntity: CommentApiResponseModel = {
 
 
 describe('/comments Positive', () => {
+    let postsRepository: PostsRepository;
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+
+        postsRepository = new PostsRepository();
     })
 
     afterAll(async () => {

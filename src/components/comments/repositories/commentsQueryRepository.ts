@@ -5,7 +5,7 @@ import { CommentClassModel } from "../../../common/db/models/Comment";
 import { RootFilterQuery } from "mongoose";
 import { CommentApiResponseModel } from "../models/CommentApiResponseModel";
 
-class CommentsQueryRepository {
+export class CommentsQueryRepository {
   async getCommentById(commentId: string): Promise<CommentApiResponseModel | null> {
     const comment = await CommentClassModel.findOne({
       _id: new ObjectId(commentId),
@@ -75,5 +75,3 @@ class CommentsQueryRepository {
     return CommentClassModel.countDocuments(filter);
   }
 }
-
-export const commentsQueryRepository = new CommentsQueryRepository();

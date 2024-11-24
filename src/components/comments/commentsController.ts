@@ -4,8 +4,8 @@ import {
   RequestWparams,
   RequestWparamsAndBody,
 } from "../../common/utils/types";
-import { commentsQueryRepository } from "./repositories/commentsQueryRepository";
-import { commentsService } from "./services/commentsService";
+import { CommentsQueryRepository } from "./repositories/commentsQueryRepository";
+import { CommentsService } from "./services/commentsService";
 import { jwtAuthMiddleware } from "../../common/middlewares/jwtAuthMiddleware";
 import createEditCommentValidation from "./middlewares/createEditCommentValidation";
 import commentUrlParamValidation from "./middlewares/commentUrlParamValidation";
@@ -15,13 +15,20 @@ import { CommentApiResponseModel } from "./models/CommentApiResponseModel";
 export const commentsRouter = Router();
 
 class CommentsController {
+  private commentsService: CommentsService;
+  private commentsQueryRepository: CommentsQueryRepository;
+  constructor() {
+    this.commentsService = new CommentsService();
+    this.commentsQueryRepository = new CommentsQueryRepository();
+  }
+
   async getCommentById(
     req: RequestWparams<{ id: string }>,
     res: Response<CommentApiResponseModel>,
     next: NextFunction,
   ) {
     try {
-      const comment = await commentsQueryRepository.getCommentById(req.params.id);
+      const comment = await this.commentsQueryRepository.getCommentById(req.params.id);
 
       if (!comment) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -39,7 +46,7 @@ class CommentsController {
     next: NextFunction,
   ) {
     try {
-      const result = await commentsService.deleteCommentById(req.params.id, req.user.id);
+      const result = await this.commentsService.deleteCommentById(req.params.id, req.user.id);
 
       if (!result) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -57,7 +64,7 @@ class CommentsController {
     next: NextFunction,
   ) {
     try {
-      const result = await commentsService.updateCommentById(
+      const result = await this.commentsService.updateCommentById(
         req.params.id,
         req.body.content,
         req.user.id,
@@ -76,17 +83,21 @@ class CommentsController {
 
 const commentsController = new CommentsController();
 
-commentsRouter.get("/:id", ...commentUrlParamValidation, commentsController.getCommentById);
+commentsRouter.get(
+  "/:id",
+  ...commentUrlParamValidation,
+  commentsController.getCommentById.bind(commentsController),
+);
 commentsRouter.delete(
   "/:id",
   jwtAuthMiddleware,
   ...commentUrlParamValidation,
-  commentsController.deleteCommentById,
+  commentsController.deleteCommentById.bind(commentsController),
 );
 commentsRouter.put(
   "/:id",
   jwtAuthMiddleware,
   ...commentUrlParamValidation,
   ...createEditCommentValidation,
-  commentsController.updateCommentById,
+  commentsController.updateCommentById.bind(commentsController),
 );

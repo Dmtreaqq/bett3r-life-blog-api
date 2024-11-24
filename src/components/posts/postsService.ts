@@ -1,4 +1,4 @@
-import { postsRepository } from "./repositories/postsRepository";
+import { PostsRepository } from "./repositories/postsRepository";
 import { PostDbModel } from "./models/PostDbModel";
 import { BlogsRepository } from "../blogs/repositories/blogsRepository";
 import { ApiError } from "../../common/utils/ApiError";
@@ -6,10 +6,12 @@ import { HTTP_STATUSES } from "../../common/utils/types";
 import { PostApiResponseModel } from "./models/PostApiResponseModel";
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
 
-class PostsService {
+export class PostsService {
   private blogsRepository: BlogsRepository;
+  private postsRepository: PostsRepository;
   constructor() {
     this.blogsRepository = new BlogsRepository();
+    this.postsRepository = new PostsRepository();
   }
 
   async createPost(postInput: PostApiRequestModel): Promise<string> {
@@ -32,28 +34,26 @@ class PostsService {
       new Date().toISOString(),
     );
 
-    return postsRepository.createPost(post);
+    return this.postsRepository.createPost(post);
   }
 
   async updatePost(postId: string, post: PostApiRequestModel): Promise<boolean> {
-    const foundPost = await postsRepository.getPostById(postId);
+    const foundPost = await this.postsRepository.getPostById(postId);
     if (!foundPost) {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
     }
 
     const newPost: PostApiResponseModel = { ...foundPost, ...post, id: postId };
 
-    return postsRepository.updatePostById(newPost);
+    return this.postsRepository.updatePostById(newPost);
   }
 
   async deletePostById(postId: string): Promise<boolean> {
-    const foundPost = await postsRepository.getPostById(postId);
+    const foundPost = await this.postsRepository.getPostById(postId);
     if (!foundPost) {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
     }
 
-    return postsRepository.deletePostById(postId);
+    return this.postsRepository.deletePostById(postId);
   }
 }
-
-export const postsService = new PostsService();

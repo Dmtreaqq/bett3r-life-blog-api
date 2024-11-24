@@ -21,7 +21,7 @@ import createPostForBlogValidationChains from "./middlewares/createPostForBlogVa
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
 import { BlogsQueryRepository } from "./repositories/blogsQueryRepository";
-import { postsQueryRepository } from "../posts/repositories/postsQueryRepository";
+import { PostsQueryRepository } from "../posts/repositories/postsQueryRepository";
 import { PostApiResponseModel } from "../posts/models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "../posts/models/PostsPaginatorApiResponseModel";
 
@@ -30,9 +30,11 @@ export const blogsRouter = Router();
 class BlogsController {
   private blogsService: BlogsService;
   private blogsQueryRepository: BlogsQueryRepository;
+  private postsQueryRepository: PostsQueryRepository;
   constructor() {
     this.blogsService = new BlogsService();
     this.blogsQueryRepository = new BlogsQueryRepository();
+    this.postsQueryRepository = new PostsQueryRepository();
   }
 
   async getBlogs(
@@ -144,7 +146,7 @@ class BlogsController {
         ...req.body,
         blogId: blogId,
       });
-      const post = await postsQueryRepository.getPostById(postId);
+      const post = await this.postsQueryRepository.getPostById(postId);
 
       if (!post) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -169,7 +171,7 @@ class BlogsController {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
       }
 
-      const result = await postsQueryRepository.getPosts(
+      const result = await this.postsQueryRepository.getPosts(
         blog.id,
         Number(pageNumber) || 1,
         Number(pageSize) || 10,

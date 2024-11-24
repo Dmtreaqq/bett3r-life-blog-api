@@ -1,10 +1,17 @@
 import { CommentsPaginatorApiResponseModel } from "../models/CommentsPaginatorApiResponseModel";
-import { postsQueryRepository } from "../../posts/repositories/postsQueryRepository";
+import { PostsQueryRepository } from "../../posts/repositories/postsQueryRepository";
 import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
-import { commentsQueryRepository } from "../repositories/commentsQueryRepository";
+import { CommentsQueryRepository } from "../repositories/commentsQueryRepository";
 
-class CommentsQueryService {
+export class CommentsQueryService {
+  private postsQueryRepository;
+  private commentsQueryRepository: CommentsQueryRepository;
+  constructor() {
+    this.postsQueryRepository = new PostsQueryRepository();
+    this.commentsQueryRepository = new CommentsQueryRepository();
+  }
+
   async getCommentsForPost(
     postId: string,
     pageNumber = 1,
@@ -12,12 +19,12 @@ class CommentsQueryService {
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
   ): Promise<CommentsPaginatorApiResponseModel> {
-    const post = await postsQueryRepository.getPostById(postId);
+    const post = await this.postsQueryRepository.getPostById(postId);
     if (!post) {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
     }
 
-    return commentsQueryRepository.getComments(
+    return this.commentsQueryRepository.getComments(
       postId,
       pageNumber,
       pageSize,
@@ -26,5 +33,3 @@ class CommentsQueryService {
     );
   }
 }
-
-export const commentsQueryService = new CommentsQueryService();

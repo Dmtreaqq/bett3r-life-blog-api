@@ -12,15 +12,15 @@ import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
 import postUrlParamValidation from "./middlewares/postUrlParamValidation";
 import postQueryValidation from "./middlewares/postQueryValidation";
 import { PostQueryGetModel } from "./models/PostQueryGetModel";
-import { postsService } from "./postsService";
-import { postsQueryRepository } from "./repositories/postsQueryRepository";
+import { PostsService } from "./postsService";
+import { PostsQueryRepository } from "./repositories/postsQueryRepository";
 import { CommentsPaginatorApiResponseModel } from "../comments/models/CommentsPaginatorApiResponseModel";
 import { jwtAuthMiddleware } from "../../common/middlewares/jwtAuthMiddleware";
-import { commentsService } from "../comments/services/commentsService";
-import { commentsQueryRepository } from "../comments/repositories/commentsQueryRepository";
+import { CommentsService } from "../comments/services/commentsService";
+import { CommentsQueryRepository } from "../comments/repositories/commentsQueryRepository";
 import { CommentQueryGetModel } from "../comments/models/CommentQueryGetModel";
 import createEditCommentValidation from "../comments/middlewares/createEditCommentValidation";
-import { commentsQueryService } from "../comments/services/commentsQueryService";
+import { CommentsQueryService } from "../comments/services/commentsQueryService";
 import { PostApiResponseModel } from "./models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "./models/PostsPaginatorApiResponseModel";
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
@@ -30,6 +30,20 @@ import { CommentApiResponseModel } from "../comments/models/CommentApiResponseMo
 export const postsRouter = Router();
 
 class PostsController {
+  private postsService: PostsService;
+  private postsQueryRepository: PostsQueryRepository;
+  private commentsService: CommentsService;
+  private commentsQueryService: CommentsQueryService;
+  private commentsQueryRepository: CommentsQueryRepository;
+
+  constructor() {
+    this.postsService = new PostsService();
+    this.postsQueryRepository = new PostsQueryRepository();
+    this.commentsService = new CommentsService();
+    this.commentsQueryService = new CommentsQueryService();
+    this.commentsQueryRepository = new CommentsQueryRepository();
+  }
+
   async getPosts(
     req: RequestWquery<PostQueryGetModel>,
     res: Response<PostsPaginatorApiResponseModel>,
@@ -38,7 +52,7 @@ class PostsController {
     try {
       const { pageNumber, pageSize, sortBy, sortDirection } = req.query;
 
-      const result = await postsQueryRepository.getPosts(
+      const result = await this.postsQueryRepository.getPosts(
         "",
         Number(pageNumber) || 1,
         Number(pageSize) || 10,
@@ -59,7 +73,7 @@ class PostsController {
   ) {
     try {
       const { id } = req.params;
-      const foundPost = await postsQueryRepository.getPostById(id);
+      const foundPost = await this.postsQueryRepository.getPostById(id);
 
       if (!foundPost) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -77,8 +91,8 @@ class PostsController {
     next: NextFunction,
   ) {
     try {
-      const postId = await postsService.createPost(req.body);
-      const post = await postsQueryRepository.getPostById(postId);
+      const postId = await this.postsService.createPost(req.body);
+      const post = await this.postsQueryRepository.getPostById(postId);
 
       if (!post) {
         return res.status(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -96,7 +110,7 @@ class PostsController {
     next: NextFunction,
   ) {
     try {
-      const result = await postsService.updatePost(req.params.id, req.body);
+      const result = await this.postsService.updatePost(req.params.id, req.body);
 
       if (!result) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -114,7 +128,7 @@ class PostsController {
     next: NextFunction,
   ) {
     try {
-      const result = await postsService.deletePostById(req.params.id);
+      const result = await this.postsService.deletePostById(req.params.id);
 
       if (!result) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -133,9 +147,13 @@ class PostsController {
   ) {
     const { id: postId } = req.params;
     try {
-      const commentId = await commentsService.createComment(postId, req.body, req.user.id);
+      const commentId = await this.commentsService.createComment(
+        postId,
+        req.body,
+        req.user.id,
+      );
 
-      const comment = await commentsQueryRepository.getCommentById(commentId);
+      const comment = await this.commentsQueryRepository.getCommentById(commentId);
 
       if (!comment) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -156,7 +174,7 @@ class PostsController {
       const { pageNumber, pageSize, sortBy, sortDirection } = req.query;
       const { id: postId } = req.params;
 
-      const comments = await commentsQueryService.getCommentsForPost(
+      const comments = await this.commentsQueryService.getCommentsForPost(
         // TODO - спросить норм ли тут ??
         postId,
         Number(pageNumber) || 1,
@@ -179,32 +197,36 @@ postsRouter.post(
   jwtAuthMiddleware,
   ...postUrlParamValidation,
   ...createEditCommentValidation,
-  postsController.createCommentForPost,
+  postsController.createCommentForPost.bind(postsController),
 );
 postsRouter.get(
   "/:id/comments",
   ...postUrlParamValidation,
-  postsController.getCommentsForPost,
+  postsController.getCommentsForPost.bind(postsController),
 );
 
-postsRouter.get("/", ...postQueryValidation, postsController.getPosts);
-postsRouter.get("/:id", ...postUrlParamValidation, postsController.getPostById);
+postsRouter.get("/", ...postQueryValidation, postsController.getPosts.bind(postsController));
+postsRouter.get(
+  "/:id",
+  ...postUrlParamValidation,
+  postsController.getPostById.bind(postsController),
+);
 postsRouter.post(
   "/",
   authMiddleware,
   ...createEditPostValidationChains,
-  postsController.createPost,
+  postsController.createPost.bind(postsController),
 );
 postsRouter.put(
   "/:id",
   authMiddleware,
   ...postUrlParamValidation,
   ...createEditPostValidationChains,
-  postsController.editPost,
+  postsController.editPost.bind(postsController),
 );
 postsRouter.delete(
   "/:id",
   authMiddleware,
   ...postUrlParamValidation,
-  postsController.deletePostById,
+  postsController.deletePostById.bind(postsController),
 );

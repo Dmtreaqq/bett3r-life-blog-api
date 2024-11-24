@@ -2,17 +2,22 @@ import { commentsRepository } from "../repositories/commentsRepository";
 import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
 import { CommentDbModel } from "../models/CommentDbModel";
-import { postsRepository } from "../../posts/repositories/postsRepository";
+import { PostsRepository } from "../../posts/repositories/postsRepository";
 import { usersRepository } from "../../users/repositories/usersRepository";
 import { CommentApiRequestModel } from "../models/CommentApiRequestModel";
 
-class CommentsService {
+export class CommentsService {
+  private postsRepository: PostsRepository;
+  constructor() {
+    this.postsRepository = new PostsRepository();
+  }
+
   async createComment(
     postId: string,
     comment: CommentApiRequestModel,
     userId: string,
   ): Promise<string> {
-    const post = await postsRepository.getPostById(postId);
+    const post = await this.postsRepository.getPostById(postId);
 
     if (!post) {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
@@ -65,5 +70,3 @@ class CommentsService {
     return commentsRepository.updateCommentById(commentId, content);
   }
 }
-
-export const commentsService = new CommentsService();

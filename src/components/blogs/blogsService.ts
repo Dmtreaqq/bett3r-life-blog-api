@@ -4,13 +4,15 @@ import { BlogDbModel } from "./models/BlogDbModel";
 import { HTTP_STATUSES } from "../../common/utils/types";
 import { ApiError } from "../../common/utils/ApiError";
 import { PostDbModel } from "../posts/models/PostDbModel";
-import { postsRepository } from "../posts/repositories/postsRepository";
+import { PostsRepository } from "../posts/repositories/postsRepository";
 import { PostApiRequestModel } from "../posts/models/PostApiRequestModel";
 
 export class BlogsService {
   private blogsRepository: BlogsRepository;
+  private postsRepository: PostsRepository;
   constructor() {
     this.blogsRepository = new BlogsRepository();
+    this.postsRepository = new PostsRepository();
   }
 
   async createBlog(blogInput: BlogApiRequestModel): Promise<string> {
@@ -52,7 +54,7 @@ export class BlogsService {
       createdAt: new Date().toISOString(),
     };
 
-    return postsRepository.createPost(post);
+    return this.postsRepository.createPost(post);
   }
 
   async deleteBlogById(blogId: string): Promise<boolean> {

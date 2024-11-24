@@ -1,8 +1,8 @@
 import { CONFIG } from "../../../src/common/utils/config";
 import { HTTP_STATUSES } from "../../../src/common/utils/types";
-import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
+import { BlogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
 import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
-import { postsRepository } from "../../../src/components/posts/repositories/postsRepository";
+import { PostsRepository } from "../../../src/components/posts/repositories/postsRepository";
 import { runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper';
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
@@ -41,6 +41,8 @@ describe('/posts negative tests', () => {
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        const blogsRepository = new BlogsRepository()
+        const postsRepository = new PostsRepository();
 
         createdBlogId = await blogsRepository.createBlog(blogInput);
         createdPostId = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })

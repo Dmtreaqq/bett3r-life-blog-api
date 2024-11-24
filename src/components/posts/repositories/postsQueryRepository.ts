@@ -5,7 +5,7 @@ import { RootFilterQuery } from "mongoose";
 import { PostApiResponseModel } from "../models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "../models/PostsPaginatorApiResponseModel";
 
-class PostsQueryRepository {
+export class PostsQueryRepository {
   async getPostById(id: string): Promise<PostApiResponseModel | null> {
     const post = await PostModelClass.findOne({ _id: new ObjectId(id) });
 
@@ -67,5 +67,3 @@ class PostsQueryRepository {
     };
   }
 }
-
-export const postsQueryRepository = new PostsQueryRepository();

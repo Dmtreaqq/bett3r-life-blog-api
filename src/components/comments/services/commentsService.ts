@@ -3,13 +3,15 @@ import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
 import { CommentDbModel } from "../models/CommentDbModel";
 import { PostsRepository } from "../../posts/repositories/postsRepository";
-import { usersRepository } from "../../users/repositories/usersRepository";
+import { UsersRepository } from "../../users/repositories/usersRepository";
 import { CommentApiRequestModel } from "../models/CommentApiRequestModel";
 
 export class CommentsService {
   private postsRepository: PostsRepository;
+  private usersRepository: UsersRepository;
   constructor() {
     this.postsRepository = new PostsRepository();
+    this.usersRepository = new UsersRepository();
   }
 
   async createComment(
@@ -23,7 +25,7 @@ export class CommentsService {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
     }
 
-    const user = await usersRepository.getUserById(userId);
+    const user = await this.usersRepository.getUserById(userId);
 
     const commentDbModel = new CommentDbModel(
       comment.content,

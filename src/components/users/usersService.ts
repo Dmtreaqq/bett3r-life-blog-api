@@ -1,16 +1,20 @@
-import { usersRepository } from "./repositories/usersRepository";
+import { UsersRepository } from "./repositories/usersRepository";
 import { UserDbModel } from "./models/UserDbModel";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
-import { usersQueryRepository } from "./repositories/usersQueryRepository";
 import { hashService } from "../../common/services/hashService";
 import { randomUUID } from "node:crypto";
 import { UserApiRequestModel } from "./models/UserApiRequestModel";
 
-class UsersService {
+export class UsersService {
+  private usersRepository: UsersRepository;
+  constructor() {
+    this.usersRepository = new UsersRepository();
+  }
+
   async createUser(userInput: UserApiRequestModel): Promise<string> {
-    const userByEmail = await usersRepository.getUserByEmail(userInput.email);
-    const userByLogin = await usersRepository.getUserByLogin(userInput.login);
+    const userByEmail = await this.usersRepository.getUserByEmail(userInput.email);
+    const userByLogin = await this.usersRepository.getUserByLogin(userInput.login);
 
     if (userByEmail || userByLogin) {
       throw new ApiError(
@@ -34,17 +38,15 @@ class UsersService {
       "",
     );
 
-    return usersRepository.createUser(userDbModel);
+    return this.usersRepository.createUser(userDbModel);
   }
 
   async deleteUserById(userId: string): Promise<boolean> {
-    const user = await usersQueryRepository.getUserById(userId);
+    const user = await this.usersRepository.getUserById(userId);
     if (!user) {
       throw new ApiError(HTTP_STATUSES.NOT_FOUND_404);
     }
 
-    return usersRepository.deleteUserById(userId);
+    return this.usersRepository.deleteUserById(userId);
   }
 }
-
-export const usersService = new UsersService();

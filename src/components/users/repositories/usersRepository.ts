@@ -4,7 +4,7 @@ import { add } from "date-fns/add";
 import { randomUUID } from "node:crypto";
 import { UserModelClass } from "../../../common/db/models/User";
 
-class UsersRepository {
+export class UsersRepository {
   async getUserById(userId: string) {
     return await UserModelClass.findOne({ _id: new ObjectId(userId) });
   }
@@ -93,5 +93,3 @@ class UsersRepository {
     return UserModelClass.findOne({ login });
   }
 }
-
-export const usersRepository = new UsersRepository();

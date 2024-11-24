@@ -5,9 +5,9 @@ import {
   RequestWparams,
   RequestWquery,
 } from "../../common/utils/types";
-import { usersQueryRepository } from "./repositories/usersQueryRepository";
+import { UsersQueryRepository } from "./repositories/usersQueryRepository";
 import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
-import { usersService } from "./usersService";
+import { UsersService } from "./usersService";
 import { UserQueryGetModel } from "./models/UserQueryGetModel";
 import userUrlParamValidation from "./middlewares/userUrlParamValidation";
 import userValidation from "./middlewares/userValidation";
@@ -18,14 +18,21 @@ import { UsersPaginatorApiResponseModel } from "./models/UsersPaginatorApiRespon
 export const usersRouter = Router();
 
 class UsersController {
+  private usersQueryRepository: UsersQueryRepository;
+  private usersService: UsersService;
+  constructor() {
+    this.usersQueryRepository = new UsersQueryRepository();
+    this.usersService = new UsersService();
+  }
+
   async createUser(
     req: RequestWbody<UserApiRequestModel>,
     res: Response<UserApiResponseModel>,
     next: NextFunction,
   ) {
     try {
-      const userId = await usersService.createUser(req.body);
-      const user = await usersQueryRepository.getUserById(userId);
+      const userId = await this.usersService.createUser(req.body);
+      const user = await this.usersQueryRepository.getUserById(userId);
 
       if (!user) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -43,7 +50,7 @@ class UsersController {
     next: NextFunction,
   ) {
     try {
-      const result = await usersService.deleteUserById(req.params.id);
+      const result = await this.usersService.deleteUserById(req.params.id);
 
       if (!result) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -70,7 +77,7 @@ class UsersController {
         sortDirection,
       } = req.query;
 
-      const users = await usersQueryRepository.getUsers(
+      const users = await this.usersQueryRepository.getUsers(
         login,
         email,
         Number(pageNumber) || 1,
@@ -92,7 +99,12 @@ usersRouter.delete(
   "/:id",
   authMiddleware,
   ...userUrlParamValidation,
-  usersController.deleteUserById,
+  usersController.deleteUserById.bind(usersController),
 );
-usersRouter.post("/", authMiddleware, ...userValidation, usersController.createUser);
-usersRouter.get("/", authMiddleware, usersController.getUsers);
+usersRouter.post(
+  "/",
+  authMiddleware,
+  ...userValidation,
+  usersController.createUser.bind(usersController),
+);
+usersRouter.get("/", authMiddleware, usersController.getUsers.bind(usersController));

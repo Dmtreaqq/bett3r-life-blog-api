@@ -1,4 +1,4 @@
-import { usersRepository } from "../users/repositories/usersRepository";
+import { UsersRepository } from "../users/repositories/usersRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
 import { hashService } from "../../common/services/hashService";
@@ -11,12 +11,17 @@ import { sessionsService } from "../security/sessions/sessionsService";
 import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
 import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
 
-class AuthService {
+export class AuthService {
+  private usersRepository: UsersRepository;
+  constructor() {
+    this.usersRepository = new UsersRepository();
+  }
+
   async login(
     authInput: AuthLoginApiRequestModel,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const userByLogin = await usersRepository.getUserByLogin(authInput.loginOrEmail);
-    const userByEmail = await usersRepository.getUserByEmail(authInput.loginOrEmail);
+    const userByLogin = await this.usersRepository.getUserByLogin(authInput.loginOrEmail);
+    const userByEmail = await this.usersRepository.getUserByEmail(authInput.loginOrEmail);
 
     const user = userByEmail || userByLogin;
     if (!user) {
@@ -57,8 +62,8 @@ class AuthService {
   }
 
   async register(registerModel: AuthRegisterApiRequestModel): Promise<string> {
-    const userByEmail = await usersRepository.getUserByEmail(registerModel.email);
-    const userByLogin = await usersRepository.getUserByLogin(registerModel.login);
+    const userByEmail = await this.usersRepository.getUserByEmail(registerModel.email);
+    const userByLogin = await this.usersRepository.getUserByLogin(registerModel.login);
 
     if (userByEmail || userByLogin) {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "User already exists", "email");
@@ -84,7 +89,7 @@ class AuthService {
       }).toISOString(),
     );
 
-    const userId = await usersRepository.createUser(userDbModel);
+    const userId = await this.usersRepository.createUser(userDbModel);
 
     emailService
       .sendConfirmationEmail(confirmationCode, registerModel.email)
@@ -96,7 +101,7 @@ class AuthService {
   }
 
   async confirmRegister(code: string): Promise<boolean | null> {
-    const user = await usersRepository.getUserByConfirmationCode(code);
+    const user = await this.usersRepository.getUserByConfirmationCode(code);
     if (!user) {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "Bad Request - No User", "code");
     }
@@ -109,13 +114,13 @@ class AuthService {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "Code is expired", "code");
     }
 
-    const result = await usersRepository.updateConfirmation(user._id.toString());
+    const result = await this.usersRepository.updateConfirmation(user._id.toString());
 
     return result;
   }
 
   async resendConfirmationEmail(email: string) {
-    const user = await usersRepository.getUserByEmail(email);
+    const user = await this.usersRepository.getUserByEmail(email);
     if (!user) {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "Bad Request - No User", "email");
     }
@@ -124,7 +129,7 @@ class AuthService {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "User already confirmed", "email");
     }
 
-    const code = await usersRepository.updateCodeForEmail(user._id.toString());
+    const code = await this.usersRepository.updateCodeForEmail(user._id.toString());
 
     emailService
       .sendConfirmationEmail(code, email)
@@ -160,19 +165,19 @@ class AuthService {
   }
 
   async recoverPassword(email: string) {
-    const user = await usersRepository.getUserByEmail(email);
+    const user = await this.usersRepository.getUserByEmail(email);
 
     if (!user) {
       return;
     }
 
-    const code = await usersRepository.updateCodeForPassword(user._id.toString());
+    const code = await this.usersRepository.updateCodeForPassword(user._id.toString());
 
     emailService.sendRecoverPasswordEmail(code, email).catch((err) => console.log(err));
   }
 
   async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {
-    const userByCode = await usersRepository.getUserByRecoveryCode(recoveryCode);
+    const userByCode = await this.usersRepository.getUserByRecoveryCode(recoveryCode);
 
     if (!userByCode) {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "incorrect", "recoveryCode");
@@ -183,8 +188,6 @@ class AuthService {
     }
 
     const newHashedPassword = await hashService.hashPassword(newPassword);
-    await usersRepository.updatePassword(userByCode._id.toString(), newHashedPassword);
+    await this.usersRepository.updatePassword(userByCode._id.toString(), newHashedPassword);
   }
 }
-
-export const authService = new AuthService();

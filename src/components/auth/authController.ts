@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { HTTP_STATUSES, RequestWbody } from "../../common/utils/types";
 import { AuthMeInfoResponseModel } from "./models/AuthMeInfoResponseModel";
-import { authService } from "./authService";
+import { AuthService } from "./authService";
 import authValidation from "./middlewares/authValidation";
 import { jwtAuthMiddleware } from "../../common/middlewares/jwtAuthMiddleware";
-import { usersQueryRepository } from "../users/repositories/usersQueryRepository";
+import { UsersQueryRepository } from "../users/repositories/usersQueryRepository";
 import confirmCodeValidation from "./middlewares/confirmCodeValidation";
 import registerValidation from "./middlewares/registerValidation";
 import emailResendValidation from "./middlewares/emailResendValidation";
@@ -17,9 +17,16 @@ import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestMode
 export const authRouter = Router();
 
 class AuthController {
+  private authService: AuthService;
+  private usersQueryRepository: UsersQueryRepository;
+  constructor() {
+    this.authService = new AuthService();
+    this.usersQueryRepository = new UsersQueryRepository();
+  }
+
   async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
     try {
-      const { accessToken, refreshToken } = await authService.login(req.body);
+      const { accessToken, refreshToken } = await this.authService.login(req.body);
       await sessionsService.createSession(refreshToken, req.ip, req.header("user-agent"));
 
       res.cookie("refreshToken", refreshToken, {
@@ -41,7 +48,7 @@ class AuthController {
     next: NextFunction,
   ) {
     try {
-      const user = await usersQueryRepository.getUserById(req.user.id);
+      const user = await this.usersQueryRepository.getUserById(req.user.id);
       const response: AuthMeInfoResponseModel = {
         login: user!.login,
         email: user!.email,
@@ -60,7 +67,7 @@ class AuthController {
     next: NextFunction,
   ) {
     try {
-      await authService.register(req.body);
+      await this.authService.register(req.body);
 
       return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     } catch (err) {
@@ -74,7 +81,7 @@ class AuthController {
     next: NextFunction,
   ) {
     try {
-      await authService.confirmRegister(req.body.code);
+      await this.authService.confirmRegister(req.body.code);
 
       return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     } catch (err) {
@@ -88,7 +95,7 @@ class AuthController {
     next: NextFunction,
   ) {
     try {
-      await authService.resendConfirmationEmail(req.body.email);
+      await this.authService.resendConfirmationEmail(req.body.email);
 
       return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     } catch (err) {
@@ -100,7 +107,7 @@ class AuthController {
     try {
       const currentRefreshToken = req.cookies.refreshToken;
       const { accessToken, refreshToken } =
-        await authService.refreshToken(currentRefreshToken);
+        await this.authService.refreshToken(currentRefreshToken);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -116,7 +123,7 @@ class AuthController {
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const currentRefreshToken = req.cookies.refreshToken;
-      const result = await authService.logout(currentRefreshToken);
+      const result = await this.authService.logout(currentRefreshToken);
 
       if (!result) {
         return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
@@ -138,7 +145,7 @@ class AuthController {
     try {
       const { email } = req.body;
 
-      await authService.recoverPassword(email);
+      await this.authService.recoverPassword(email);
 
       return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     } catch (err) {
@@ -153,7 +160,7 @@ class AuthController {
   ) {
     try {
       const { newPassword, recoveryCode } = req.body;
-      await authService.confirmPasswordRecovery(newPassword, recoveryCode);
+      await this.authService.confirmPasswordRecovery(newPassword, recoveryCode);
 
       return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     } catch (err) {
@@ -164,28 +171,44 @@ class AuthController {
 
 const authController = new AuthController();
 
-authRouter.post("/login", ...authValidation, authController.login);
-authRouter.post("/logout", cookieValidationMiddleware, authController.logout);
-authRouter.post("/refresh-token", cookieValidationMiddleware, authController.refreshToken);
-authRouter.get("/me", jwtAuthMiddleware, authController.getCurrentUserInfo);
-authRouter.post("/registration", ...registerValidation, authController.register);
+authRouter.post("/login", ...authValidation, authController.login.bind(authController));
+authRouter.post(
+  "/logout",
+  cookieValidationMiddleware,
+  authController.logout.bind(authController),
+);
+authRouter.post(
+  "/refresh-token",
+  cookieValidationMiddleware,
+  authController.refreshToken.bind(authController),
+);
+authRouter.get(
+  "/me",
+  jwtAuthMiddleware,
+  authController.getCurrentUserInfo.bind(authController),
+);
+authRouter.post(
+  "/registration",
+  ...registerValidation,
+  authController.register.bind(authController),
+);
 authRouter.post(
   "/registration-confirmation",
   ...confirmCodeValidation,
-  authController.confirmRegister,
+  authController.confirmRegister.bind(authController),
 );
 authRouter.post(
   "/registration-email-resending",
   ...emailResendValidation,
-  authController.resendConfirmationEmail,
+  authController.resendConfirmationEmail.bind(authController),
 );
 authRouter.post(
   "/password-recovery",
   ...emailResendValidation,
-  authController.recoverPassword,
+  authController.recoverPassword.bind(authController),
 );
 authRouter.post(
   "/new-password",
   confirmPasswordValidation,
-  authController.confirmPasswordRecovery,
+  authController.confirmPasswordRecovery.bind(authController),
 );

@@ -4,7 +4,7 @@ import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {fromUTF8ToBase64} from "../../../src/common/middlewares/basicAuthMiddleware";
 import {runDB} from "../../../src/common/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
-import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
+import {UsersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {ObjectId} from "mongodb";
 import mongoose from "mongoose";
 import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
@@ -30,9 +30,12 @@ const userDbModel: UserDbModel = {
 
 
 describe('/users Negative', () => {
+    let usersRepository: UsersRepository;
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+
+        usersRepository = new UsersRepository();
     })
 
     afterAll(async () => {

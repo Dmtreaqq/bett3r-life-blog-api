@@ -2,11 +2,11 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
-import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
+import {UsersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {hashSync} from "bcrypt";
 import {jwtAuthService} from "../../../src/common/services/jwtService";
 import {ObjectId} from "mongodb";
-import {authService} from "../../../src/components/auth/authService";
+import {AuthService} from "../../../src/components/auth/authService";
 import {emailService} from "../../../src/common/services/emailService";
 import {authHeader} from "../constants";
 import {usersTestManager} from "../users/usersTestManager";
@@ -34,8 +34,13 @@ const userDbModel = {
 
 
 describe('/auth Positive', () => {
+    let authService: AuthService;
+    let usersRepository: UsersRepository;
     beforeAll(async () => {
         await runDB()
+
+        authService = new AuthService()
+        usersRepository = new UsersRepository();
     })
 
     afterAll(async () => {

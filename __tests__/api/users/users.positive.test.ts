@@ -4,8 +4,8 @@ import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {fromUTF8ToBase64} from "../../../src/common/middlewares/basicAuthMiddleware";
 import {runDB} from "../../../src/common/db/db";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
-import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
-import {usersQueryRepository} from "../../../src/components/users/repositories/usersQueryRepository";
+import {UsersRepository} from "../../../src/components/users/repositories/usersRepository";
+import {UsersQueryRepository} from "../../../src/components/users/repositories/usersQueryRepository";
 import {ObjectId} from "mongodb";
 import mongoose from "mongoose";
 import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
@@ -39,9 +39,14 @@ const userEntity: UserApiResponseModel = {
 }
 
 describe('/users Positive', () => {
+    let usersRepository: UsersRepository;
+    let usersQueryRepository: UsersQueryRepository;
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+
+        usersRepository = new UsersRepository()
+        usersQueryRepository = new UsersQueryRepository()
     })
 
     afterAll(async () => {

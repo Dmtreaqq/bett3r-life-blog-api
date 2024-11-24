@@ -2,11 +2,11 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
-import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
+import {UsersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {ObjectId} from "mongodb";
 import {emailService} from "../../../src/common/services/emailService";
-import {authService} from "../../../src/components/auth/authService";
+import {AuthService} from "../../../src/components/auth/authService";
 import { sub } from 'date-fns';
 import mongoose from "mongoose";
 import { randomUUID } from "node:crypto";
@@ -32,8 +32,13 @@ const userDbModel: UserDbModel = {
 }
 
 describe('/auth negative', () => {
+    let authService: AuthService;
+    let usersRepository: UsersRepository;
     beforeAll(async () => {
         await runDB()
+
+        authService = new AuthService()
+        usersRepository = new UsersRepository();
     })
 
     afterAll(async () => {

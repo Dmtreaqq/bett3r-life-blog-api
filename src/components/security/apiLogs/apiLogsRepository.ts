@@ -1,10 +1,10 @@
 import { ApiLogDbModel } from "./models/ApiLogDbModel";
 import { ApiLogClassModel } from "../../../common/db/models/ApiLog";
 
-export const apiLogsRepository = {
+class ApiLogsRepository {
   async createApiLog(log: ApiLogDbModel) {
     await ApiLogClassModel.create(log);
-  },
+  }
 
   async getLogsCountLastTenSeconds(ip: string, url: string) {
     const count = await ApiLogClassModel.countDocuments({
@@ -14,9 +14,11 @@ export const apiLogsRepository = {
     });
 
     return count;
-  },
+  }
 
   async deleteAllLogs() {
     await ApiLogClassModel.deleteMany({});
-  },
-};
+  }
+}
+
+export const apiLogsRepository = new ApiLogsRepository();

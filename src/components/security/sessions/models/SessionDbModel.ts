@@ -1,8 +1,10 @@
-export type SessionDbModel = {
-  userId: string;
-  deviceId: string;
-  deviceName: string;
-  ip: string;
-  issuedAt: number;
-  expirationDate: number;
-};
+export class SessionDbModel {
+  constructor(
+    public userId: string,
+    public deviceId: string,
+    public deviceName: string,
+    public ip: string,
+    public issuedAt: number,
+    public expirationDate: number,
+  ) {}
+}

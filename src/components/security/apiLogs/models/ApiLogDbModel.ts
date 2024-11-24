@@ -1,5 +1,7 @@
-export type ApiLogDbModel = {
-  ip: string;
-  url: string;
-  date: number;
-};
+export class ApiLogDbModel {
+  constructor(
+    public ip: string,
+    public url: string,
+    public date: number,
+  ) {}
+}

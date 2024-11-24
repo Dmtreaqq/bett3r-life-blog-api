@@ -4,28 +4,28 @@ import { jwtAuthService } from "../../../common/services/jwtService";
 import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
 
-export const sessionsService = {
+class SessionsService {
   async createSession(refreshToken: string, ip = "Unknown IP", userAgent = "Unknown Device") {
     const token = jwtAuthService.decodeToken(refreshToken);
 
-    const session: SessionDbModel = {
-      deviceId: token.deviceId,
-      issuedAt: token.iat!,
-      expirationDate: token.exp!,
-      userId: token.id,
-      deviceName: userAgent,
+    const session = new SessionDbModel(
+      token.id,
+      token.deviceId,
+      userAgent,
       ip,
-    };
+      token.iat!,
+      token.exp!,
+    );
 
     await sessionsRepository.createSession(session);
-  },
+  }
 
   async updateSession(oldRefreshToken: string, newRefreshToken: string) {
     const { iat: oldIat, deviceId } = jwtAuthService.decodeToken(oldRefreshToken);
     const { iat: newIat, exp } = jwtAuthService.decodeToken(newRefreshToken);
 
     await sessionsRepository.updateSession(deviceId, oldIat!, newIat!, exp!);
-  },
+  }
 
   async isActiveSession(refreshToken: string): Promise<SessionDbModel | null> {
     const { iat, deviceId } = jwtAuthService.decodeToken(refreshToken);
@@ -35,7 +35,7 @@ export const sessionsService = {
     }
 
     return result;
-  },
+  }
 
   async deleteSession(refreshToken: string, passedDeviceId: string) {
     const { id: userId } = jwtAuthService.decodeToken(refreshToken);
@@ -53,11 +53,13 @@ export const sessionsService = {
     const result = await sessionsRepository.deleteSession(passedDeviceId, userId);
 
     return result;
-  },
+  }
 
   async deleteOtherSessions(refreshToken: string) {
     const { id: userId, deviceId: currentDeviceId } = jwtAuthService.decodeToken(refreshToken);
 
     await sessionsRepository.deleteOtherSessions(userId, currentDeviceId);
-  },
-};
+  }
+}
+
+export const sessionsService = new SessionsService();

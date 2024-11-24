@@ -1,10 +1,10 @@
 import { SessionDbModel } from "./models/SessionDbModel";
 import { SessionModelClass } from "../../../common/db/models/Session";
 
-export const sessionsRepository = {
+class SessionsRepository {
   async createSession(sessionDbModel: SessionDbModel) {
     await SessionModelClass.create(sessionDbModel);
-  },
+  }
 
   async updateSession(
     deviceId: string,
@@ -20,7 +20,7 @@ export const sessionsRepository = {
     );
 
     return result.modifiedCount === 1;
-  },
+  }
 
   async isActiveSession(deviceId: string, issuedAt: number) {
     const session = await SessionModelClass.findOne({
@@ -29,7 +29,7 @@ export const sessionsRepository = {
     });
 
     return session;
-  },
+  }
 
   async deleteSession(deviceId: string, userId: string) {
     const result = await SessionModelClass.deleteOne({
@@ -38,21 +38,23 @@ export const sessionsRepository = {
     });
 
     return result.deletedCount === 1;
-  },
+  }
 
   async getSessionByDeviceId(deviceId: string) {
     // TODO а если с одного девайса 2 сессии
     return SessionModelClass.findOne({ deviceId });
-  },
+  }
 
   async deleteAllSessions() {
     await SessionModelClass.deleteMany({});
-  },
+  }
 
   async deleteOtherSessions(userId: string, currentDeviceId: string) {
     await SessionModelClass.deleteMany({
       userId,
       deviceId: { $ne: currentDeviceId },
     });
-  },
-};
+  }
+}
+
+export const sessionsRepository = new SessionsRepository();

@@ -1,6 +1,6 @@
-export type DeviceApiResponseModel = {
-  ip: string;
-  title: string;
-  lastActiveDate: string;
-  deviceId: string;
-};
+export class DeviceApiResponseModel {
+  ip!: string;
+  title!: string;
+  lastActiveDate!: string;
+  deviceId!: string;
+}

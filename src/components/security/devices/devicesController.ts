@@ -6,7 +6,7 @@ import { deviceQueryRepository } from "./deviceQueryRepository";
 
 export const securityDevicesRouter = Router();
 
-const devicesController = {
+class DevicesController {
   async getAllDevices(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
@@ -16,7 +16,7 @@ const devicesController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async deleteDevice(req: RequestWparams<{ id: string }>, res: Response, next: NextFunction) {
     // TODO: разрешаем ли мьі несколько сессий с одного девайса
@@ -37,7 +37,7 @@ const devicesController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async deleteOtherDevices(req: Request, res: Response, next: NextFunction) {
     try {
@@ -56,8 +56,10 @@ const devicesController = {
     } catch (err) {
       return next(err);
     }
-  },
-};
+  }
+}
+
+const devicesController = new DevicesController();
 
 securityDevicesRouter.get(
   "/devices",

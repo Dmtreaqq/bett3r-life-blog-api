@@ -3,7 +3,7 @@ import { jwtAuthService } from "../../../common/services/jwtService";
 import { JwtPayload } from "jsonwebtoken";
 import { SessionModelClass } from "../../../common/db/models/Session";
 
-export const deviceQueryRepository = {
+class DeviceQueryRepository {
   async getAllDevices(refreshToken: string): Promise<DeviceApiResponseModel[]> {
     const { id } = jwtAuthService.decodeToken(refreshToken) as JwtPayload;
 
@@ -17,5 +17,7 @@ export const deviceQueryRepository = {
     }));
 
     return responseSessions;
-  },
-};
+  }
+}
+
+export const deviceQueryRepository = new DeviceQueryRepository();

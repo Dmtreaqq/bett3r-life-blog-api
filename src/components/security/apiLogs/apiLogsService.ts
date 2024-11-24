@@ -1,18 +1,16 @@
 import { apiLogsRepository } from "./apiLogsRepository";
 import { ApiLogDbModel } from "./models/ApiLogDbModel";
 
-export const apiLogsService = {
+class ApiLogsService {
   async createApiLog(ip: string, url: string) {
-    const log: ApiLogDbModel = {
-      ip: ip || "Unknown IP",
-      url: url || "Unknown URL",
-      date: Date.now(),
-    };
+    const log = new ApiLogDbModel(ip || "Unknown IP", url || "Unknown URL", Date.now());
 
     await apiLogsRepository.createApiLog(log);
-  },
+  }
 
   async getLogsCountLastTenSeconds(ip: string, url: string) {
     return apiLogsRepository.getLogsCountLastTenSeconds(ip, url);
-  },
-};
+  }
+}
+
+export const apiLogsService = new ApiLogsService();

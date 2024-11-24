@@ -3,12 +3,12 @@ import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
 import {ObjectId} from "mongodb";
-import {CommentApiResponseModel} from "../../../src/components/comments/models/CommentApiModel";
 import {commentsTestManager} from "./commentsTestManager";
 import {postsTestManager} from "../posts/postsTestManager";
 import {authTestManager} from "../auth/authTestManager";
 import {blogsTestManager} from "../blogs/blogsTestManager";
 import mongoose from "mongoose";
+import { CommentApiResponseModel } from "../../../src/components/comments/models/CommentApiResponseModel";
 
 const baseUrl = '/api';
 

@@ -1,11 +1,13 @@
-type CommentatorInfo = {
-  userId: string;
-  userLogin: string;
-};
+class CommentatorInfo {
+  userId!: string;
+  userLogin!: string;
+}
 
-export type CommentDbModel = {
-  content: string;
-  commentatorInfo: CommentatorInfo;
-  createdAt: string;
-  postId: string;
-};
+export class CommentDbModel {
+  constructor(
+    public content: string,
+    public commentatorInfo: CommentatorInfo,
+    public createdAt: string,
+    public postId: string,
+  ) {}
+}

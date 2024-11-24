@@ -1,10 +1,11 @@
-import { CommentApiResponseModel, CommentsApiResponseModel } from "../models/CommentApiModel";
+import { CommentsPaginatorApiResponseModel } from "../models/CommentsPaginatorApiResponseModel";
 import { ObjectId } from "mongodb";
 import { CommentDbModel } from "../models/CommentDbModel";
 import { CommentClassModel } from "../../../common/db/models/Comment";
 import { RootFilterQuery } from "mongoose";
+import { CommentApiResponseModel } from "../models/CommentApiResponseModel";
 
-export const commentsQueryRepository = {
+class CommentsQueryRepository {
   async getCommentById(commentId: string): Promise<CommentApiResponseModel | null> {
     const comment = await CommentClassModel.findOne({
       _id: new ObjectId(commentId),
@@ -21,7 +22,7 @@ export const commentsQueryRepository = {
       },
       createdAt: comment.createdAt,
     };
-  },
+  }
 
   async getComments(
     postId: string,
@@ -29,7 +30,7 @@ export const commentsQueryRepository = {
     pageSize = 10,
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
-  ): Promise<CommentsApiResponseModel> {
+  ): Promise<CommentsPaginatorApiResponseModel> {
     const filter: RootFilterQuery<CommentDbModel> = {};
 
     if (postId) {
@@ -62,7 +63,7 @@ export const commentsQueryRepository = {
       totalCount: commentsCount,
       pagesCount: commentsCount <= pageSize ? 1 : Math.ceil(commentsCount / Number(pageSize)),
     };
-  },
+  }
 
   async getCommentsCount(postId: string) {
     const filter: RootFilterQuery<CommentDbModel> = {};
@@ -72,5 +73,7 @@ export const commentsQueryRepository = {
     }
 
     return CommentClassModel.countDocuments(filter);
-  },
-};
+  }
+}
+
+export const commentsQueryRepository = new CommentsQueryRepository();

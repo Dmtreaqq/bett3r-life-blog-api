@@ -18,14 +18,14 @@ class PostsService {
       );
     }
 
-    const post: PostDbModel = {
-      title: postInput.title,
-      shortDescription: postInput.shortDescription,
-      content: postInput.content,
-      blogId: postInput.blogId,
-      blogName: blog.name,
-      createdAt: new Date().toISOString(),
-    };
+    const post = new PostDbModel(
+      postInput.title,
+      postInput.shortDescription,
+      postInput.content,
+      postInput.blogId,
+      blog.name,
+      new Date().toISOString(),
+    );
 
     return postsRepository.createPost(post);
   }

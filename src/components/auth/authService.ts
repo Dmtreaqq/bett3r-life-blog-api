@@ -67,21 +67,21 @@ export const authService = {
 
     const confirmationCode = randomUUID();
     const recoveryCode = randomUUID();
-    const userDbModel: UserDbModel = {
-      login: registerModel.login,
-      email: registerModel.email,
-      password: hashedPassword,
-      createdAt: new Date().toISOString(),
-      isConfirmed: false,
+    const userDbModel = new UserDbModel(
+      registerModel.login,
+      registerModel.email,
+      hashedPassword,
+      new Date().toISOString(),
+      false,
       confirmationCode,
       recoveryCode,
-      recoveryCodeExpirationDate: add(new Date(), {
+      add(new Date(), {
         minutes: 2,
       }).toISOString(),
-      expirationDate: add(new Date(), {
+      add(new Date(), {
         minutes: 2,
       }).toISOString(),
-    };
+    );
 
     const userId = await usersRepository.createUser(userDbModel);
 

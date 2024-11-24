@@ -22,17 +22,17 @@ class UsersService {
 
     const hashedPassword = await hashService.hashPassword(userInput.password);
 
-    const userDbModel: UserDbModel = {
-      login: userInput.login,
-      email: userInput.email,
-      password: hashedPassword,
-      createdAt: new Date().toISOString(),
-      isConfirmed: true,
-      confirmationCode: randomUUID(),
-      expirationDate: "",
-      recoveryCode: randomUUID(),
-      recoveryCodeExpirationDate: "",
-    };
+    const userDbModel = new UserDbModel(
+      userInput.login,
+      userInput.email,
+      hashedPassword,
+      new Date().toISOString(),
+      true,
+      randomUUID(),
+      "",
+      randomUUID(),
+      "",
+    );
 
     return usersRepository.createUser(userDbModel);
   }

@@ -4,16 +4,17 @@ import {
   RequestWparams,
   RequestWparamsAndBody,
 } from "../../common/utils/types";
-import { CommentApiRequestModel, CommentApiResponseModel } from "./models/CommentApiModel";
 import { commentsQueryRepository } from "./repositories/commentsQueryRepository";
 import { commentsService } from "./services/commentsService";
 import { jwtAuthMiddleware } from "../../common/middlewares/jwtAuthMiddleware";
 import createEditCommentValidation from "./middlewares/createEditCommentValidation";
 import commentUrlParamValidation from "./middlewares/commentUrlParamValidation";
+import { CommentApiRequestModel } from "./models/CommentApiRequestModel";
+import { CommentApiResponseModel } from "./models/CommentApiResponseModel";
 
 export const commentsRouter = Router();
 
-const commentsController = {
+class CommentsController {
   async getCommentById(
     req: RequestWparams<{ id: string }>,
     res: Response<CommentApiResponseModel>,
@@ -30,7 +31,8 @@ const commentsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
+
   async deleteCommentById(
     req: RequestWparams<{ id: string }>,
     res: Response,
@@ -47,7 +49,7 @@ const commentsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async updateCommentById(
     req: RequestWparamsAndBody<{ id: string }, CommentApiRequestModel>,
@@ -69,8 +71,10 @@ const commentsController = {
     } catch (err) {
       return next(err);
     }
-  },
-};
+  }
+}
+
+const commentsController = new CommentsController();
 
 commentsRouter.get("/:id", ...commentUrlParamValidation, commentsController.getCommentById);
 commentsRouter.delete(

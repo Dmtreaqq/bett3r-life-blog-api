@@ -14,11 +14,7 @@ import postQueryValidation from "./middlewares/postQueryValidation";
 import { PostQueryGetModel } from "./models/PostQueryGetModel";
 import { postsService } from "./postsService";
 import { postsQueryRepository } from "./repositories/postsQueryRepository";
-import {
-  CommentApiRequestModel,
-  CommentApiResponseModel,
-  CommentsApiResponseModel,
-} from "../comments/models/CommentApiModel";
+import { CommentsPaginatorApiResponseModel } from "../comments/models/CommentsPaginatorApiResponseModel";
 import { jwtAuthMiddleware } from "../../common/middlewares/jwtAuthMiddleware";
 import { commentsService } from "../comments/services/commentsService";
 import { commentsQueryRepository } from "../comments/repositories/commentsQueryRepository";
@@ -28,6 +24,8 @@ import { commentsQueryService } from "../comments/services/commentsQueryService"
 import { PostApiResponseModel } from "./models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "./models/PostsPaginatorApiResponseModel";
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
+import { CommentApiRequestModel } from "../comments/models/CommentApiRequestModel";
+import { CommentApiResponseModel } from "../comments/models/CommentApiResponseModel";
 
 export const postsRouter = Router();
 
@@ -151,7 +149,7 @@ class PostsController {
 
   async getCommentsForPost(
     req: RequestWparamsAndQuery<{ id: string }, CommentQueryGetModel>,
-    res: Response<CommentsApiResponseModel>,
+    res: Response<CommentsPaginatorApiResponseModel>,
     next: NextFunction,
   ) {
     try {

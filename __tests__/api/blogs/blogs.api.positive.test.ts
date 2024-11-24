@@ -1,9 +1,7 @@
 import { CONFIG } from "../../../src/common/utils/config";
 import { HTTP_STATUSES } from "../../../src/common/utils/types";
-import {
-    BlogApiRequestModel,
-    BlogApiResponseModel,
-} from "../../../src/components/blogs/models/BlogApiModel";
+import { BlogApiResponseModel } from "../../../src/components/blogs/models/BlogApiResponseModel";
+import { BlogApiRequestModel } from "../../../src/components/blogs/models/BlogApiRequestModel";
 import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
 import { runDB } from "../../../src/common/db/db";
 import { request } from '../test-helper'

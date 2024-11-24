@@ -1,7 +1,6 @@
-import {BlogApiRequestModel} from "../../src/components/blogs/models/BlogApiModel";
+import { BlogApiRequestModel } from "../../src/components/blogs/models/BlogApiRequestModel";
 import {fromUTF8ToBase64} from "../../src/common/middlewares/basicAuthMiddleware";
 import {CONFIG} from "../../src/common/utils/config";
-import {PostDbModel} from "../../src/components/posts/models/PostDbModel";
 import {PostApiRequestModel, PostApiResponseModel} from "../../src/components/posts/models/PostApiModel";
 import {UserApiRequestModel} from "../../src/components/users/models/UserApiModel";
 

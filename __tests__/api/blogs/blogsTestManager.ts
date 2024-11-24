@@ -1,7 +1,8 @@
 import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {authHeader, baseUrl, blogApiRequestModel} from "../constants";
-import {BlogApiRequestModel, BlogApiResponseModel} from "../../../src/components/blogs/models/BlogApiModel";
+import { BlogApiResponseModel } from "../../../src/components/blogs/models/BlogApiResponseModel";
+import { BlogApiRequestModel } from "../../../src/components/blogs/models/BlogApiRequestModel";
 
 export const blogsTestManager = {
     async createBlog(blogInput?: BlogApiRequestModel): Promise<BlogApiResponseModel> {

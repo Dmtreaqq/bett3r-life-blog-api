@@ -4,15 +4,12 @@ import {
   RequestWbody,
   RequestWparams,
   RequestWparamsAndBody,
-  RequestWparamsAndQuery,
-  RequestWquery,
+  RequestWparamsAndQuery, RequestWquery
 } from "../../common/utils/types";
-import {
-  BlogApiRequestModel,
-  BlogApiResponseModel,
-  BlogCreatePostApiRequestModel,
-  BlogsApiResponseModel,
-} from "./models/BlogApiModel";
+import { BlogApiRequestModel } from "./models/BlogApiRequestModel";
+import { BlogApiResponseModel } from "./models/BlogApiResponseModel";
+import { BlogsPaginatorApiResponseModel } from "./models/BlogsPaginatorApiResponseModel";
+import { BlogCreatePostApiRequestModel } from "./models/BlogApiModel";
 import { blogsService } from "./blogsService";
 import createEditBlogValidationChains from "./middlewares/createEditBlogValidationChains";
 import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
@@ -20,7 +17,6 @@ import blogUrlParamValidation from "./middlewares/blogUrlParamValidation";
 import { BlogQueryGetModel } from "./models/BlogQueryGetModel";
 import blogQueryValidation from "./middlewares/blogQueryValidation";
 import { PostApiResponseModel, PostsApiResponseModel } from "../posts/models/PostApiModel";
-
 import createPostForBlogValidationChains from "./middlewares/createPostForBlogValidationChains";
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
@@ -29,10 +25,10 @@ import { postsQueryRepository } from "../posts/repositories/postsQueryRepository
 
 export const blogsRouter = Router();
 
-const blogsController = {
+class BlogsController {
   async getBlogs(
     req: RequestWquery<BlogQueryGetModel>,
-    res: Response<BlogsApiResponseModel>,
+    res: Response<BlogsPaginatorApiResponseModel>,
     next: NextFunction,
   ) {
     try {
@@ -50,7 +46,8 @@ const blogsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
+
   async getBlogById(
     req: RequestWparams<{ id: string }>,
     res: Response<BlogApiResponseModel>,
@@ -67,7 +64,7 @@ const blogsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async createBlog(
     req: RequestWbody<BlogApiRequestModel>,
@@ -86,7 +83,8 @@ const blogsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
+
   async editBlog(
     req: RequestWparamsAndBody<{ id: string }, BlogApiRequestModel>,
     res: Response,
@@ -105,7 +103,8 @@ const blogsController = {
     } catch (error: unknown) {
       return next(error);
     }
-  },
+  }
+
   async deleteBlogById(
     req: RequestWparams<{ id: string }>,
     res: Response,
@@ -122,7 +121,8 @@ const blogsController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
+
   async createPostForBlog(
     req: RequestWparamsAndBody<{ id: string }, BlogCreatePostApiRequestModel>,
     res: Response<PostApiResponseModel>,
@@ -145,7 +145,8 @@ const blogsController = {
     } catch (err: unknown) {
       return next(err);
     }
-  },
+  }
+
   async getPostsForBlog(
     req: RequestWparamsAndQuery<{ id: string }, PostQueryGetModel>,
     res: Response<PostsApiResponseModel>,
@@ -171,8 +172,10 @@ const blogsController = {
     } catch (err) {
       return next(err);
     }
-  },
-};
+  }
+}
+
+const blogsController = new BlogsController();
 
 blogsRouter.get("/", ...blogQueryValidation, blogsController.getBlogs);
 blogsRouter.get("/:id", ...blogUrlParamValidation, blogsController.getBlogById);

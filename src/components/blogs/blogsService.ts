@@ -1,4 +1,4 @@
-import { BlogApiRequestModel } from "./models/BlogApiModel";
+import { BlogApiRequestModel } from "./models/BlogApiRequestModel";
 import { blogsRepository } from "./repositories/blogsRepository";
 import { BlogDbModel } from "./models/BlogDbModel";
 import { PostApiRequestModel } from "../posts/models/PostApiModel";
@@ -7,18 +7,18 @@ import { ApiError } from "../../common/utils/ApiError";
 import { PostDbModel } from "../posts/models/PostDbModel";
 import { postsRepository } from "../posts/repositories/postsRepository";
 
-export const blogsService = {
+class BlogsService {
   async createBlog(blogInput: BlogApiRequestModel): Promise<string> {
-    const blog: BlogDbModel = {
-      name: blogInput.name,
-      description: blogInput.description,
-      websiteUrl: blogInput.websiteUrl,
-      createdAt: new Date().toISOString(),
-      isMembership: false,
-    };
+    const blog = new BlogDbModel(
+      blogInput.name,
+      blogInput.description,
+      blogInput.websiteUrl,
+      false,
+      new Date().toISOString(),
+    );
 
     return blogsRepository.createBlog(blog);
-  },
+  }
 
   async updateBlogById(blogId: string, blog: BlogApiRequestModel): Promise<boolean> {
     const foundBlog = await blogsRepository.getBlogById(blogId);
@@ -29,7 +29,7 @@ export const blogsService = {
     const newBlog = { ...foundBlog, ...blog, id: blogId };
 
     return blogsRepository.updateBlogById(newBlog);
-  },
+  }
 
   async createPostForBlog(postInput: PostApiRequestModel): Promise<string> {
     const blog = await blogsRepository.getBlogById(postInput.blogId);
@@ -48,7 +48,7 @@ export const blogsService = {
     };
 
     return postsRepository.createPost(post);
-  },
+  }
 
   async deleteBlogById(blogId: string): Promise<boolean> {
     const foundBlog = await blogsRepository.getBlogById(blogId);
@@ -57,5 +57,7 @@ export const blogsService = {
     }
 
     return blogsRepository.deleteBlogById(blogId);
-  },
-};
+  }
+}
+
+export const blogsService = new BlogsService();

@@ -1,6 +1,6 @@
 import express from "express";
 import { CONFIG } from "./common/utils/config";
-import { testingController } from "./components/tests/testingController";
+import { testingRouter } from "./components/tests/testingController";
 import { postsRouter } from "./components/posts/postsController";
 import { blogsRouter } from "./components/blogs/blogsController";
 import { usersRouter } from "./components/users/usersController";
@@ -28,7 +28,7 @@ const securityPathUrl = baseUrl + CONFIG.PATH.SECURITY;
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(testingPathUrl, testingController);
+app.use(testingPathUrl, testingRouter);
 app.use(postsPathUrl, postsRouter);
 app.use(blogsPathsUrl, blogsRouter);
 app.use(blogsUsersUrl, usersRouter);

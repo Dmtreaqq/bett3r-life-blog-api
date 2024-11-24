@@ -2,7 +2,6 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
-import {AuthLoginApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {UserDbModel} from "../../../src/components/users/models/UserDbModel";
 import {ObjectId} from "mongodb";
@@ -11,6 +10,7 @@ import {authService} from "../../../src/components/auth/authService";
 import { sub } from 'date-fns';
 import mongoose from "mongoose";
 import { randomUUID } from "node:crypto";
+import { AuthLoginApiRequestModel } from "../../../src/components/auth/models/AuthLoginApiRequestModel";
 
 const baseUrl = '/api';
 

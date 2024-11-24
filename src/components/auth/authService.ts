@@ -1,4 +1,3 @@
-import { AuthLoginApiRequestModel, AuthRegisterApiRequestModel } from "./models/AuthApiModel";
 import { usersRepository } from "../users/repositories/usersRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
@@ -9,8 +8,10 @@ import { randomUUID } from "node:crypto";
 import { add } from "date-fns/add";
 import { emailService } from "../../common/services/emailService";
 import { sessionsService } from "../security/sessions/sessionsService";
+import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
+import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
 
-export const authService = {
+class AuthService {
   async login(
     authInput: AuthLoginApiRequestModel,
   ): Promise<{ accessToken: string; refreshToken: string }> {
@@ -41,7 +42,7 @@ export const authService = {
       accessToken,
       refreshToken,
     };
-  },
+  }
 
   async logout(refreshToken: string): Promise<boolean> {
     const session = await sessionsService.isActiveSession(refreshToken);
@@ -53,7 +54,7 @@ export const authService = {
     const result = await sessionsService.deleteSession(refreshToken, session.deviceId);
 
     return result;
-  },
+  }
 
   async register(registerModel: AuthRegisterApiRequestModel): Promise<string> {
     const userByEmail = await usersRepository.getUserByEmail(registerModel.email);
@@ -92,7 +93,7 @@ export const authService = {
       );
 
     return userId;
-  },
+  }
 
   async confirmRegister(code: string): Promise<boolean | null> {
     const user = await usersRepository.getUserByConfirmationCode(code);
@@ -111,7 +112,7 @@ export const authService = {
     const result = await usersRepository.updateConfirmation(user._id.toString());
 
     return result;
-  },
+  }
 
   async resendConfirmationEmail(email: string) {
     const user = await usersRepository.getUserByEmail(email);
@@ -130,7 +131,7 @@ export const authService = {
       .catch((err) => console.log(`Email wasn't sent for ${email}. Err: ${err}`));
 
     return code;
-  },
+  }
 
   async refreshToken(
     oldRefreshToken: string,
@@ -156,7 +157,7 @@ export const authService = {
       accessToken,
       refreshToken,
     };
-  },
+  }
 
   async recoverPassword(email: string) {
     const user = await usersRepository.getUserByEmail(email);
@@ -168,7 +169,7 @@ export const authService = {
     const code = await usersRepository.updateCodeForPassword(user._id.toString());
 
     emailService.sendRecoverPasswordEmail(code, email).catch((err) => console.log(err));
-  },
+  }
 
   async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {
     const userByCode = await usersRepository.getUserByRecoveryCode(recoveryCode);
@@ -183,5 +184,7 @@ export const authService = {
 
     const newHashedPassword = await hashService.hashPassword(newPassword);
     await usersRepository.updatePassword(userByCode._id.toString(), newHashedPassword);
-  },
-};
+  }
+}
+
+export const authService = new AuthService();

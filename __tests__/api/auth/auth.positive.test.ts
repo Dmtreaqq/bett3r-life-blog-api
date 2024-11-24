@@ -2,7 +2,6 @@ import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
-import {AuthLoginApiRequestModel, AuthRegisterApiRequestModel} from "../../../src/components/auth/models/AuthApiModel";
 import {usersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {hashSync} from "bcrypt";
 import {jwtAuthService} from "../../../src/common/services/jwtService";
@@ -14,6 +13,8 @@ import {usersTestManager} from "../users/usersTestManager";
 import {authTestManager} from "./authTestManager";
 import mongoose from "mongoose";
 import { UserApiResponseModel } from "../../../src/components/users/models/UserApiResponseModel";
+import { AuthLoginApiRequestModel } from "../../../src/components/auth/models/AuthLoginApiRequestModel";
+import { AuthRegisterApiRequestModel } from "../../../src/components/auth/models/AuthRegisterApiRequestModel";
 
 const baseUrl = '/api';
 

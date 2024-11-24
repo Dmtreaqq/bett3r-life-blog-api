@@ -1,10 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { HTTP_STATUSES, RequestWbody } from "../../common/utils/types";
-import {
-  AuthLoginApiRequestModel,
-  AuthMeInfoResponseModel,
-  AuthRegisterApiRequestModel,
-} from "./models/AuthApiModel";
+import { AuthMeInfoResponseModel } from "./models/AuthMeInfoResponseModel";
 import { authService } from "./authService";
 import authValidation from "./middlewares/authValidation";
 import { jwtAuthMiddleware } from "../../common/middlewares/jwtAuthMiddleware";
@@ -15,10 +11,12 @@ import emailResendValidation from "./middlewares/emailResendValidation";
 import { sessionsService } from "../security/sessions/sessionsService";
 import { cookieValidationMiddleware } from "../../common/middlewares/cookieValidationMiddleware";
 import confirmPasswordValidation from "./middlewares/confirmPasswordValidation";
+import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
+import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
 
 export const authRouter = Router();
 
-const authController = {
+class AuthController {
   async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
     try {
       const { accessToken, refreshToken } = await authService.login(req.body);
@@ -35,7 +33,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async getCurrentUserInfo(
     req: Request,
@@ -54,7 +52,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async register(
     req: RequestWbody<AuthRegisterApiRequestModel>,
@@ -68,7 +66,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async confirmRegister(
     req: RequestWbody<{ code: string }>,
@@ -82,7 +80,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async resendConfirmationEmail(
     req: RequestWbody<{ email: string }>,
@@ -96,7 +94,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
@@ -113,7 +111,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
@@ -130,7 +128,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async recoverPassword(
     req: RequestWbody<{ email: string }>,
@@ -146,7 +144,7 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
+  }
 
   async confirmPasswordRecovery(
     req: RequestWbody<{ newPassword: string; recoveryCode: string }>,
@@ -161,8 +159,10 @@ const authController = {
     } catch (err) {
       return next(err);
     }
-  },
-};
+  }
+}
+
+const authController = new AuthController();
 
 authRouter.post("/login", ...authValidation, authController.login);
 authRouter.post("/logout", cookieValidationMiddleware, authController.logout);

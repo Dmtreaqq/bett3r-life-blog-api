@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { jwtAuthService } from "../services/jwtService";
+import { JwtAuthService } from "../services/jwtService";
 import { ApiError } from "../utils/ApiError";
 import { HTTP_STATUSES } from "../utils/types";
 
@@ -15,6 +15,7 @@ export const cookieValidationMiddleware = (
   }
 
   try {
+    const jwtAuthService = new JwtAuthService();
     jwtAuthService.verifyToken(refreshToken);
   } catch (err) {
     console.log("Cookie not valid: ", err);

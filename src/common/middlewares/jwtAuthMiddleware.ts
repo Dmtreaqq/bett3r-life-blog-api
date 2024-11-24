@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { jwtAuthService } from "../services/jwtService";
+import { JwtAuthService } from "../services/jwtService";
 import { HTTP_STATUSES } from "../utils/types";
 import { JwtPayload } from "jsonwebtoken";
 
@@ -11,6 +11,7 @@ export const jwtAuthMiddleware = (req: Request, res: Response, next: NextFunctio
   const token = authHeader.split(" ")[1];
 
   try {
+    const jwtAuthService = new JwtAuthService();
     const result = jwtAuthService.verifyToken(token) as JwtPayload;
     req.user = result as { id: string };
   } catch (err) {

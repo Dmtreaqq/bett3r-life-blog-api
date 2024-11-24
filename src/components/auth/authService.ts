@@ -2,7 +2,7 @@ import { UsersRepository } from "../users/repositories/usersRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
 import { hashService } from "../../common/services/hashService";
-import { jwtAuthService } from "../../common/services/jwtService";
+import { JwtAuthService } from "../../common/services/jwtService";
 import { UserDbModel } from "../users/models/UserDbModel";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns/add";
@@ -13,8 +13,10 @@ import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestMode
 
 export class AuthService {
   private usersRepository: UsersRepository;
+  private jwtAuthService: JwtAuthService;
   constructor() {
     this.usersRepository = new UsersRepository();
+    this.jwtAuthService = new JwtAuthService();
   }
 
   async login(
@@ -33,11 +35,11 @@ export class AuthService {
       throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401);
     }
 
-    const accessToken = jwtAuthService.createAccessToken({
+    const accessToken = this.jwtAuthService.createAccessToken({
       id: user._id.toString(),
     });
 
-    const refreshToken = jwtAuthService.createRefreshToken({
+    const refreshToken = this.jwtAuthService.createRefreshToken({
       id: user._id.toString(),
       deviceId: randomUUID(),
       versionId: randomUUID() + 1,
@@ -141,7 +143,7 @@ export class AuthService {
   async refreshToken(
     oldRefreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const oldRefreshTokenValid = jwtAuthService.decodeToken(oldRefreshToken);
+    const oldRefreshTokenValid = this.jwtAuthService.decodeToken(oldRefreshToken);
     const { id, deviceId } = oldRefreshTokenValid;
     const isSessionActive = await sessionsService.isActiveSession(oldRefreshToken);
 
@@ -149,8 +151,8 @@ export class AuthService {
       throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401);
     }
 
-    const accessToken = jwtAuthService.createAccessToken({ id });
-    const refreshToken = jwtAuthService.createRefreshToken({
+    const accessToken = this.jwtAuthService.createAccessToken({ id });
+    const refreshToken = this.jwtAuthService.createRefreshToken({
       id,
       deviceId,
       versionId: randomUUID() + 1,

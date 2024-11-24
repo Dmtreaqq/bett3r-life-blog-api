@@ -1,12 +1,17 @@
 import { sessionsRepository } from "./sessionsRepository";
 import { SessionDbModel } from "./models/SessionDbModel";
-import { jwtAuthService } from "../../../common/services/jwtService";
+import { JwtAuthService } from "../../../common/services/jwtService";
 import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
 
 class SessionsService {
+  private jwtAuthService: JwtAuthService;
+  constructor() {
+    this.jwtAuthService = new JwtAuthService();
+  }
+
   async createSession(refreshToken: string, ip = "Unknown IP", userAgent = "Unknown Device") {
-    const token = jwtAuthService.decodeToken(refreshToken);
+    const token = this.jwtAuthService.decodeToken(refreshToken);
 
     const session = new SessionDbModel(
       token.id,
@@ -21,14 +26,14 @@ class SessionsService {
   }
 
   async updateSession(oldRefreshToken: string, newRefreshToken: string) {
-    const { iat: oldIat, deviceId } = jwtAuthService.decodeToken(oldRefreshToken);
-    const { iat: newIat, exp } = jwtAuthService.decodeToken(newRefreshToken);
+    const { iat: oldIat, deviceId } = this.jwtAuthService.decodeToken(oldRefreshToken);
+    const { iat: newIat, exp } = this.jwtAuthService.decodeToken(newRefreshToken);
 
     await sessionsRepository.updateSession(deviceId, oldIat!, newIat!, exp!);
   }
 
   async isActiveSession(refreshToken: string): Promise<SessionDbModel | null> {
-    const { iat, deviceId } = jwtAuthService.decodeToken(refreshToken);
+    const { iat, deviceId } = this.jwtAuthService.decodeToken(refreshToken);
     const result = await sessionsRepository.isActiveSession(deviceId, iat!);
     if (!result) {
       return null;
@@ -38,7 +43,7 @@ class SessionsService {
   }
 
   async deleteSession(refreshToken: string, passedDeviceId: string) {
-    const { id: userId } = jwtAuthService.decodeToken(refreshToken);
+    const { id: userId } = this.jwtAuthService.decodeToken(refreshToken);
 
     const userSession = await sessionsRepository.getSessionByDeviceId(passedDeviceId);
 
@@ -56,7 +61,7 @@ class SessionsService {
   }
 
   async deleteOtherSessions(refreshToken: string) {
-    const { id: userId, deviceId: currentDeviceId } = jwtAuthService.decodeToken(refreshToken);
+    const { id: userId, deviceId: currentDeviceId } = this.jwtAuthService.decodeToken(refreshToken);
 
     await sessionsRepository.deleteOtherSessions(userId, currentDeviceId);
   }

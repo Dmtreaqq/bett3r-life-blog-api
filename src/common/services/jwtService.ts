@@ -3,14 +3,14 @@ import { CONFIG } from "../utils/config";
 
 const secret = CONFIG.JWT_SECRET;
 
-export const jwtAuthService = {
+export class JwtAuthService {
   createAccessToken(user: { id: string }): string {
     const token = jwt.sign(user, String(secret), {
       expiresIn: "10s",
     });
 
     return token;
-  },
+  }
 
   createRefreshToken(user: { id: string; deviceId: string; versionId: string }): string {
     const token = jwt.sign(user, String(secret), {
@@ -18,13 +18,13 @@ export const jwtAuthService = {
     });
 
     return token;
-  },
+  }
 
   verifyToken(token: string): string | JwtPayload {
     const result = jwt.verify(token, String(secret));
 
     return result;
-  },
+  }
 
   decodeToken(token: string): JwtPayload {
     const decoded = jwt.decode(token, { json: true });
@@ -34,5 +34,5 @@ export const jwtAuthService = {
     }
 
     return decoded;
-  },
-};
+  }
+}

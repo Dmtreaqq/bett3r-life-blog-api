@@ -4,7 +4,7 @@ import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
 import {UsersRepository} from "../../../src/components/users/repositories/usersRepository";
 import {hashSync} from "bcrypt";
-import {jwtAuthService} from "../../../src/common/services/jwtService";
+import {JwtAuthService} from "../../../src/common/services/jwtService";
 import {ObjectId} from "mongodb";
 import {AuthService} from "../../../src/components/auth/authService";
 import {emailService} from "../../../src/common/services/emailService";
@@ -36,11 +36,13 @@ const userDbModel = {
 describe('/auth Positive', () => {
     let authService: AuthService;
     let usersRepository: UsersRepository;
+    let jwtAuthService: JwtAuthService;
     beforeAll(async () => {
         await runDB()
 
         authService = new AuthService()
         usersRepository = new UsersRepository();
+        jwtAuthService = new JwtAuthService();
     })
 
     afterAll(async () => {

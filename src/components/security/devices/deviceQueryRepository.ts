@@ -1,11 +1,16 @@
 import { DeviceApiResponseModel } from "./models/DeviceApiResponseModel";
-import { jwtAuthService } from "../../../common/services/jwtService";
+import { JwtAuthService } from "../../../common/services/jwtService";
 import { JwtPayload } from "jsonwebtoken";
 import { SessionModelClass } from "../../../common/db/models/Session";
 
 class DeviceQueryRepository {
+  private jwtAuthService: JwtAuthService;
+  constructor() {
+    this.jwtAuthService = new JwtAuthService();
+  }
+
   async getAllDevices(refreshToken: string): Promise<DeviceApiResponseModel[]> {
-    const { id } = jwtAuthService.decodeToken(refreshToken) as JwtPayload;
+    const { id } = this.jwtAuthService.decodeToken(refreshToken) as JwtPayload;
 
     const sessions = await SessionModelClass.find({ userId: id }).lean();
 

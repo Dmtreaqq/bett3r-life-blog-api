@@ -1,7 +1,7 @@
 import { ApiLogDbModel } from "./models/ApiLogDbModel";
 import { ApiLogClassModel } from "../../../common/db/models/ApiLog";
 
-class ApiLogsRepository {
+export class ApiLogsRepository {
   async createApiLog(log: ApiLogDbModel) {
     await ApiLogClassModel.create(log);
   }
@@ -20,5 +20,3 @@ class ApiLogsRepository {
     await ApiLogClassModel.deleteMany({});
   }
 }
-
-export const apiLogsRepository = new ApiLogsRepository();

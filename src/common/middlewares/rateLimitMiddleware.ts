@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { apiLogsService } from "../../components/security/apiLogs/apiLogsService";
+import { ApiLogsService } from "../../components/security/apiLogs/apiLogsService";
 import { HTTP_STATUSES } from "../utils/types";
 
 export const rateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const { ip, originalUrl } = req;
+  const apiLogsService = new ApiLogsService();
 
   await apiLogsService.createApiLog(ip as string, originalUrl);
 

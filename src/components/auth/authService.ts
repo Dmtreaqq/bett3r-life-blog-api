@@ -7,16 +7,18 @@ import { UserDbModel } from "../users/models/UserDbModel";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns/add";
 import { emailService } from "../../common/services/emailService";
-import { sessionsService } from "../security/sessions/sessionsService";
+import { SessionsService } from "../security/sessions/sessionsService";
 import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
 import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
 
 export class AuthService {
   private usersRepository: UsersRepository;
   private jwtAuthService: JwtAuthService;
+  private sessionsService: SessionsService;
   constructor() {
     this.usersRepository = new UsersRepository();
     this.jwtAuthService = new JwtAuthService();
+    this.sessionsService = new SessionsService();
   }
 
   async login(
@@ -52,13 +54,13 @@ export class AuthService {
   }
 
   async logout(refreshToken: string): Promise<boolean> {
-    const session = await sessionsService.isActiveSession(refreshToken);
+    const session = await this.sessionsService.isActiveSession(refreshToken);
 
     if (!session) {
       throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401);
     }
 
-    const result = await sessionsService.deleteSession(refreshToken, session.deviceId);
+    const result = await this.sessionsService.deleteSession(refreshToken, session.deviceId);
 
     return result;
   }
@@ -145,7 +147,7 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const oldRefreshTokenValid = this.jwtAuthService.decodeToken(oldRefreshToken);
     const { id, deviceId } = oldRefreshTokenValid;
-    const isSessionActive = await sessionsService.isActiveSession(oldRefreshToken);
+    const isSessionActive = await this.sessionsService.isActiveSession(oldRefreshToken);
 
     if (!isSessionActive) {
       throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401);
@@ -158,7 +160,7 @@ export class AuthService {
       versionId: randomUUID() + 1,
     });
 
-    await sessionsService.updateSession(oldRefreshToken, refreshToken);
+    await this.sessionsService.updateSession(oldRefreshToken, refreshToken);
 
     return {
       accessToken,

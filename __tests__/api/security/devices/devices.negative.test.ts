@@ -5,7 +5,7 @@ import {runDB} from "../../../../src/common/db/db";
 import {authTestManager} from "../../auth/authTestManager";
 import {usersTestManager} from "../../users/usersTestManager";
 import {HTTP_STATUSES} from "../../../../src/common/utils/types";
-import { deviceQueryRepository } from "../../../../src/components/security/devices/deviceQueryRepository";
+import { DeviceQueryRepository } from "../../../../src/components/security/devices/deviceQueryRepository";
 import mongoose from "mongoose";
 import { UserApiResponseModel } from "../../../../src/components/users/models/UserApiResponseModel";
 
@@ -13,10 +13,13 @@ describe('/security/devices Positive', () => {
     let cookieRefreshToken1: string
     let cookieRefreshToken2: string
     let user2: UserApiResponseModel
+    let deviceQueryRepository: DeviceQueryRepository;
 
     beforeAll(async () => {
         await runDB()
         await request.del(baseUrl + CONFIG.PATH.TESTING + '/all-data')
+
+        deviceQueryRepository = new DeviceQueryRepository();
 
         const user1 = await usersTestManager.createUser()
         const tokens1 = await authTestManager

@@ -8,7 +8,7 @@ import { UsersQueryRepository } from "../users/repositories/usersQueryRepository
 import confirmCodeValidation from "./middlewares/confirmCodeValidation";
 import registerValidation from "./middlewares/registerValidation";
 import emailResendValidation from "./middlewares/emailResendValidation";
-import { sessionsService } from "../security/sessions/sessionsService";
+import { SessionsService } from "../security/sessions/sessionsService";
 import { cookieValidationMiddleware } from "../../common/middlewares/cookieValidationMiddleware";
 import confirmPasswordValidation from "./middlewares/confirmPasswordValidation";
 import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
@@ -19,15 +19,17 @@ export const authRouter = Router();
 class AuthController {
   private authService: AuthService;
   private usersQueryRepository: UsersQueryRepository;
+  private sessionsService: SessionsService;
   constructor() {
     this.authService = new AuthService();
     this.usersQueryRepository = new UsersQueryRepository();
+    this.sessionsService = new SessionsService();
   }
 
   async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
     try {
       const { accessToken, refreshToken } = await this.authService.login(req.body);
-      await sessionsService.createSession(refreshToken, req.ip, req.header("user-agent"));
+      await this.sessionsService.createSession(refreshToken, req.ip, req.header("user-agent"));
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,

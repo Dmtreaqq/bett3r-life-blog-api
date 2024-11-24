@@ -1,7 +1,7 @@
 import { SessionDbModel } from "./models/SessionDbModel";
 import { SessionModelClass } from "../../../common/db/models/Session";
 
-class SessionsRepository {
+export class SessionsRepository {
   async createSession(sessionDbModel: SessionDbModel) {
     await SessionModelClass.create(sessionDbModel);
   }
@@ -56,5 +56,3 @@ class SessionsRepository {
     });
   }
 }
-
-export const sessionsRepository = new SessionsRepository();

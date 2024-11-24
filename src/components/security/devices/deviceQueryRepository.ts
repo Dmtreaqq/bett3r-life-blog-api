@@ -3,7 +3,7 @@ import { JwtAuthService } from "../../../common/services/jwtService";
 import { JwtPayload } from "jsonwebtoken";
 import { SessionModelClass } from "../../../common/db/models/Session";
 
-class DeviceQueryRepository {
+export class DeviceQueryRepository {
   private jwtAuthService: JwtAuthService;
   constructor() {
     this.jwtAuthService = new JwtAuthService();
@@ -24,5 +24,3 @@ class DeviceQueryRepository {
     return responseSessions;
   }
 }
-
-export const deviceQueryRepository = new DeviceQueryRepository();

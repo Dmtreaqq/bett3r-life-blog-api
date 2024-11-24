@@ -2,7 +2,7 @@ import { CONFIG } from "../../../src/common/utils/config";
 import { HTTP_STATUSES } from "../../../src/common/utils/types";
 import { BlogCreatePostApiRequestModel } from "../../../src/components/blogs/models/BlogCreatePostApiRequestModel";
 import { fromUTF8ToBase64 } from "../../../src/common/middlewares/basicAuthMiddleware";
-import { blogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
+import { BlogsRepository } from "../../../src/components/blogs/repositories/blogsRepository";
 import { runDB } from "../../../src/common/db/db";
 import { request } from "../test-helper";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
@@ -29,6 +29,7 @@ const postInput: BlogCreatePostApiRequestModel = {
 describe('/blogs negative tests', () => {
     let createdBlogId: string;
     const randomId = new ObjectId()
+    const blogsRepository = new BlogsRepository();
 
     beforeAll(async () => {
         await runDB()

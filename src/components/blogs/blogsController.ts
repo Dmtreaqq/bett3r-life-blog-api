@@ -11,7 +11,7 @@ import { BlogApiRequestModel } from "./models/BlogApiRequestModel";
 import { BlogApiResponseModel } from "./models/BlogApiResponseModel";
 import { BlogsPaginatorApiResponseModel } from "./models/BlogsPaginatorApiResponseModel";
 import { BlogCreatePostApiRequestModel } from "./models/BlogCreatePostApiRequestModel";
-import { blogsService } from "./blogsService";
+import { BlogsService } from "./blogsService";
 import createEditBlogValidationChains from "./middlewares/createEditBlogValidationChains";
 import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";
 import blogUrlParamValidation from "./middlewares/blogUrlParamValidation";
@@ -20,7 +20,7 @@ import blogQueryValidation from "./middlewares/blogQueryValidation";
 import createPostForBlogValidationChains from "./middlewares/createPostForBlogValidationChains";
 import { PostQueryGetModel } from "../posts/models/PostQueryGetModel";
 import postQueryValidation from "../posts/middlewares/postQueryValidation";
-import { blogsQueryRepository } from "./repositories/blogsQueryRepository";
+import { BlogsQueryRepository } from "./repositories/blogsQueryRepository";
 import { postsQueryRepository } from "../posts/repositories/postsQueryRepository";
 import { PostApiResponseModel } from "../posts/models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "../posts/models/PostsPaginatorApiResponseModel";
@@ -28,6 +28,13 @@ import { PostsPaginatorApiResponseModel } from "../posts/models/PostsPaginatorAp
 export const blogsRouter = Router();
 
 class BlogsController {
+  private blogsService: BlogsService;
+  private blogsQueryRepository: BlogsQueryRepository;
+  constructor() {
+    this.blogsService = new BlogsService();
+    this.blogsQueryRepository = new BlogsQueryRepository();
+  }
+
   async getBlogs(
     req: RequestWquery<BlogQueryGetModel>,
     res: Response<BlogsPaginatorApiResponseModel>,
@@ -36,7 +43,7 @@ class BlogsController {
     try {
       const { searchNameTerm, pageSize, pageNumber, sortBy, sortDirection } = req.query;
 
-      const response = await blogsQueryRepository.getBlogs(
+      const response = await this.blogsQueryRepository.getBlogs(
         searchNameTerm,
         Number(pageSize) || 10,
         Number(pageNumber) || 1,
@@ -56,7 +63,7 @@ class BlogsController {
     next: NextFunction,
   ) {
     try {
-      const foundBlog = await blogsQueryRepository.getBlogById(req.params.id);
+      const foundBlog = await this.blogsQueryRepository.getBlogById(req.params.id);
 
       if (!foundBlog) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -74,8 +81,8 @@ class BlogsController {
     next: NextFunction,
   ) {
     try {
-      const blogId = await blogsService.createBlog(req.body);
-      const blog = await blogsQueryRepository.getBlogById(blogId);
+      const blogId = await this.blogsService.createBlog(req.body);
+      const blog = await this.blogsQueryRepository.getBlogById(blogId);
 
       if (!blog) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -95,7 +102,7 @@ class BlogsController {
     try {
       const { id: blogId } = req.params;
 
-      const result = await blogsService.updateBlogById(blogId, req.body);
+      const result = await this.blogsService.updateBlogById(blogId, req.body);
 
       if (!result) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -113,7 +120,7 @@ class BlogsController {
     next: NextFunction,
   ) {
     try {
-      const result = await blogsService.deleteBlogById(req.params.id);
+      const result = await this.blogsService.deleteBlogById(req.params.id);
 
       if (!result) {
         res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -133,7 +140,7 @@ class BlogsController {
     try {
       const { id: blogId } = req.params;
 
-      const postId = await blogsService.createPostForBlog({
+      const postId = await this.blogsService.createPostForBlog({
         ...req.body,
         blogId: blogId,
       });
@@ -157,7 +164,7 @@ class BlogsController {
     try {
       const { pageNumber, pageSize, sortDirection, sortBy } = req.query;
 
-      const blog = await blogsQueryRepository.getBlogById(req.params.id);
+      const blog = await this.blogsQueryRepository.getBlogById(req.params.id);
       if (!blog) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
       }
@@ -179,37 +186,41 @@ class BlogsController {
 
 const blogsController = new BlogsController();
 
-blogsRouter.get("/", ...blogQueryValidation, blogsController.getBlogs);
-blogsRouter.get("/:id", ...blogUrlParamValidation, blogsController.getBlogById);
+blogsRouter.get("/", ...blogQueryValidation, blogsController.getBlogs.bind(blogsController));
+blogsRouter.get(
+  "/:id",
+  ...blogUrlParamValidation,
+  blogsController.getBlogById.bind(blogsController),
+);
 blogsRouter.get(
   "/:id/posts",
   ...blogUrlParamValidation,
   ...postQueryValidation,
-  blogsController.getPostsForBlog,
+  blogsController.getPostsForBlog.bind(blogsController),
 );
 blogsRouter.post(
   "/",
   authMiddleware,
   ...createEditBlogValidationChains,
-  blogsController.createBlog,
+  blogsController.createBlog.bind(blogsController),
 );
 blogsRouter.post(
   "/:id/posts",
   authMiddleware,
   ...blogUrlParamValidation,
   ...createPostForBlogValidationChains,
-  blogsController.createPostForBlog,
+  blogsController.createPostForBlog.bind(blogsController),
 );
 blogsRouter.put(
   "/:id",
   authMiddleware,
   ...blogUrlParamValidation,
   ...createEditBlogValidationChains,
-  blogsController.editBlog,
+  blogsController.editBlog.bind(blogsController),
 );
 blogsRouter.delete(
   "/:id",
   authMiddleware,
   ...blogUrlParamValidation,
-  blogsController.deleteBlogById,
+  blogsController.deleteBlogById.bind(blogsController),
 );

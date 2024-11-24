@@ -1,14 +1,19 @@
 import { postsRepository } from "./repositories/postsRepository";
 import { PostDbModel } from "./models/PostDbModel";
-import { blogsRepository } from "../blogs/repositories/blogsRepository";
+import { BlogsRepository } from "../blogs/repositories/blogsRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
 import { PostApiResponseModel } from "./models/PostApiResponseModel";
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
 
 class PostsService {
+  private blogsRepository: BlogsRepository;
+  constructor() {
+    this.blogsRepository = new BlogsRepository();
+  }
+
   async createPost(postInput: PostApiRequestModel): Promise<string> {
-    const blog = await blogsRepository.getBlogById(postInput.blogId);
+    const blog = await this.blogsRepository.getBlogById(postInput.blogId);
 
     if (!blog) {
       throw new ApiError(

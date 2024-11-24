@@ -5,7 +5,7 @@ import { BlogDbModel } from "../models/BlogDbModel";
 import { ObjectId, WithId } from "mongodb";
 import { RootFilterQuery } from "mongoose";
 
-class BlogsQueryRepository {
+export class BlogsQueryRepository {
   async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
     const blog = await BlogModelClass.findOne({ _id: new ObjectId(id) });
 
@@ -66,5 +66,3 @@ class BlogsQueryRepository {
     };
   }
 }
-
-export const blogsQueryRepository = new BlogsQueryRepository();

@@ -3,7 +3,7 @@ import { BlogApiResponseModel } from "../models/BlogApiResponseModel";
 import { BlogDbModel } from "../models/BlogDbModel";
 import { ObjectId } from "mongodb";
 
-class BlogsRepository {
+export class BlogsRepository {
   async createBlog(blogInput: BlogDbModel): Promise<string> {
     const result = await BlogModelClass.create(blogInput);
 
@@ -50,5 +50,3 @@ class BlogsRepository {
     return blog;
   }
 }
-
-export const blogsRepository = new BlogsRepository();

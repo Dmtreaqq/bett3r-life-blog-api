@@ -1,6 +1,8 @@
 import { body } from "express-validator";
 import { validationMiddleware } from "../../../common/middlewares/validationMiddleware";
-import { blogsQueryRepository } from "../../blogs/repositories/blogsQueryRepository";
+import { BlogsQueryRepository } from "../../blogs/repositories/blogsQueryRepository";
+
+const blogsQueryRepository = new BlogsQueryRepository();
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 

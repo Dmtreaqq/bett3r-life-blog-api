@@ -1,8 +1,8 @@
-export type UserQueryGetModel = {
-  pageSize: string;
-  pageNumber: string;
-  sortBy: string;
-  sortDirection: "asc" | "desc";
-  searchLoginTerm: string;
-  searchEmailTerm: string;
-};
+export class UserQueryGetModel {
+  pageSize?: string;
+  pageNumber?: string;
+  sortBy?: string;
+  sortDirection?: "asc" | "desc";
+  searchLoginTerm?: string;
+  searchEmailTerm?: string;
+}

@@ -4,12 +4,13 @@ import {
   RequestWbody,
   RequestWparams,
   RequestWparamsAndBody,
-  RequestWparamsAndQuery, RequestWquery
+  RequestWparamsAndQuery,
+  RequestWquery,
 } from "../../common/utils/types";
 import { BlogApiRequestModel } from "./models/BlogApiRequestModel";
 import { BlogApiResponseModel } from "./models/BlogApiResponseModel";
 import { BlogsPaginatorApiResponseModel } from "./models/BlogsPaginatorApiResponseModel";
-import { BlogCreatePostApiRequestModel } from "./models/BlogApiModel";
+import { BlogCreatePostApiRequestModel } from "./models/BlogCreatePostApiRequestModel";
 import { blogsService } from "./blogsService";
 import createEditBlogValidationChains from "./middlewares/createEditBlogValidationChains";
 import { authMiddleware } from "../../common/middlewares/basicAuthMiddleware";

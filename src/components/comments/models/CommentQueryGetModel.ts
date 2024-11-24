@@ -1,6 +1,6 @@
-export type CommentQueryGetModel = {
-  pageSize: string;
-  pageNumber: string;
-  sortBy: string;
-  sortDirection: "asc" | "desc";
-};
+export class CommentQueryGetModel {
+  pageSize?: string;
+  pageNumber?: string;
+  sortBy?: string;
+  sortDirection?: "asc" | "desc";
+}

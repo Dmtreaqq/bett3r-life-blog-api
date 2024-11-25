@@ -9,21 +9,7 @@ const transport = nodemailer.createTransport({
   },
 });
 
-export const emailService = {
-  // async sendEmail(htmlContent: string, toEmail: string) {
-  //     console.log("LOG FROM REAL EMAIL SERVICE")
-  //
-  //     const info = await transport.sendMail({
-  //         from: '"Dmytro Pavlov 👻" <dmytro@modern-med.space>',
-  //         to: toEmail,
-  //         subject: "Hello ✔",
-  //         text: "Hello world?",
-  //         html: htmlContent,
-  //     });
-  //
-  //     console.log('Email sent with info: ', info);
-  // },
-
+export class EmailService {
   async sendConfirmationEmail(confirmCode: string, toEmail: string) {
     const content = `
         <h1>Thank for your registration</h1>
@@ -41,7 +27,7 @@ export const emailService = {
     });
 
     console.log("Email sent with info: ", info);
-  },
+  }
 
   async sendRecoverPasswordEmail(recoveryCode: string, toEmail: string) {
     const content = `
@@ -60,5 +46,5 @@ export const emailService = {
     });
 
     console.log("Email sent with info: ", info);
-  },
-};
+  }
+}

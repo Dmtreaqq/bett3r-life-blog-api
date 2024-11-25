@@ -1,12 +1,12 @@
 import { UsersRepository } from "../users/repositories/usersRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
-import { hashService } from "../../common/services/hashService";
+import { HashService } from "../../common/services/hashService";
 import { JwtAuthService } from "../../common/services/jwtService";
 import { UserDbModel } from "../users/models/UserDbModel";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns/add";
-import { emailService } from "../../common/services/emailService";
+import { EmailService } from "../../common/services/emailService";
 import { SessionsService } from "../security/sessions/sessionsService";
 import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
 import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
@@ -15,10 +15,15 @@ export class AuthService {
   private usersRepository: UsersRepository;
   private jwtAuthService: JwtAuthService;
   private sessionsService: SessionsService;
+  private hashService: HashService;
+  private emailService: EmailService;
+
   constructor() {
     this.usersRepository = new UsersRepository();
     this.jwtAuthService = new JwtAuthService();
     this.sessionsService = new SessionsService();
+    this.hashService = new HashService();
+    this.emailService = new EmailService();
   }
 
   async login(
@@ -32,7 +37,10 @@ export class AuthService {
       throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401);
     }
 
-    const isValidPassword = await hashService.checkPassword(authInput.password, user.password);
+    const isValidPassword = await this.hashService.checkPassword(
+      authInput.password,
+      user.password,
+    );
     if (!isValidPassword) {
       throw new ApiError(HTTP_STATUSES.NOT_AUTHORIZED_401);
     }
@@ -73,7 +81,7 @@ export class AuthService {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "User already exists", "email");
     }
 
-    const hashedPassword = await hashService.hashPassword(registerModel.password);
+    const hashedPassword = await this.hashService.hashPassword(registerModel.password);
 
     const confirmationCode = randomUUID();
     const recoveryCode = randomUUID();
@@ -95,7 +103,7 @@ export class AuthService {
 
     const userId = await this.usersRepository.createUser(userDbModel);
 
-    emailService
+    this.emailService
       .sendConfirmationEmail(confirmationCode, registerModel.email)
       .catch((err) =>
         console.log(`Email wasn't sent for ${registerModel.email}. Err: ${err}`),
@@ -135,7 +143,7 @@ export class AuthService {
 
     const code = await this.usersRepository.updateCodeForEmail(user._id.toString());
 
-    emailService
+    this.emailService
       .sendConfirmationEmail(code, email)
       .catch((err) => console.log(`Email wasn't sent for ${email}. Err: ${err}`));
 
@@ -177,7 +185,7 @@ export class AuthService {
 
     const code = await this.usersRepository.updateCodeForPassword(user._id.toString());
 
-    emailService.sendRecoverPasswordEmail(code, email).catch((err) => console.log(err));
+    this.emailService.sendRecoverPasswordEmail(code, email).catch((err) => console.log(err));
   }
 
   async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {
@@ -191,7 +199,7 @@ export class AuthService {
       throw new ApiError(HTTP_STATUSES.BAD_REQUEST_400, "expired", "recoveryCode");
     }
 
-    const newHashedPassword = await hashService.hashPassword(newPassword);
+    const newHashedPassword = await this.hashService.hashPassword(newPassword);
     await this.usersRepository.updatePassword(userByCode._id.toString(), newHashedPassword);
   }
 }

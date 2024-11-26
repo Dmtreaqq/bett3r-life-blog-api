@@ -15,7 +15,7 @@ export const runDB = async () => {
   // }
 
   try {
-    await mongoose.connect(CONFIG.LOCAL_MONGO_URL, { dbName: "better-life-blog" });
+    await mongoose.connect(CONFIG.MONGO_URL, { dbName: "better-life-blog" });
     console.log("Connected via mongoose successfully");
   } catch (error) {
     console.error("MongoDB/Mongoose connection error: ", error);

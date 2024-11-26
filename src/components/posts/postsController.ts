@@ -153,9 +153,12 @@ class PostsController {
         req.user.id,
       );
 
+      const authHeader = req.headers.authorization;
+      if (!authHeader) return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401);
+      const token = authHeader.split(" ")[1];
       const comment = await this.commentsQueryRepository.getCommentById(
         commentId,
-        req.cookies.refreshToken,
+        token,
       );
 
       if (!comment) {

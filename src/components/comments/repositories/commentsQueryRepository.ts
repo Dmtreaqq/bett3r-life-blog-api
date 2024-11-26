@@ -18,7 +18,7 @@ export class CommentsQueryRepository {
 
   async getCommentById(
     commentId: string,
-    refreshToken: string,
+    accessToken: string,
   ): Promise<CommentApiResponseModel | null> {
     const comment = await CommentClassModel.findOne({
       _id: new ObjectId(commentId),
@@ -28,7 +28,7 @@ export class CommentsQueryRepository {
 
     let commentReaction: CommentReaction | undefined;
     try {
-      const { id: userId } = this.jwtAuthService.decodeToken(refreshToken) as JwtPayload;
+      const { id: userId } = this.jwtAuthService.decodeToken(accessToken) as JwtPayload;
       const user = await UserModelClass.findOne({
         _id: new ObjectId(userId),
       });

@@ -18,6 +18,7 @@ export class CommentsQueryService {
     pageSize = 10,
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
+    accessToken?: string,
   ): Promise<CommentsPaginatorApiResponseModel> {
     const post = await this.postsQueryRepository.getPostById(postId);
     if (!post) {
@@ -30,6 +31,7 @@ export class CommentsQueryService {
       pageSize,
       sortBy,
       sortDirection,
+      accessToken,
     );
   }
 }

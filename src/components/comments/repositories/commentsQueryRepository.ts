@@ -61,6 +61,7 @@ export class CommentsQueryRepository {
     pageSize = 10,
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
+    accessToken?: string,
   ): Promise<CommentsPaginatorApiResponseModel> {
     const filter: RootFilterQuery<CommentDbModel> = {};
 
@@ -74,20 +75,21 @@ export class CommentsQueryRepository {
       .limit(pageSize)
       .lean();
 
-    // let commentReactions: CommentReaction[] | undefined;
-    // try {
-    //   const { id: userId } = this.jwtAuthService.decodeToken(accessToken) as JwtPayload;
-    //   const user = await UserModelClass.findOne({
-    //     _id: new ObjectId(userId),
-    //   });
-    //   commentReaction = user!.commentReactions.find(
-    //     (comm) => comm.commentId === comment._id.toString(),
-    //   );
-    // } catch {
-    //   commentReaction = undefined;
-    // }
+    let commentReactions: CommentReaction[];
+    try {
+      const { id: userId } = this.jwtAuthService.decodeToken(accessToken!) as JwtPayload;
+      const user = await UserModelClass.findOne({
+        _id: new ObjectId(userId),
+      });
+      commentReactions = user!.commentReactions;
+    } catch {
+      commentReactions = [];
+    }
 
     const postsResponse = comments.map((comment) => {
+      const status = commentReactions.find(
+        (comm) => comm.commentId === comment._id.toString(),
+      )?.status;
       return {
         id: comment._id.toString(),
         content: comment.content,
@@ -99,7 +101,7 @@ export class CommentsQueryRepository {
         likesInfo: {
           likesCount: comment.likesInfo.likesCount,
           dislikesCount: comment.likesInfo.dislikesCount,
-          myStatus: "None",
+          myStatus: status ?? "None",
         },
       };
     });

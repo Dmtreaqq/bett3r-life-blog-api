@@ -177,12 +177,16 @@ class PostsController {
       const { pageNumber, pageSize, sortBy, sortDirection } = req.query;
       const { id: postId } = req.params;
 
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.split(" ")[1];
+
       const comments = await this.commentsQueryService.getCommentsForPost(
         postId,
         Number(pageNumber) || 1,
         Number(pageSize) || 10,
         sortBy,
         sortDirection,
+        token,
       );
 
       return res.json(comments);

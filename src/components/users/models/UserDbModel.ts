@@ -1,5 +1,5 @@
 export enum ReactionEnum {
-  Like = "like",
+  Like = "Like",
   Dislike = "Dislike",
 }
 

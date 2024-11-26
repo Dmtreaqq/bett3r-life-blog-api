@@ -4,7 +4,7 @@ import {HTTP_STATUSES} from "../../../src/common/utils/types";
 import {runDB} from "../../../src/common/db/db";
 import {ObjectId} from "mongodb";
 import {CommentDbModel} from "../../../src/components/comments/models/CommentDbModel";
-import {commentsRepository} from "../../../src/components/comments/repositories/commentsRepository";
+import {CommentsRepository} from "../../../src/components/comments/repositories/commentsRepository";
 import {PostsRepository} from "../../../src/components/posts/repositories/postsRepository";
 import {PostDbModel} from "../../../src/components/posts/models/PostDbModel";
 import {commentsTestManager} from "./commentsTestManager";
@@ -46,17 +46,24 @@ const commentEntity: CommentApiResponseModel = {
         userId: '123',
         userLogin: 'userLogin'
     },
-    createdAt: ""
+    createdAt: "",
+    likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: "None"
+    },
 }
 
 
 describe('/comments Positive', () => {
     let postsRepository: PostsRepository;
+    let commentsRepository: CommentsRepository;
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
         postsRepository = new PostsRepository();
+        commentsRepository = new CommentsRepository();
     })
 
     afterAll(async () => {
@@ -101,6 +108,7 @@ describe('/comments Positive', () => {
 
         const response = await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
@@ -112,12 +120,14 @@ describe('/comments Positive', () => {
     })
 
     it('should GET comments successfully', async () => {
+        const token = await authTestManager.getTokenOfLoggedInUser()
         const postId = await postsRepository.createPost({...postInput, _id: new ObjectId()} as any)
         await commentsRepository.createComment({ ...commentDbModel, postId, _id: new ObjectId()} as any)
         await commentsRepository.createComment({ ...commentDbModel, postId, _id: new ObjectId()} as any)
 
         const response = await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/${postId}${CONFIG.PATH.COMMENTS}`)
+            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response.body).toEqual({
@@ -142,6 +152,7 @@ describe('/comments Positive', () => {
 
         await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.NOT_FOUND_404);
     })
 
@@ -161,6 +172,7 @@ describe('/comments Positive', () => {
 
         const getResponse = await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse.body).toEqual({
@@ -168,6 +180,225 @@ describe('/comments Positive', () => {
             id: expect.any(String),
             createdAt: expect.any(String),
             content: "This comment was changed because of test scenario"
+        })
+    })
+
+    it('should PUT LIKE and DISLIKE comment successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
+
+        await request
+            .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+            .set('authorization', `Bearer ${token}`)
+            .send({
+                likeStatus: "Like"
+            })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse1 = await request
+            .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .set('authorization', `Bearer ${token}`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 1,
+                dislikesCount: 0,
+                myStatus: "Like"
+            }
+        })
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "Dislike"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse2 = await request
+          .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${token}`)
+          .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse2.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 0,
+                dislikesCount: 1,
+                myStatus: "Dislike"
+            }
+        })
+    })
+
+    it('should PUT None comment successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "None"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204, {});
+
+        const getResponse1 = await request
+          .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${token}`)
+          .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: "None"
+            }
+        })
+    })
+
+    it('should PUT None after Dislike comment successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "Dislike"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse1 = await request
+          .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${token}`)
+          .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 0,
+                dislikesCount: 1,
+                myStatus: "Dislike"
+            }
+        })
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "None"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse2 = await request
+          .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${token}`)
+          .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse2.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: "None"
+            }
+        })
+    })
+
+    it('should PUT Like comment first user, but receive second user successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
+        const secondUserToken = await authTestManager.getTokenOfLoggedInUser(
+            "somelogin",
+            "somenewemail@gmail.com"
+        )
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204, {});
+
+        const getResponse1 = await request
+          .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${secondUserToken}`)
+          .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 1,
+                dislikesCount: 0,
+                myStatus: "None"
+            }
+        })
+    })
+
+    it('should PUT Like comment first user, but second user Dislike successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
+        const secondUserToken = await authTestManager.getTokenOfLoggedInUser(
+          "somelogin",
+          "somenewemail@gmail.com"
+        )
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${secondUserToken}`)
+          .send({
+              likeStatus: "Dislike"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse1 = await request
+          .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${secondUserToken}`)
+          .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            ...comment,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            likesInfo: {
+                likesCount: 1,
+                dislikesCount: 1,
+                myStatus: "Dislike"
+            }
         })
     })
 })

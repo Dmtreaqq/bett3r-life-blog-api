@@ -19,7 +19,12 @@ const commentEntity: CommentApiResponseModel = {
         userId: '123',
         userLogin: 'userLogin'
     },
-    createdAt: ""
+    createdAt: "",
+    likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: "None"
+    }
 }
 
 
@@ -65,6 +70,7 @@ describe('/comments Negative', () => {
 
         const response = await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/invalid${CONFIG.PATH.COMMENTS}`)
+            .set('authorization', `Bearer ${token}`)
             .send({
                 content: commentEntity.content
             })
@@ -81,8 +87,11 @@ describe('/comments Negative', () => {
     })
 
     it('should return 400 while GET a comment with invalid commentId', async () => {
+        const token = await authTestManager.getTokenOfLoggedInUser()
+
         const response = await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/invalidCommentId`)
+            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
         expect(response.body).toEqual({
@@ -194,5 +203,27 @@ describe('/comments Negative', () => {
             .expect(HTTP_STATUSES.FORBIDDEN_403);
 
         expect(response.body).toEqual({})
+    })
+
+    it('should PUT None comment successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const token = await authTestManager.getTokenOfLoggedInUser();
+        const comment = await commentsTestManager.createComment(post.id, token)
+
+        const response = await request
+          .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+          .set('authorization', `Bearer ${token}`)
+          .send({
+              likeStatus: "ERROR"
+          })
+          .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+        expect(response.body).toEqual({
+            errorsMessages: [{
+                field: "likeStatus",
+                message: "Needs to be None, Like, Dislike"
+            }]
+        })
     })
 })

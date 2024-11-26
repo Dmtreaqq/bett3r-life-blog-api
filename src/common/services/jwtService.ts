@@ -6,7 +6,7 @@ const secret = CONFIG.JWT_SECRET;
 export class JwtAuthService {
   createAccessToken(user: { id: string }): string {
     const token = jwt.sign(user, String(secret), {
-      expiresIn: "10s",
+      expiresIn: "7m",
     });
 
     return token;
@@ -14,7 +14,7 @@ export class JwtAuthService {
 
   createRefreshToken(user: { id: string; deviceId: string; versionId: string }): string {
     const token = jwt.sign(user, String(secret), {
-      expiresIn: "20s",
+      expiresIn: "30m",
     });
 
     return token;

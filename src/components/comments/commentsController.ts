@@ -11,6 +11,8 @@ import createEditCommentValidation from "./middlewares/createEditCommentValidati
 import commentUrlParamValidation from "./middlewares/commentUrlParamValidation";
 import { CommentApiRequestModel } from "./models/CommentApiRequestModel";
 import { CommentApiResponseModel } from "./models/CommentApiResponseModel";
+import likeCommentValidation from "./middlewares/likeCommentValidation";
+import { CommentLikeApiRequestModel } from "./models/CommentLikeApiRequestModel";
 
 export const commentsRouter = Router();
 
@@ -28,7 +30,10 @@ class CommentsController {
     next: NextFunction,
   ) {
     try {
-      const comment = await this.commentsQueryRepository.getCommentById(req.params.id);
+      const comment = await this.commentsQueryRepository.getCommentById(
+        req.params.id,
+        req.user.id,
+      );
 
       if (!comment) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -79,12 +84,37 @@ class CommentsController {
       return next(err);
     }
   }
+
+  async updateLikeStatus(
+    req: RequestWparamsAndBody<{ id: string }, CommentLikeApiRequestModel>,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      await this.commentsService.updateLikesOnCommentById(
+        req.params.id,
+        req.body.likeStatus,
+        req.user.id,
+      );
+
+      // if (!result) {
+      //   return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+      // }
+
+      // TODO: update user stats
+
+      return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    } catch (err) {
+      return next(err);
+    }
+  }
 }
 
 const commentsController = new CommentsController();
 
 commentsRouter.get(
   "/:id",
+  jwtAuthMiddleware,
   ...commentUrlParamValidation,
   commentsController.getCommentById.bind(commentsController),
 );
@@ -100,4 +130,11 @@ commentsRouter.put(
   ...commentUrlParamValidation,
   ...createEditCommentValidation,
   commentsController.updateCommentById.bind(commentsController),
+);
+commentsRouter.put(
+  "/:id/like-status",
+  jwtAuthMiddleware,
+  ...commentUrlParamValidation,
+  ...likeCommentValidation,
+  commentsController.updateLikeStatus.bind(commentsController),
 );

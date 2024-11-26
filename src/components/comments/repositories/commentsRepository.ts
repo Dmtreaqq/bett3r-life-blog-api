@@ -1,8 +1,9 @@
 import { CommentDbModel } from "../models/CommentDbModel";
 import { ObjectId } from "mongodb";
 import { CommentClassModel } from "../../../common/db/models/Comment";
+import { ReactionEnum } from "../../users/models/UserDbModel";
 
-class CommentsRepository {
+export class CommentsRepository {
   async getCommentById(commentId: string): Promise<CommentDbModel | null> {
     return CommentClassModel.findOne({ _id: new ObjectId(commentId) });
   }
@@ -35,6 +36,34 @@ class CommentsRepository {
 
     return result.modifiedCount === 1;
   }
-}
 
-export const commentsRepository = new CommentsRepository();
+  async updateLikesOnCommentById(commentId: string, likes: number, op: ReactionEnum) {
+    const num = op === ReactionEnum.Like ? 1 : -1;
+
+    const result = await CommentClassModel.updateOne(
+      {
+        _id: new ObjectId(commentId),
+      },
+      {
+        "likesInfo.likesCount": likes + num,
+      },
+    );
+
+    return result.modifiedCount === 1;
+  }
+
+  async updateDislikesOnCommentById(commentId: string, dislikes: number, op: ReactionEnum) {
+    const num = op === ReactionEnum.Dislike ? 1 : -1;
+
+    const result = await CommentClassModel.updateOne(
+      {
+        _id: new ObjectId(commentId),
+      },
+      {
+        "likesInfo.dislikesCount": dislikes + num,
+      },
+    );
+
+    return result.modifiedCount === 1;
+  }
+}

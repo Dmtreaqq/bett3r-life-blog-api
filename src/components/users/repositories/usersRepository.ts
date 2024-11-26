@@ -92,4 +92,37 @@ export class UsersRepository {
   async getUserByLogin(login: string) {
     return UserModelClass.findOne({ login });
   }
+
+  async createLikesInfo(userId: string, commentId: string, status: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $push: {
+          commentReactions: { commentId, status },
+        },
+      },
+    );
+  }
+
+  async updateLikesInfo(userId: string, commentId: string, status: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId), "commentReactions.commentId": commentId },
+      {
+        $set: {
+          "commentReactions.$.status": status,
+        },
+      },
+    );
+  }
+
+  async deleteCommentReaction(userId: string, commentId: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $pull: {
+          commentReactions: { commentId },
+        },
+      },
+    );
+  }
 }

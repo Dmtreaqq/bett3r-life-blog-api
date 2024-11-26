@@ -153,7 +153,10 @@ class PostsController {
         req.user.id,
       );
 
-      const comment = await this.commentsQueryRepository.getCommentById(commentId);
+      const comment = await this.commentsQueryRepository.getCommentById(
+        commentId,
+        req.user.id,
+      );
 
       if (!comment) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -201,6 +204,7 @@ postsRouter.post(
 );
 postsRouter.get(
   "/:id/comments",
+  jwtAuthMiddleware,
   ...postUrlParamValidation,
   postsController.getCommentsForPost.bind(postsController),
 );

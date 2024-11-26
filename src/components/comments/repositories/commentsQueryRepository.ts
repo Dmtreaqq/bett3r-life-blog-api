@@ -4,14 +4,24 @@ import { CommentDbModel } from "../models/CommentDbModel";
 import { CommentClassModel } from "../../../common/db/models/Comment";
 import { RootFilterQuery } from "mongoose";
 import { CommentApiResponseModel } from "../models/CommentApiResponseModel";
+import { UserModelClass } from "../../../common/db/models/User";
 
 export class CommentsQueryRepository {
-  async getCommentById(commentId: string): Promise<CommentApiResponseModel | null> {
+  async getCommentById(
+    commentId: string,
+    userId: string,
+  ): Promise<CommentApiResponseModel | null> {
     const comment = await CommentClassModel.findOne({
       _id: new ObjectId(commentId),
     });
 
     if (!comment) return null;
+
+    const user = await UserModelClass.findOne({
+      _id: new ObjectId(userId),
+    });
+
+    const status = user!.commentReactions.find((comment) => comment.commentId === commentId);
 
     return {
       id: comment._id.toString(),
@@ -21,6 +31,11 @@ export class CommentsQueryRepository {
         userLogin: comment.commentatorInfo.userLogin,
       },
       createdAt: comment.createdAt,
+      likesInfo: {
+        likesCount: comment.likesInfo.likesCount,
+        dislikesCount: comment.likesInfo.dislikesCount,
+        myStatus: status?.status ?? "None",
+      },
     };
   }
 
@@ -52,6 +67,11 @@ export class CommentsQueryRepository {
           userLogin: comment.commentatorInfo.userLogin,
         },
         createdAt: comment.createdAt,
+        likesInfo: {
+          likesCount: comment.likesInfo.likesCount,
+          dislikesCount: comment.likesInfo.dislikesCount,
+          myStatus: "None",
+        },
       };
     });
     const commentsCount = await this.getCommentsCount(postId);

@@ -30,10 +30,11 @@ class CommentsController {
     next: NextFunction,
   ) {
     try {
-      const comment = await this.commentsQueryRepository.getCommentById(
-        req.params.id,
-        req.cookies.refreshToken,
-      );
+      const authHeader = req.headers.authorization;
+
+      const token = authHeader?.split(" ")[1];
+
+      const comment = await this.commentsQueryRepository.getCommentById(req.params.id, token);
 
       if (!comment) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);

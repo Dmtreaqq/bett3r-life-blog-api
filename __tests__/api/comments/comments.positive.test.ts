@@ -207,6 +207,7 @@ describe('/comments Positive', () => {
 
         const getResponse1 = await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+            .set('authorization', `Bearer ${token}`)
             .set('Cookie', [refreshToken])
             .expect(HTTP_STATUSES.OK_200);
 
@@ -232,6 +233,7 @@ describe('/comments Positive', () => {
         const getResponse2 = await request
           .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
           .set('Cookie', [refreshToken])
+          .set('authorization', `Bearer ${token}`)
           .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse2.body).toEqual({
@@ -295,6 +297,7 @@ describe('/comments Positive', () => {
 
         const getResponse1 = await request
           .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+          .set('authorization', `Bearer ${token}`)
           .set('Cookie', [refreshToken])
           .expect(HTTP_STATUSES.OK_200);
 
@@ -320,6 +323,7 @@ describe('/comments Positive', () => {
         const getResponse2 = await request
           .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
           .set('Cookie', [refreshToken])
+          .set('authorization', `Bearer ${token}`)
           .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse2.body).toEqual({
@@ -406,6 +410,7 @@ describe('/comments Positive', () => {
         const getResponse1 = await request
           .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
           .set('Cookie', [refreshTokenSecond])
+          .set('authorization', `Bearer ${accessTokenSecond}`)
           .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse1.body).toEqual({

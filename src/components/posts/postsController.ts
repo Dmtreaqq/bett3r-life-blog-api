@@ -156,10 +156,7 @@ class PostsController {
       const authHeader = req.headers.authorization;
       if (!authHeader) return res.sendStatus(HTTP_STATUSES.NOT_AUTHORIZED_401);
       const token = authHeader.split(" ")[1];
-      const comment = await this.commentsQueryRepository.getCommentById(
-        commentId,
-        token,
-      );
+      const comment = await this.commentsQueryRepository.getCommentById(commentId, token);
 
       if (!comment) {
         return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
@@ -181,7 +178,6 @@ class PostsController {
       const { id: postId } = req.params;
 
       const comments = await this.commentsQueryService.getCommentsForPost(
-        // TODO - спросить норм ли тут ??
         postId,
         Number(pageNumber) || 1,
         Number(pageSize) || 10,

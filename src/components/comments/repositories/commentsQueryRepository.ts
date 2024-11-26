@@ -18,7 +18,7 @@ export class CommentsQueryRepository {
 
   async getCommentById(
     commentId: string,
-    accessToken: string,
+    accessToken?: string,
   ): Promise<CommentApiResponseModel | null> {
     const comment = await CommentClassModel.findOne({
       _id: new ObjectId(commentId),
@@ -28,7 +28,7 @@ export class CommentsQueryRepository {
 
     let commentReaction: CommentReaction | undefined;
     try {
-      const { id: userId } = this.jwtAuthService.decodeToken(accessToken) as JwtPayload;
+      const { id: userId } = this.jwtAuthService.decodeToken(accessToken!) as JwtPayload;
       const user = await UserModelClass.findOne({
         _id: new ObjectId(userId),
       });
@@ -73,6 +73,19 @@ export class CommentsQueryRepository {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .lean();
+
+    // let commentReactions: CommentReaction[] | undefined;
+    // try {
+    //   const { id: userId } = this.jwtAuthService.decodeToken(accessToken) as JwtPayload;
+    //   const user = await UserModelClass.findOne({
+    //     _id: new ObjectId(userId),
+    //   });
+    //   commentReaction = user!.commentReactions.find(
+    //     (comm) => comm.commentId === comment._id.toString(),
+    //   );
+    // } catch {
+    //   commentReaction = undefined;
+    // }
 
     const postsResponse = comments.map((comment) => {
       return {

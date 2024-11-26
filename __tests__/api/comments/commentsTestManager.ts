@@ -1,11 +1,7 @@
 import {request} from "../test-helper";
 import {CONFIG} from "../../../src/common/utils/config";
 import {baseUrl, testCommentary} from "../constants";
-import {postsTestManager} from "../posts/postsTestManager";
-import {usersTestManager} from "../users/usersTestManager";
-import {authTestManager} from "../auth/authTestManager";
 
-import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
 import { CommentApiResponseModel } from "../../../src/components/comments/models/CommentApiResponseModel";
 
 export const commentsTestManager = {

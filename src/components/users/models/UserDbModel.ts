@@ -1,3 +1,13 @@
+export enum ReactionEnum {
+  Like = "like",
+  Dislike = "Dislike",
+}
+
+export class CommentReaction {
+  commentId!: string;
+  status!: ReactionEnum;
+}
+
 export class UserDbModel {
   constructor(
     public login: string,
@@ -9,5 +19,6 @@ export class UserDbModel {
     public recoveryCode: string,
     public recoveryCodeExpirationDate: string,
     public expirationDate: string,
+    public commentReactions: CommentReaction[],
   ) {}
 }

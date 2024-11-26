@@ -16,6 +16,10 @@ const commentSchema = new mongoose.Schema<CommentDbModel>({
       required: true,
     },
   },
+  likesInfo: {
+    likesCount: { type: Number, default: 0 },
+    dislikesCount: { type: Number, default: 0 },
+  },
   createdAt: { type: String, required: true },
 });
 

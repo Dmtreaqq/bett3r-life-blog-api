@@ -28,7 +28,8 @@ const userDbModel: UserDbModel = {
     expirationDate: '1',
     confirmationCode: '1',
     recoveryCode: randomUUID(),
-    recoveryCodeExpirationDate: ''
+    recoveryCodeExpirationDate: '',
+    commentReactions: []
 }
 
 describe('/auth negative', () => {

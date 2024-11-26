@@ -25,7 +25,8 @@ const userDbModel: UserDbModel = {
     confirmationCode: '1',
     recoveryCodeExpirationDate: '',
     recoveryCode: '',
-    expirationDate: '2'
+    expirationDate: '2',
+    commentReactions: []
 }
 
 

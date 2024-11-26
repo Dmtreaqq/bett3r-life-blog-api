@@ -35,6 +35,7 @@ export class CommentsService {
       },
       new Date().toISOString(),
       postId,
+      { likesCount: 0, dislikesCount: 0 },
     );
 
     return commentsRepository.createComment(commentDbModel);

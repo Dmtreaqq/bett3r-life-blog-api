@@ -39,6 +39,7 @@ export class UsersService {
       "",
       randomUUID(),
       "",
+      [],
     );
 
     return this.usersRepository.createUser(userDbModel);

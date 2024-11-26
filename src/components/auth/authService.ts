@@ -99,6 +99,7 @@ export class AuthService {
       add(new Date(), {
         minutes: 2,
       }).toISOString(),
+      [],
     );
 
     const userId = await this.usersRepository.createUser(userDbModel);

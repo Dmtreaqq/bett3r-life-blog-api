@@ -28,7 +28,8 @@ const userDbModel: UserDbModel = {
     expirationDate: '1',
     recoveryCode: '',
     recoveryCodeExpirationDate: '',
-    confirmationCode: 'a'
+    confirmationCode: 'a',
+    commentReactions: []
 }
 
 const userEntity: UserApiResponseModel = {

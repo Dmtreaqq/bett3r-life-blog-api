@@ -32,7 +32,11 @@ const commentDbModel: CommentDbModel = {
         userLogin: 'userLogin'
     },
     createdAt: new Date().toISOString(),
-    postId: "1"
+    postId: "1",
+    likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0
+    }
 }
 
 const commentEntity: CommentApiResponseModel = {

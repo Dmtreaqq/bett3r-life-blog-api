@@ -70,7 +70,6 @@ describe('/comments Negative', () => {
 
         const response = await request
             .get(`${baseUrl}${CONFIG.PATH.POSTS}/invalid${CONFIG.PATH.COMMENTS}`)
-            .set('authorization', `Bearer ${token}`)
             .send({
                 content: commentEntity.content
             })
@@ -91,7 +90,6 @@ describe('/comments Negative', () => {
 
         const response = await request
             .get(baseUrl + CONFIG.PATH.COMMENTS + `/invalidCommentId`)
-            .set('authorization', `Bearer ${token}`)
             .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
         expect(response.body).toEqual({

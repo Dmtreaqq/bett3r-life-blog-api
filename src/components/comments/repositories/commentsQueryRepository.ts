@@ -5,11 +5,20 @@ import { CommentClassModel } from "../../../common/db/models/Comment";
 import { RootFilterQuery } from "mongoose";
 import { CommentApiResponseModel } from "../models/CommentApiResponseModel";
 import { UserModelClass } from "../../../common/db/models/User";
+import { JwtPayload } from "jsonwebtoken";
+import { JwtAuthService } from "../../../common/services/jwtService";
+import { CommentReaction } from "../../users/models/UserDbModel";
 
 export class CommentsQueryRepository {
+  private jwtAuthService: JwtAuthService;
+
+  constructor() {
+    this.jwtAuthService = new JwtAuthService();
+  }
+
   async getCommentById(
     commentId: string,
-    userId: string,
+    refreshToken: string,
   ): Promise<CommentApiResponseModel | null> {
     const comment = await CommentClassModel.findOne({
       _id: new ObjectId(commentId),
@@ -17,11 +26,18 @@ export class CommentsQueryRepository {
 
     if (!comment) return null;
 
-    const user = await UserModelClass.findOne({
-      _id: new ObjectId(userId),
-    });
-
-    const status = user!.commentReactions.find((comment) => comment.commentId === commentId);
+    let commentReaction: CommentReaction | undefined;
+    try {
+      const { id: userId } = this.jwtAuthService.decodeToken(refreshToken) as JwtPayload;
+      const user = await UserModelClass.findOne({
+        _id: new ObjectId(userId),
+      });
+      commentReaction = user!.commentReactions.find(
+        (comment) => comment.commentId === commentId,
+      );
+    } catch {
+      commentReaction = undefined;
+    }
 
     return {
       id: comment._id.toString(),
@@ -34,7 +50,7 @@ export class CommentsQueryRepository {
       likesInfo: {
         likesCount: comment.likesInfo.likesCount,
         dislikesCount: comment.likesInfo.dislikesCount,
-        myStatus: status?.status ?? "None",
+        myStatus: commentReaction?.status ?? "None",
       },
     };
   }

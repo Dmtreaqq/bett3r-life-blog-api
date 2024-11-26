@@ -155,7 +155,7 @@ class PostsController {
 
       const comment = await this.commentsQueryRepository.getCommentById(
         commentId,
-        req.user.id,
+        req.cookies.refreshToken,
       );
 
       if (!comment) {
@@ -204,7 +204,6 @@ postsRouter.post(
 );
 postsRouter.get(
   "/:id/comments",
-  jwtAuthMiddleware,
   ...postUrlParamValidation,
   postsController.getCommentsForPost.bind(postsController),
 );

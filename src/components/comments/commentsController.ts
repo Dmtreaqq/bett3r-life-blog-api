@@ -32,7 +32,7 @@ class CommentsController {
     try {
       const comment = await this.commentsQueryRepository.getCommentById(
         req.params.id,
-        req.user.id,
+        req.cookies.refreshToken,
       );
 
       if (!comment) {
@@ -114,7 +114,6 @@ const commentsController = new CommentsController();
 
 commentsRouter.get(
   "/:id",
-  jwtAuthMiddleware,
   ...commentUrlParamValidation,
   commentsController.getCommentById.bind(commentsController),
 );

@@ -69,7 +69,7 @@ export class PostsQueryRepository {
           likesCount: post.likesInfo.likesCount,
           dislikesCount: post.likesInfo.dislikesCount,
           myStatus: status ?? "None",
-          newestLikes: post.likesDetails.slice(-3),
+          newestLikes: post.likesDetails.slice(-3).reverse(),
         },
       };
     });
@@ -123,7 +123,7 @@ export class PostsQueryRepository {
         likesCount: postDbModel.likesInfo.likesCount,
         dislikesCount: postDbModel.likesInfo.dislikesCount,
         myStatus: postReaction?.status ?? "None",
-        newestLikes: postDbModel.likesDetails.slice(-3),
+        newestLikes: postDbModel.likesDetails.slice(-3).reverse(),
       },
     };
   }

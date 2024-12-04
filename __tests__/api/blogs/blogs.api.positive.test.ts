@@ -51,6 +51,12 @@ const postEntity: PostApiResponseModel = {
     blogId: '???',
     blogName: blogEntity.name,
     createdAt: "2024-09-25T13:47:55.913Z",
+    extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: "None",
+        newestLikes: []
+    }
 }
 
 describe('/blogs positive', () => {

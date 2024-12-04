@@ -8,6 +8,11 @@ export class CommentReaction {
   status!: ReactionEnum;
 }
 
+export class PostReaction {
+  postId!: string;
+  status!: ReactionEnum;
+}
+
 export class UserDbModel {
   constructor(
     public login: string,
@@ -20,5 +25,6 @@ export class UserDbModel {
     public recoveryCodeExpirationDate: string,
     public expirationDate: string,
     public commentReactions: CommentReaction[],
+    public postReactions: PostReaction[],
   ) {}
 }

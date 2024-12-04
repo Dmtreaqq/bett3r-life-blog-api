@@ -2,6 +2,7 @@ import { PostDbModel } from "../models/PostDbModel";
 import { ObjectId } from "mongodb";
 import { PostModelClass } from "../../../common/db/models/Post";
 import { PostApiResponseModel } from "../models/PostApiResponseModel";
+import { ReactionEnum } from "../../users/models/UserDbModel";
 
 export class PostsRepository {
   async createPost(postInput: PostDbModel): Promise<string> {
@@ -52,6 +53,61 @@ export class PostsRepository {
       blogId: post.blogId,
       blogName: post.blogName,
       createdAt: post.createdAt,
+      likesInfo: post.likesInfo,
+      likesDetails: post.likesDetails,
     };
+  }
+
+  async updateLikesOnPostById(
+    postId: string,
+    likes: number,
+    op: ReactionEnum,
+    userId: string,
+    login: string,
+  ) {
+    const num = op === ReactionEnum.Like ? 1 : -1;
+
+    const result = await PostModelClass.updateOne(
+      {
+        _id: new ObjectId(postId),
+      },
+      {
+        "likesInfo.likesCount": likes + num,
+        ...(op === ReactionEnum.Like
+          ? {
+              $push: {
+                likesDetails: {
+                  userId,
+                  login,
+                  addedAt: new Date().toISOString(),
+                },
+              },
+            }
+          : {
+              $pull: {
+                likesDetails: {
+                  userId,
+                },
+              },
+            }),
+      },
+    );
+
+    return result.modifiedCount === 1;
+  }
+
+  async updateDislikesOnPostById(postId: string, dislikes: number, op: ReactionEnum) {
+    const num = op === ReactionEnum.Dislike ? 1 : -1;
+
+    const result = await PostModelClass.updateOne(
+      {
+        _id: new ObjectId(postId),
+      },
+      {
+        "likesInfo.dislikesCount": dislikes + num,
+      },
+    );
+
+    return result.modifiedCount === 1;
   }
 }

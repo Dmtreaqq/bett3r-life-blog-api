@@ -104,6 +104,17 @@ export class UsersRepository {
     );
   }
 
+  async createPostLikesInfo(userId: string, postId: string, status: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $push: {
+          postReactions: { postId, status },
+        },
+      },
+    );
+  }
+
   async updateLikesInfo(userId: string, commentId: string, status: string) {
     await UserModelClass.updateOne(
       { _id: new ObjectId(userId), "commentReactions.commentId": commentId },
@@ -115,12 +126,34 @@ export class UsersRepository {
     );
   }
 
+  async updatePostLikesInfo(userId: string, postId: string, status: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId), "postReactions.postId": postId },
+      {
+        $set: {
+          "postReactions.$.status": status,
+        },
+      },
+    );
+  }
+
   async deleteCommentReaction(userId: string, commentId: string) {
     await UserModelClass.updateOne(
       { _id: new ObjectId(userId) },
       {
         $pull: {
           commentReactions: { commentId },
+        },
+      },
+    );
+  }
+
+  async deletePostReaction(userId: string, postId: string) {
+    await UserModelClass.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $pull: {
+          postReactions: { postId },
         },
       },
     );

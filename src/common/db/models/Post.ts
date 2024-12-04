@@ -8,6 +8,18 @@ const postSchema = new mongoose.Schema<PostDbModel>({
   blogId: { type: String, required: true },
   blogName: { type: String, maxlength: 15, required: true },
   createdAt: { type: String, required: true },
+  likesInfo: {
+    likesCount: { type: Number, default: 0 },
+    dislikesCount: { type: Number, default: 0 },
+  },
+  likesDetails: [
+    {
+      _id: 0,
+      addedAt: { type: String, required: true },
+      userId: { type: String, required: true },
+      login: { type: String, required: true },
+    },
+  ],
 });
 
 export const PostModelClass = mongoose.model("posts", postSchema);

@@ -26,7 +26,12 @@ export const postApiResponseModel: PostApiResponseModel = {
     title: postApiRequestModel.title,
     content: postApiRequestModel.content,
     shortDescription: postApiRequestModel.shortDescription,
-    blogId: "", createdAt: "", id: "", blogName: ""
+    blogId: "", createdAt: "", id: "", blogName: "", extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: "None",
+        newestLikes: []
+    }
 }
 
 export const userApiRequestModel: UserApiRequestModel = {

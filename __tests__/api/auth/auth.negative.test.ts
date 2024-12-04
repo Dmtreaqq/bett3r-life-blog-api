@@ -29,7 +29,8 @@ const userDbModel: UserDbModel = {
     confirmationCode: '1',
     recoveryCode: randomUUID(),
     recoveryCodeExpirationDate: '',
-    commentReactions: []
+    commentReactions: [],
+    postReactions: []
 }
 
 describe('/auth negative', () => {

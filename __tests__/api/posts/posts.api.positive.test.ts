@@ -12,6 +12,10 @@ import {PostsQueryRepository} from "../../../src/components/posts/repositories/p
 import mongoose from "mongoose";
 import { PostApiResponseModel } from "../../../src/components/posts/models/PostApiResponseModel";
 import { PostApiRequestModel } from "../../../src/components/posts/models/PostApiRequestModel";
+import { blogsTestManager } from "../blogs/blogsTestManager";
+import { postsTestManager } from "./postsTestManager";
+import { usersTestManager } from "../users/usersTestManager";
+import { authTestManager } from "../auth/authTestManager";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -41,6 +45,12 @@ const postEntity: PostApiResponseModel = {
     blogId: '???',
     blogName: '???',
     createdAt: "2024-09-25T13:47:55.913Z",
+    extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: "None",
+        newestLikes: []
+    }
 }
 
 describe('/posts positive', () => {
@@ -171,5 +181,68 @@ describe('/posts positive', () => {
             .expect(HTTP_STATUSES.OK_200);
 
         expect(response2.body.items).toHaveLength(0)
+    })
+
+    it('should PUT LIKE and DISLIKE post successfully', async () => {
+        const blog = await blogsTestManager.createBlog()
+        const post = await postsTestManager.createPost(blog.id);
+        const user = await usersTestManager.createUser()
+        const { accessToken: token, refreshToken } = await authTestManager.loginByEmail(user.email, 'password')
+    
+
+        await request
+            .put(baseUrl + CONFIG.PATH.POSTS + `/${post.id}/like-status`)
+            .set('authorization', `Bearer ${token}`)
+            .send({
+                likeStatus: "Like"
+            })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        const getResponse1 = await request
+            .get(baseUrl + CONFIG.PATH.POSTS + `/${post.id}`)
+            .set('authorization', `Bearer ${token}`)
+            .set('Cookie', [refreshToken])
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            ...post,
+            id: expect.any(String),
+            createdAt: expect.any(String),
+            extendedLikesInfo: {
+                likesCount: 1,
+                dislikesCount: 0,
+                myStatus: "Like",
+                newestLikes: [{
+                    addedAt: expect.any(String),
+                    login: user.login,
+                    userId: user.id
+                }]
+            }
+        })
+
+        // await request
+        //   .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
+        //   .set('authorization', `Bearer ${token}`)
+        //   .send({
+        //       likeStatus: "Dislike"
+        //   })
+        //   .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // const getResponse2 = await request
+        //   .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
+        //   .set('Cookie', [refreshToken])
+        //   .set('authorization', `Bearer ${token}`)
+        //   .expect(HTTP_STATUSES.OK_200);
+
+        // expect(getResponse2.body).toEqual({
+        //     ...comment,
+        //     id: expect.any(String),
+        //     createdAt: expect.any(String),
+        //     likesInfo: {
+        //         likesCount: 0,
+        //         dislikesCount: 1,
+        //         myStatus: "Dislike"
+        //     }
+        // })
     })
 })

@@ -26,6 +26,8 @@ import { PostsPaginatorApiResponseModel } from "./models/PostsPaginatorApiRespon
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
 import { CommentApiRequestModel } from "../comments/models/CommentApiRequestModel";
 import { CommentApiResponseModel } from "../comments/models/CommentApiResponseModel";
+import { PostLikeApiRequestModel } from "./models/PostLikeApiRequestModel";
+import likeCommentValidation from "../comments/middlewares/likeCommentValidation";
 
 export const postsRouter = Router();
 
@@ -51,6 +53,8 @@ class PostsController {
   ) {
     try {
       const { pageNumber, pageSize, sortBy, sortDirection } = req.query;
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.split(" ")[1];
 
       const result = await this.postsQueryRepository.getPosts(
         "",
@@ -58,6 +62,7 @@ class PostsController {
         Number(pageSize) || 10,
         sortBy,
         sortDirection,
+        token,
       );
 
       return res.json(result);
@@ -73,7 +78,10 @@ class PostsController {
   ) {
     try {
       const { id } = req.params;
-      const foundPost = await this.postsQueryRepository.getPostById(id);
+      const authHeader = req.headers.authorization;
+
+      const token = authHeader?.split(" ")[1];
+      const foundPost = await this.postsQueryRepository.getPostById(id, token);
 
       if (!foundPost) {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -194,6 +202,30 @@ class PostsController {
       return next(err);
     }
   }
+
+  async updateLikeStatus(
+    req: RequestWparamsAndBody<{ id: string }, PostLikeApiRequestModel>,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      await this.postsService.updateLikesOnPostById(
+        req.params.id,
+        req.body.likeStatus,
+        req.user.id,
+      );
+
+      // if (!result) {
+      //   return res.sendStatus(HTTP_STATUSES.INTERNAL_SERVER_ERROR_500);
+      // }
+
+      // TODO: update user stats
+
+      return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+    } catch (err) {
+      return next(err);
+    }
+  }
 }
 
 const postsController = new PostsController();
@@ -235,4 +267,10 @@ postsRouter.delete(
   authMiddleware,
   ...postUrlParamValidation,
   postsController.deletePostById.bind(postsController),
+);
+postsRouter.put(
+  "/:id/like-status",
+  jwtAuthMiddleware,
+  ...likeCommentValidation,
+  postsController.updateLikeStatus.bind(postsController),
 );

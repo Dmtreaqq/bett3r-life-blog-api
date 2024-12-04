@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import {
   CommentReaction,
+  PostReaction,
   ReactionEnum,
   UserDbModel,
 } from "../../../components/users/models/UserDbModel";
@@ -10,6 +11,11 @@ const loginRegex = new RegExp("^[a-zA-Z0-9_-]*$");
 
 const commentReactionSchema = new mongoose.Schema<CommentReaction>({
   commentId: { type: String, required: true },
+  status: { type: String, enum: ReactionEnum },
+});
+
+const postReactionSchema = new mongoose.Schema<PostReaction>({
+  postId: { type: String, required: true },
   status: { type: String, enum: ReactionEnum },
 });
 
@@ -24,6 +30,7 @@ const userSchema = new mongoose.Schema<UserDbModel>({
   expirationDate: { type: String, default: new Date().toISOString() },
   createdAt: { type: String, required: true },
   commentReactions: { type: [commentReactionSchema] },
+  postReactions: { type: [postReactionSchema] },
 });
 
 export const UserModelClass = mongoose.model("users", userSchema);

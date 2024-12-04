@@ -52,6 +52,11 @@ export class BlogsService {
       blogId: postInput.blogId,
       blogName: blog.name,
       createdAt: new Date().toISOString(),
+      likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+      },
+      likesDetails: [],
     };
 
     return this.postsRepository.createPost(post);

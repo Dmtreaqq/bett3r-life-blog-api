@@ -1,11 +1,13 @@
-// export type PostDbModel = {
-//   title: string;
-//   shortDescription: string;
-//   content: string;
-//   blogId: string;
-//   blogName: string;
-//   createdAt: string;
-// };
+class LikesInfo {
+  likesCount!: number;
+  dislikesCount!: number;
+}
+
+class LikesDetails {
+  addedAt!: string;
+  userId!: string;
+  login!: string;
+}
 
 export class PostDbModel {
   constructor(
@@ -15,5 +17,7 @@ export class PostDbModel {
     public blogId: string,
     public blogName: string,
     public createdAt: string,
+    public likesInfo: LikesInfo,
+    public likesDetails: LikesDetails[],
   ) {}
 }

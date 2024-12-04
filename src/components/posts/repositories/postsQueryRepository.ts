@@ -4,14 +4,23 @@ import { PostModelClass } from "../../../common/db/models/Post";
 import { RootFilterQuery } from "mongoose";
 import { PostApiResponseModel } from "../models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "../models/PostsPaginatorApiResponseModel";
+import { PostReaction } from "../../users/models/UserDbModel";
+import { JwtAuthService } from "../../../common/services/jwtService";
+import { UserModelClass } from "../../../common/db/models/User";
+import { JwtPayload } from "jsonwebtoken";
 
 export class PostsQueryRepository {
-  async getPostById(id: string): Promise<PostApiResponseModel | null> {
+  private jwtAuthService: JwtAuthService;
+  constructor() {
+    this.jwtAuthService = new JwtAuthService();
+  }
+
+  async getPostById(id: string, accessToken?: string): Promise<PostApiResponseModel | null> {
     const post = await PostModelClass.findOne({ _id: new ObjectId(id) });
 
     if (!post) return null;
 
-    return this._mapFromDbModelToResponseModel(post);
+    return this._mapFromDbModelToResponseModel(post, accessToken);
   }
 
   async getPosts(
@@ -20,6 +29,7 @@ export class PostsQueryRepository {
     pageSize: number = 10,
     sortBy = "createdAt",
     sortDirection: "asc" | "desc" = "desc",
+    accessToken?: string,
   ): Promise<PostsPaginatorApiResponseModel> {
     const filter: RootFilterQuery<PostDbModel> = {};
 
@@ -33,7 +43,36 @@ export class PostsQueryRepository {
       .limit(pageSize)
       .lean();
 
-    const postsResponse = posts.map((post) => this._mapFromDbModelToResponseModel(post));
+    let postReactions: PostReaction[];
+    try {
+      const { id: userId } = this.jwtAuthService.decodeToken(accessToken!) as JwtPayload;
+      const user = await UserModelClass.findOne({
+        _id: new ObjectId(userId),
+      });
+      postReactions = user!.postReactions;
+    } catch {
+      postReactions = [];
+    }
+
+    const postsResponse = posts.map((post) => {
+      const status = postReactions.find((p) => p.postId === post._id.toString())?.status;
+
+      return {
+        id: post._id.toString(),
+        title: post.title,
+        shortDescription: post.shortDescription,
+        blogName: post.blogName,
+        content: post.content,
+        blogId: post.blogId,
+        createdAt: post.createdAt,
+        extendedLikesInfo: {
+          likesCount: post.likesInfo.likesCount,
+          dislikesCount: post.likesInfo.dislikesCount,
+          myStatus: status ?? "None",
+          newestLikes: post.likesDetails.slice(-3),
+        },
+      };
+    });
     const postsCount = await this.getPostsCount(blogId);
 
     return {
@@ -55,7 +94,23 @@ export class PostsQueryRepository {
     return PostModelClass.countDocuments(filter);
   }
 
-  _mapFromDbModelToResponseModel(postDbModel: WithId<PostDbModel>): PostApiResponseModel {
+  async _mapFromDbModelToResponseModel(
+    postDbModel: WithId<PostDbModel>,
+    accessToken?: string,
+  ): Promise<PostApiResponseModel> {
+    let postReaction: PostReaction | undefined;
+    try {
+      const { id: userId } = this.jwtAuthService.decodeToken(accessToken!) as JwtPayload;
+      const user = await UserModelClass.findOne({
+        _id: new ObjectId(userId),
+      });
+      postReaction = user!.postReactions.find(
+        (post) => post.postId === postDbModel._id.toString(),
+      );
+    } catch {
+      postReaction = undefined;
+    }
+
     return {
       id: postDbModel._id.toString(),
       title: postDbModel.title,
@@ -64,6 +119,12 @@ export class PostsQueryRepository {
       content: postDbModel.content,
       blogId: postDbModel.blogId,
       createdAt: postDbModel.createdAt,
+      extendedLikesInfo: {
+        likesCount: postDbModel.likesInfo.likesCount,
+        dislikesCount: postDbModel.likesInfo.dislikesCount,
+        myStatus: postReaction?.status ?? "None",
+        newestLikes: postDbModel.likesDetails.slice(-3),
+      },
     };
   }
 }

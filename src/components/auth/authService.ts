@@ -100,6 +100,7 @@ export class AuthService {
         minutes: 2,
       }).toISOString(),
       [],
+      [],
     );
 
     const userId = await this.usersRepository.createUser(userDbModel);

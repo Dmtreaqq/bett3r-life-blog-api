@@ -201,7 +201,7 @@ describe('/posts positive', () => {
         const getResponse1 = await request
             .get(baseUrl + CONFIG.PATH.POSTS + `/${post.id}`)
             .set('authorization', `Bearer ${token}`)
-            .set('Cookie', [refreshToken])
+            // .set('Cookie', [refreshToken])
             .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse1.body).toEqual({

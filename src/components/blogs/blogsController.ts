@@ -24,18 +24,18 @@ import { BlogsQueryRepository } from "./repositories/blogsQueryRepository";
 import { PostsQueryRepository } from "../posts/repositories/postsQueryRepository";
 import { PostApiResponseModel } from "../posts/models/PostApiResponseModel";
 import { PostsPaginatorApiResponseModel } from "../posts/models/PostsPaginatorApiResponseModel";
+import { container } from "../../composition-root";
+import { injectable } from "inversify";
 
 export const blogsRouter = Router();
 
+@injectable()
 class BlogsController {
-  private blogsService: BlogsService;
-  private blogsQueryRepository: BlogsQueryRepository;
-  private postsQueryRepository: PostsQueryRepository;
-  constructor() {
-    this.blogsService = new BlogsService();
-    this.blogsQueryRepository = new BlogsQueryRepository();
-    this.postsQueryRepository = new PostsQueryRepository();
-  }
+  constructor(
+    private blogsService: BlogsService,
+    private blogsQueryRepository: BlogsQueryRepository,
+    private postsQueryRepository: PostsQueryRepository,
+  ) {}
 
   async getBlogs(
     req: RequestWquery<BlogQueryGetModel>,
@@ -190,7 +190,7 @@ class BlogsController {
   }
 }
 
-const blogsController = new BlogsController();
+const blogsController = container.resolve(BlogsController);
 
 blogsRouter.get("/", ...blogQueryValidation, blogsController.getBlogs.bind(blogsController));
 blogsRouter.get(

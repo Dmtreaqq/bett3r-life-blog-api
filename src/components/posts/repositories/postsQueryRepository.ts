@@ -8,7 +8,9 @@ import { PostReaction } from "../../users/models/UserDbModel";
 import { JwtAuthService } from "../../../common/services/jwtService";
 import { UserModelClass } from "../../../common/db/models/User";
 import { JwtPayload } from "jsonwebtoken";
+import { injectable } from "inversify";
 
+@injectable()
 export class PostsQueryRepository {
   private jwtAuthService: JwtAuthService;
   constructor() {

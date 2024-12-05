@@ -1,8 +1,10 @@
+import { injectable } from "inversify";
 import { BlogModelClass } from "../../../common/db/models/Blog";
 import { BlogApiResponseModel } from "../models/BlogApiResponseModel";
 import { BlogDbModel } from "../models/BlogDbModel";
 import { ObjectId } from "mongodb";
 
+@injectable()
 export class BlogsRepository {
   async createBlog(blogInput: BlogDbModel): Promise<string> {
     const result = await BlogModelClass.create(blogInput);

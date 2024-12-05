@@ -28,19 +28,21 @@ import { CommentApiRequestModel } from "../comments/models/CommentApiRequestMode
 import { CommentApiResponseModel } from "../comments/models/CommentApiResponseModel";
 import { PostLikeApiRequestModel } from "./models/PostLikeApiRequestModel";
 import likeCommentValidation from "../comments/middlewares/likeCommentValidation";
+import { injectable } from "inversify";
+import { container } from "../../composition-root";
 
 export const postsRouter = Router();
 
+@injectable()
 class PostsController {
-  private postsService: PostsService;
-  private postsQueryRepository: PostsQueryRepository;
   private commentsService: CommentsService;
   private commentsQueryService: CommentsQueryService;
   private commentsQueryRepository: CommentsQueryRepository;
 
-  constructor() {
-    this.postsService = new PostsService();
-    this.postsQueryRepository = new PostsQueryRepository();
+  constructor(
+    private postsService: PostsService,
+    private postsQueryRepository: PostsQueryRepository,
+  ) {
     this.commentsService = new CommentsService();
     this.commentsQueryService = new CommentsQueryService();
     this.commentsQueryRepository = new CommentsQueryRepository();
@@ -228,7 +230,7 @@ class PostsController {
   }
 }
 
-const postsController = new PostsController();
+const postsController = container.resolve(PostsController);
 
 postsRouter.post(
   "/:id/comments",

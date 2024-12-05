@@ -7,14 +7,15 @@ import { PostApiResponseModel } from "./models/PostApiResponseModel";
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
 import { UsersRepository } from "../users/repositories/usersRepository";
 import { ReactionEnum } from "../users/models/UserDbModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class PostsService {
-  private blogsRepository: BlogsRepository;
-  private postsRepository: PostsRepository;
   private usersRepository: UsersRepository;
-  constructor() {
-    this.blogsRepository = new BlogsRepository();
-    this.postsRepository = new PostsRepository();
+  constructor(
+    private blogsRepository: BlogsRepository,
+    private postsRepository: PostsRepository,
+  ) {
     this.usersRepository = new UsersRepository();
   }
 

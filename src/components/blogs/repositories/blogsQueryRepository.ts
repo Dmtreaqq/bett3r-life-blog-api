@@ -4,7 +4,9 @@ import { BlogModelClass } from "../../../common/db/models/Blog";
 import { BlogDbModel } from "../models/BlogDbModel";
 import { ObjectId, WithId } from "mongodb";
 import { RootFilterQuery } from "mongoose";
+import { injectable } from "inversify";
 
+@injectable()
 export class BlogsQueryRepository {
   async getBlogById(id: string): Promise<BlogApiResponseModel | null> {
     const blog = await BlogModelClass.findOne({ _id: new ObjectId(id) });

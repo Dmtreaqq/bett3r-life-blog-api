@@ -6,14 +6,14 @@ import { ApiError } from "../../common/utils/ApiError";
 import { PostDbModel } from "../posts/models/PostDbModel";
 import { PostsRepository } from "../posts/repositories/postsRepository";
 import { PostApiRequestModel } from "../posts/models/PostApiRequestModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class BlogsService {
-  private blogsRepository: BlogsRepository;
-  private postsRepository: PostsRepository;
-  constructor() {
-    this.blogsRepository = new BlogsRepository();
-    this.postsRepository = new PostsRepository();
-  }
+  constructor(
+    private blogsRepository: BlogsRepository,
+    private postsRepository: PostsRepository,
+  ) {}
 
   async createBlog(blogInput: BlogApiRequestModel): Promise<string> {
     const blog = new BlogDbModel(

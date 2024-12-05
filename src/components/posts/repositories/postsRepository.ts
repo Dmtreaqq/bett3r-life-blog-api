@@ -3,7 +3,9 @@ import { ObjectId } from "mongodb";
 import { PostModelClass } from "../../../common/db/models/Post";
 import { PostApiResponseModel } from "../models/PostApiResponseModel";
 import { ReactionEnum } from "../../users/models/UserDbModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class PostsRepository {
   async createPost(postInput: PostDbModel): Promise<string> {
     const result = await PostModelClass.create(postInput);

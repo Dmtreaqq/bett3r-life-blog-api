@@ -3,7 +3,6 @@ import { PostDbModel } from "./models/PostDbModel";
 import { BlogsRepository } from "../blogs/repositories/blogsRepository";
 import { ApiError } from "../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../common/utils/types";
-import { PostApiResponseModel } from "./models/PostApiResponseModel";
 import { PostApiRequestModel } from "./models/PostApiRequestModel";
 import { UsersRepository } from "../users/repositories/usersRepository";
 import { ReactionEnum } from "../users/models/UserDbModel";
@@ -11,13 +10,11 @@ import { injectable } from "inversify";
 
 @injectable()
 export class PostsService {
-  private usersRepository: UsersRepository;
   constructor(
     private blogsRepository: BlogsRepository,
     private postsRepository: PostsRepository,
-  ) {
-    this.usersRepository = new UsersRepository();
-  }
+    private usersRepository: UsersRepository,
+  ) {}
 
   async createPost(postInput: PostApiRequestModel): Promise<string> {
     const blog = await this.blogsRepository.getBlogById(postInput.blogId);

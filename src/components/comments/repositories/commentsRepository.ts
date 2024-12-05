@@ -2,7 +2,9 @@ import { CommentDbModel } from "../models/CommentDbModel";
 import { ObjectId } from "mongodb";
 import { CommentClassModel } from "../../../common/db/models/Comment";
 import { ReactionEnum } from "../../users/models/UserDbModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class CommentsRepository {
   async getCommentById(commentId: string): Promise<CommentDbModel | null> {
     return CommentClassModel.findOne({ _id: new ObjectId(commentId) });

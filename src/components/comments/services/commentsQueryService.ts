@@ -3,14 +3,14 @@ import { PostsQueryRepository } from "../../posts/repositories/postsQueryReposit
 import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
 import { CommentsQueryRepository } from "../repositories/commentsQueryRepository";
+import { injectable } from "inversify";
 
+@injectable()
 export class CommentsQueryService {
-  private postsQueryRepository;
-  private commentsQueryRepository: CommentsQueryRepository;
-  constructor() {
-    this.postsQueryRepository = new PostsQueryRepository();
-    this.commentsQueryRepository = new CommentsQueryRepository();
-  }
+  constructor(
+    private postsQueryRepository: PostsQueryRepository,
+    private commentsQueryRepository: CommentsQueryRepository,
+  ) {}
 
   async getCommentsForPost(
     postId: string,

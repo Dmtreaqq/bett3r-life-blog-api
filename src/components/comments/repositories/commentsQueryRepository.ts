@@ -8,7 +8,9 @@ import { UserModelClass } from "../../../common/db/models/User";
 import { JwtPayload } from "jsonwebtoken";
 import { JwtAuthService } from "../../../common/services/jwtService";
 import { CommentReaction } from "../../users/models/UserDbModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class CommentsQueryRepository {
   private jwtAuthService: JwtAuthService;
 

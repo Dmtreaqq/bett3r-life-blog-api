@@ -13,16 +13,17 @@ import { CommentApiRequestModel } from "./models/CommentApiRequestModel";
 import { CommentApiResponseModel } from "./models/CommentApiResponseModel";
 import likeCommentValidation from "./middlewares/likeCommentValidation";
 import { CommentLikeApiRequestModel } from "./models/CommentLikeApiRequestModel";
+import { injectable } from "inversify";
+import { container } from "../../composition-root";
 
 export const commentsRouter = Router();
 
+@injectable()
 class CommentsController {
-  private commentsService: CommentsService;
-  private commentsQueryRepository: CommentsQueryRepository;
-  constructor() {
-    this.commentsService = new CommentsService();
-    this.commentsQueryRepository = new CommentsQueryRepository();
-  }
+  constructor(
+    private commentsService: CommentsService,
+    private commentsQueryRepository: CommentsQueryRepository,
+  ) {}
 
   async getCommentById(
     req: RequestWparams<{ id: string }>,
@@ -111,7 +112,7 @@ class CommentsController {
   }
 }
 
-const commentsController = new CommentsController();
+const commentsController = container.resolve(CommentsController);
 
 commentsRouter.get(
   "/:id",

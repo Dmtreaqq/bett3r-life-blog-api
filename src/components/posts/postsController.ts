@@ -35,18 +35,13 @@ export const postsRouter = Router();
 
 @injectable()
 class PostsController {
-  private commentsService: CommentsService;
-  private commentsQueryService: CommentsQueryService;
-  private commentsQueryRepository: CommentsQueryRepository;
-
   constructor(
     private postsService: PostsService,
     private postsQueryRepository: PostsQueryRepository,
-  ) {
-    this.commentsService = new CommentsService();
-    this.commentsQueryService = new CommentsQueryService();
-    this.commentsQueryRepository = new CommentsQueryRepository();
-  }
+    private commentsQueryService: CommentsQueryService,
+    private commentsService: CommentsService,
+    private commentsQueryRepository: CommentsQueryRepository,
+  ) {}
 
   async getPosts(
     req: RequestWquery<PostQueryGetModel>,

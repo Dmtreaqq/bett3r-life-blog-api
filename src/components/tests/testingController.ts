@@ -4,20 +4,21 @@ import { PostsRepository } from "../posts/repositories/postsRepository";
 import { UsersRepository } from "../users/repositories/usersRepository";
 import { SessionsRepository } from "../security/sessions/sessionsRepository";
 import { ApiLogsRepository } from "../security/apiLogs/apiLogsRepository";
+import { injectable } from "inversify";
+import { container } from "../../composition-root";
 
 export const testingRouter = Router();
 
+@injectable()
 class TestingController {
-  private blogsRepository: BlogsRepository;
-  private postsRepository: PostsRepository;
-  private usersRepository: UsersRepository;
   private sessionsRepository: SessionsRepository;
   private apiLogsRepository: ApiLogsRepository;
 
-  constructor() {
-    this.blogsRepository = new BlogsRepository();
-    this.postsRepository = new PostsRepository();
-    this.usersRepository = new UsersRepository();
+  constructor(
+    private blogsRepository: BlogsRepository,
+    private postsRepository: PostsRepository,
+    private usersRepository: UsersRepository,
+  ) {
     this.sessionsRepository = new SessionsRepository();
     this.apiLogsRepository = new ApiLogsRepository();
   }
@@ -33,6 +34,6 @@ class TestingController {
   }
 }
 
-export const testingController = new TestingController();
+export const testingController = container.resolve(TestingController);
 
 testingRouter.delete("/all-data", testingController.delete.bind(testingController));

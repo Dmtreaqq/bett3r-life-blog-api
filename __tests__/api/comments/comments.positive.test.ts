@@ -66,7 +66,7 @@ describe('/comments Positive', () => {
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
         postsRepository = container.resolve(PostsRepository);
-        commentsRepository = new CommentsRepository()
+        commentsRepository = container.resolve(CommentsRepository)
     })
 
     afterAll(async () => {

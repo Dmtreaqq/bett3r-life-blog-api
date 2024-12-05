@@ -6,17 +6,15 @@ import { PostsRepository } from "../../posts/repositories/postsRepository";
 import { UsersRepository } from "../../users/repositories/usersRepository";
 import { CommentApiRequestModel } from "../models/CommentApiRequestModel";
 import { ReactionEnum } from "../../users/models/UserDbModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class CommentsService {
-  private postsRepository: PostsRepository;
-  private usersRepository: UsersRepository;
-  private commentsRepository: CommentsRepository;
-
-  constructor() {
-    this.postsRepository = new PostsRepository();
-    this.usersRepository = new UsersRepository();
-    this.commentsRepository = new CommentsRepository();
-  }
+  constructor(
+    private postsRepository: PostsRepository,
+    private usersRepository: UsersRepository,
+    private commentsRepository: CommentsRepository,
+  ) {}
 
   async createComment(
     postId: string,

@@ -8,6 +8,10 @@ import { PostsQueryRepository } from "./components/posts/repositories/postsQuery
 import { UsersRepository } from "./components/users/repositories/usersRepository";
 import { UsersService } from "./components/users/usersService";
 import { UsersQueryRepository } from "./components/users/repositories/usersQueryRepository";
+import { CommentsRepository } from "./components/comments/repositories/commentsRepository";
+import { CommentsService } from "./components/comments/services/commentsService";
+import { CommentsQueryRepository } from "./components/comments/repositories/commentsQueryRepository";
+import { CommentsQueryService } from "./components/comments/services/commentsQueryService";
 
 export const container = new Container();
 
@@ -25,3 +29,9 @@ container.bind(PostsQueryRepository).to(PostsQueryRepository);
 container.bind(UsersRepository).to(UsersRepository);
 container.bind(UsersService).to(UsersService);
 container.bind(UsersQueryRepository).to(UsersQueryRepository);
+
+// COMMENTS
+container.bind(CommentsRepository).to(CommentsRepository);
+container.bind(CommentsService).to(CommentsService);
+container.bind(CommentsQueryRepository).to(CommentsQueryRepository);
+container.bind(CommentsQueryService).to(CommentsQueryService);

@@ -3,7 +3,9 @@ import { ObjectId } from "mongodb";
 import { add } from "date-fns/add";
 import { randomUUID } from "node:crypto";
 import { UserModelClass } from "../../../common/db/models/User";
+import { injectable } from "inversify";
 
+@injectable()
 export class UsersRepository {
   async getUserById(userId: string) {
     return await UserModelClass.findOne({ _id: new ObjectId(userId) });

@@ -14,16 +14,17 @@ import userValidation from "./middlewares/userValidation";
 import { UserApiRequestModel } from "./models/UserApiRequestModel";
 import { UserApiResponseModel } from "./models/UserApiResponseModel";
 import { UsersPaginatorApiResponseModel } from "./models/UsersPaginatorApiResponseModel";
+import { injectable } from "inversify";
+import { container } from "../../composition-root";
 
 export const usersRouter = Router();
 
+@injectable()
 class UsersController {
-  private usersQueryRepository: UsersQueryRepository;
-  private usersService: UsersService;
-  constructor() {
-    this.usersQueryRepository = new UsersQueryRepository();
-    this.usersService = new UsersService();
-  }
+  constructor(
+    private usersService: UsersService,
+    private usersQueryRepository: UsersQueryRepository,
+  ) {}
 
   async createUser(
     req: RequestWbody<UserApiRequestModel>,
@@ -93,7 +94,7 @@ class UsersController {
   }
 }
 
-const usersController = new UsersController();
+const usersController = container.resolve(UsersController);
 
 usersRouter.delete(
   "/:id",

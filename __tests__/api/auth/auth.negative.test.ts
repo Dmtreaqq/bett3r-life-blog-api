@@ -11,6 +11,7 @@ import { sub } from 'date-fns';
 import mongoose from "mongoose";
 import { randomUUID } from "node:crypto";
 import { AuthLoginApiRequestModel } from "../../../src/components/auth/models/AuthLoginApiRequestModel";
+import { container } from "../../../src/composition-root";
 
 const baseUrl = '/api';
 
@@ -41,7 +42,7 @@ describe('/auth negative', () => {
         await runDB()
 
         authService = new AuthService()
-        usersRepository = new UsersRepository();
+        usersRepository = container.resolve(UsersRepository)
         emailService = new EmailService();
     })
 

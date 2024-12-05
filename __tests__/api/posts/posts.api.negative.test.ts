@@ -9,6 +9,7 @@ import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { PostDbModel } from "../../../src/components/posts/models/PostDbModel";
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
+import { container } from "../../../src/composition-root";
 
 
 const baseUrl = '/api';
@@ -41,8 +42,8 @@ describe('/posts negative tests', () => {
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        const blogsRepository = new BlogsRepository()
-        const postsRepository = new PostsRepository();
+        const blogsRepository = container.resolve(BlogsRepository)
+        const postsRepository = container.resolve(PostsRepository)
 
         createdBlogId = await blogsRepository.createBlog(blogInput);
         createdPostId = await postsRepository.createPost({ ...postInput, blogId: createdBlogId })

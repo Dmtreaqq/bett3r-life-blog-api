@@ -15,6 +15,7 @@ import mongoose from "mongoose";
 import { CommentApiResponseModel } from "../../../src/components/comments/models/CommentApiResponseModel";
 import { usersTestManager } from "../users/usersTestManager";
 import { ReactionEnum } from "../../../src/components/users/models/UserDbModel";
+import { container } from "../../../src/composition-root";
 
 const baseUrl = '/api';
 
@@ -64,8 +65,8 @@ describe('/comments Positive', () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        postsRepository = new PostsRepository();
-        commentsRepository = new CommentsRepository();
+        postsRepository = container.resolve(PostsRepository);
+        commentsRepository = new CommentsRepository()
     })
 
     afterAll(async () => {

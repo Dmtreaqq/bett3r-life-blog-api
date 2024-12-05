@@ -5,13 +5,13 @@ import { HTTP_STATUSES } from "../../common/utils/types";
 import { HashService } from "../../common/services/hashService";
 import { randomUUID } from "node:crypto";
 import { UserApiRequestModel } from "./models/UserApiRequestModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class UsersService {
-  private usersRepository: UsersRepository;
   private hashService: HashService;
 
-  constructor() {
-    this.usersRepository = new UsersRepository();
+  constructor(private usersRepository: UsersRepository) {
     this.hashService = new HashService();
   }
 

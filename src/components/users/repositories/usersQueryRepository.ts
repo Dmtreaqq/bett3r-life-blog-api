@@ -4,7 +4,9 @@ import { UserModelClass } from "../../../common/db/models/User";
 import { RootFilterQuery } from "mongoose";
 import { UserApiResponseModel } from "../models/UserApiResponseModel";
 import { UsersPaginatorApiResponseModel } from "../models/UsersPaginatorApiResponseModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class UsersQueryRepository {
   async getUserById(id: string): Promise<UserApiResponseModel | null> {
     const user = await UserModelClass.findOne({ _id: new ObjectId(id) });

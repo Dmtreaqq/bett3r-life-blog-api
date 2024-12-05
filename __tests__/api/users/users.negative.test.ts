@@ -8,6 +8,7 @@ import {UsersRepository} from "../../../src/components/users/repositories/usersR
 import {ObjectId} from "mongodb";
 import mongoose from "mongoose";
 import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
+import { container } from "../../../src/composition-root";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -37,7 +38,7 @@ describe('/users Negative', () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        usersRepository = new UsersRepository();
+        usersRepository = container.resolve(UsersRepository);
     })
 
     afterAll(async () => {

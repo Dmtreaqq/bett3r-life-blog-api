@@ -8,6 +8,8 @@ import { request } from "../test-helper";
 import { BlogDbModel } from "../../../src/components/blogs/models/BlogDbModel";
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
+import { container } from "../../../src/composition-root";
+import { PostsRepository } from "../../../src/components/posts/repositories/postsRepository";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -29,7 +31,7 @@ const postInput: BlogCreatePostApiRequestModel = {
 describe('/blogs negative tests', () => {
     let createdBlogId: string;
     const randomId = new ObjectId()
-    const blogsRepository = new BlogsRepository();
+    const blogsRepository = container.resolve(BlogsRepository)
 
     beforeAll(async () => {
         await runDB()

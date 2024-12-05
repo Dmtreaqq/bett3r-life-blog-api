@@ -15,6 +15,7 @@ import mongoose from "mongoose";
 import { UserApiResponseModel } from "../../../src/components/users/models/UserApiResponseModel";
 import { AuthLoginApiRequestModel } from "../../../src/components/auth/models/AuthLoginApiRequestModel";
 import { AuthRegisterApiRequestModel } from "../../../src/components/auth/models/AuthRegisterApiRequestModel";
+import { container } from "../../../src/composition-root";
 
 const baseUrl = '/api';
 
@@ -42,7 +43,7 @@ describe('/auth Positive', () => {
         await runDB()
 
         authService = new AuthService()
-        usersRepository = new UsersRepository();
+        usersRepository = container.resolve(UsersRepository);
         jwtAuthService = new JwtAuthService();
         emailService = new EmailService();
     })

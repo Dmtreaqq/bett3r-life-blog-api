@@ -10,6 +10,7 @@ import {ObjectId} from "mongodb";
 import mongoose from "mongoose";
 import { UserApiRequestModel } from "../../../src/components/users/models/UserApiRequestModel";
 import { UserApiResponseModel } from "../../../src/components/users/models/UserApiResponseModel";
+import { container } from "../../../src/composition-root";
 
 
 const baseUrl = '/api';
@@ -47,8 +48,8 @@ describe('/users Positive', () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
 
-        usersRepository = new UsersRepository()
-        usersQueryRepository = new UsersQueryRepository()
+        usersRepository = container.resolve(UsersRepository)
+        usersQueryRepository = container.resolve(UsersQueryRepository)
     })
 
     afterAll(async () => {

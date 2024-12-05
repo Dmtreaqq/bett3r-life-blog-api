@@ -17,6 +17,7 @@ import { postsTestManager } from "./postsTestManager";
 import { usersTestManager } from "../users/usersTestManager";
 import { authTestManager } from "../auth/authTestManager";
 import { postApiRequestModel } from "../constants";
+import { container } from "../../../src/composition-root";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -63,10 +64,10 @@ describe('/posts positive', () => {
     beforeAll(async () => {
         await runDB()
         await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
-        const blogsRepository = new BlogsRepository()
-        const blogsQueryRepository = new BlogsQueryRepository()
-        const postsRepository = new PostsRepository()
-        const postsQueryRepository = new PostsQueryRepository()
+        const blogsRepository = container.resolve(BlogsRepository)
+        const blogsQueryRepository = container.resolve(BlogsQueryRepository)
+        const postsRepository = container.resolve(PostsRepository)
+        const postsQueryRepository = container.resolve(PostsQueryRepository)
 
         createdBlogId = await blogsRepository.createBlog(blogInput);
         createdBlog = await blogsQueryRepository.getBlogById(createdBlogId)

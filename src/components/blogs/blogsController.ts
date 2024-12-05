@@ -171,12 +171,16 @@ class BlogsController {
         return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
       }
 
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.split(" ")[1];
+
       const result = await this.postsQueryRepository.getPosts(
         blog.id,
         Number(pageNumber) || 1,
         Number(pageSize) || 10,
         sortBy,
         sortDirection,
+        token,
       );
 
       return res.json(result);

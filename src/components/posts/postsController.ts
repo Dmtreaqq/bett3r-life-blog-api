@@ -55,7 +55,6 @@ class PostsController {
       const { pageNumber, pageSize, sortBy, sortDirection } = req.query;
       const authHeader = req.headers.authorization;
       const token = authHeader?.split(" ")[1];
-      console.log(token);
 
       const result = await this.postsQueryRepository.getPosts(
         "",

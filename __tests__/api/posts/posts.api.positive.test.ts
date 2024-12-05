@@ -16,6 +16,7 @@ import { blogsTestManager } from "../blogs/blogsTestManager";
 import { postsTestManager } from "./postsTestManager";
 import { usersTestManager } from "../users/usersTestManager";
 import { authTestManager } from "../auth/authTestManager";
+import { postApiRequestModel } from "../constants";
 
 const baseUrl = '/api';
 const authHeader = `Basic ${fromUTF8ToBase64(String(CONFIG.LOGIN))}`;
@@ -201,7 +202,6 @@ describe('/posts positive', () => {
         const getResponse1 = await request
             .get(baseUrl + CONFIG.PATH.POSTS + `/${post.id}`)
             .set('authorization', `Bearer ${token}`)
-            // .set('Cookie', [refreshToken])
             .expect(HTTP_STATUSES.OK_200);
 
         expect(getResponse1.body).toEqual({
@@ -219,30 +219,271 @@ describe('/posts positive', () => {
                 }]
             }
         })
+    })
 
-        // await request
-        //   .put(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}/like-status`)
-        //   .set('authorization', `Bearer ${token}`)
-        //   .send({
-        //       likeStatus: "Dislike"
-        //   })
-        //   .expect(HTTP_STATUSES.NO_CONTENT_204);
+    it('should PUT LIKES', async () => {
+        await request.delete(`${baseUrl}${CONFIG.PATH.TESTING}/all-data`);
+        const blog = await blogsTestManager.createBlog()
 
-        // const getResponse2 = await request
-        //   .get(baseUrl + CONFIG.PATH.COMMENTS + `/${comment.id}`)
-        //   .set('Cookie', [refreshToken])
-        //   .set('authorization', `Bearer ${token}`)
-        //   .expect(HTTP_STATUSES.OK_200);
+        const post1 = await postsTestManager.createPost(blog.id);
+        const post2 = await postsTestManager.createPost(blog.id, { ...postApiRequestModel, title: "Post 2" });
+        const post3 = await postsTestManager.createPost(blog.id, { ...postApiRequestModel, title: "Post 3" });
+        const post4 = await postsTestManager.createPost(blog.id, { ...postApiRequestModel, title: "Post 4" });
+        const post5 = await postsTestManager.createPost(blog.id, { ...postApiRequestModel, title: "Post 5" });
+        const post6 = await postsTestManager.createPost(blog.id, { ...postApiRequestModel, title: "Post 6" });
 
-        // expect(getResponse2.body).toEqual({
-        //     ...comment,
-        //     id: expect.any(String),
-        //     createdAt: expect.any(String),
-        //     likesInfo: {
-        //         likesCount: 0,
-        //         dislikesCount: 1,
-        //         myStatus: "Dislike"
-        //     }
-        // })
+        const user1 = await usersTestManager.createUser()
+        const user2 = await usersTestManager.createUser({ email: "user2@gmail.com", login: "userlogin2", password: 'password' })
+        const user3 = await usersTestManager.createUser({ email: "user3@gmail.com", login: "userlogin3", password: 'password' })
+        const user4 = await usersTestManager.createUser({ email: "user4@gmail.com", login: "userlogin4", password: 'password' })
+        const { accessToken: token1 } = await authTestManager.loginByEmail(user1.email, 'password')
+        const { accessToken: token2 } = await authTestManager.loginByEmail(user2.email, 'password')
+        const { accessToken: token3 } = await authTestManager.loginByEmail(user3.email, 'password')
+        const { accessToken: token4 } = await authTestManager.loginByEmail(user4.email, 'password')
+    
+
+        // like post 1 by user 1, user 2; 
+        await request
+            .put(baseUrl + CONFIG.PATH.POSTS + `/${post1.id}/like-status`)
+            .set('authorization', `Bearer ${token1}`)
+            .send({
+                likeStatus: "Like"
+            })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+            .put(baseUrl + CONFIG.PATH.POSTS + `/${post1.id}/like-status`)
+            .set('authorization', `Bearer ${token2}`)
+            .send({
+                likeStatus: "Like"
+            })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // like post 2 by user 2, user 3;
+        await request
+            .put(baseUrl + CONFIG.PATH.POSTS + `/${post2.id}/like-status`)
+            .set('authorization', `Bearer ${token2}`)
+            .send({
+                likeStatus: "Like"
+            })
+            .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post2.id}/like-status`)
+          .set('authorization', `Bearer ${token3}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // dislike post3 by user1
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post3.id}/like-status`)
+          .set('authorization', `Bearer ${token1}`)
+          .send({
+              likeStatus: "Dislike"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // likes post4 by user1, user4, user2, user3
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post4.id}/like-status`)
+          .set('authorization', `Bearer ${token1}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post4.id}/like-status`)
+          .set('authorization', `Bearer ${token4}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post4.id}/like-status`)
+          .set('authorization', `Bearer ${token2}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post4.id}/like-status`)
+          .set('authorization', `Bearer ${token3}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // like post 5 by user 2, dislike by user 3;
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post5.id}/like-status`)
+          .set('authorization', `Bearer ${token2}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post5.id}/like-status`)
+          .set('authorization', `Bearer ${token3}`)
+          .send({
+              likeStatus: "Dislike"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // like post 6 by user 1, dislike by user 2.
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post6.id}/like-status`)
+          .set('authorization', `Bearer ${token1}`)
+          .send({
+              likeStatus: "Like"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        await request
+          .put(baseUrl + CONFIG.PATH.POSTS + `/${post6.id}/like-status`)
+          .set('authorization', `Bearer ${token2}`)
+          .send({
+              likeStatus: "Dislike"
+          })
+          .expect(HTTP_STATUSES.NO_CONTENT_204);
+
+        // Get the all posts by user1
+        const getResponse1 = await request
+            .get(baseUrl + CONFIG.PATH.POSTS)
+            .set('authorization', `Bearer ${token1}`)
+            .expect(HTTP_STATUSES.OK_200);
+
+        expect(getResponse1.body).toEqual({
+            items: [
+                {
+                    ...post6,
+                    id: expect.any(String),
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 1,
+                        dislikesCount: 1,
+                        myStatus: "Like",
+                        newestLikes: [
+                            {
+                                addedAt: expect.any(String),
+                                login: user1.login,
+                                userId: user1.id
+                            }
+                        ]
+                    }
+                },
+                {
+                    ...post5,
+                    id: expect.any(String),
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 1,
+                        dislikesCount: 1,
+                        myStatus: "None",
+                        newestLikes: [
+                            {
+                                addedAt: expect.any(String),
+                                login: user2.login,
+                                userId: user2.id
+                            }
+                        ]
+                    }
+                },
+                {
+                    ...post4,
+                    id: expect.any(String),
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 4,
+                        dislikesCount: 0,
+                        myStatus: "Like",
+                        newestLikes: [
+                            {
+                                addedAt: expect.any(String),
+                                login: user3.login,
+                                userId: user3.id
+                            },
+                            {
+                                addedAt: expect.any(String),
+                                login: user2.login,
+                                userId: user2.id
+                            },
+                            {
+                                addedAt: expect.any(String),
+                                login: user4.login,
+                                userId: user4.id
+                            }
+                        ]
+                    }
+                },
+                {
+                    ...post3,
+                    id: expect.any(String),
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 0,
+                        dislikesCount: 1,
+                        myStatus: "Dislike",
+                        newestLikes: []
+                    }
+                },
+                {
+                    ...post2,
+                    id: expect.any(String),
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 2,
+                        dislikesCount: 0,
+                        myStatus: "None",
+                        newestLikes: [
+                            {
+                                addedAt: expect.any(String),
+                                login: user3.login,
+                                userId: user3.id
+                            },
+                            {
+                                addedAt: expect.any(String),
+                                login: user2.login,
+                                userId: user2.id
+                            }
+                        ]
+                    }
+                },
+              {
+                ...post1,
+                id: expect.any(String),
+                createdAt: expect.any(String),
+                extendedLikesInfo: {
+                    likesCount: 2,
+                    dislikesCount: 0,
+                    myStatus: "Like",
+                    newestLikes: [
+                      {
+                          addedAt: expect.any(String),
+                          login: user2.login,
+                          userId: user2.id
+                      },
+                      {
+                        addedAt: expect.any(String),
+                        login: user1.login,
+                        userId: user1.id
+                      }
+                    ]
+                }
+            },
+            ],
+            page: expect.any(Number),
+            pageSize: expect.any(Number),
+            pagesCount: expect.any(Number),
+            totalCount: expect.any(Number)
+        })
     })
 })

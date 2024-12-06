@@ -42,7 +42,7 @@ describe('/auth Positive', () => {
     beforeAll(async () => {
         await runDB()
 
-        authService = new AuthService()
+        authService = container.resolve(AuthService)
         usersRepository = container.resolve(UsersRepository);
         jwtAuthService = new JwtAuthService();
         emailService = new EmailService();

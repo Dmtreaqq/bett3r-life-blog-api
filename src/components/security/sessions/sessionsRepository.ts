@@ -1,6 +1,8 @@
 import { SessionDbModel } from "./models/SessionDbModel";
 import { SessionModelClass } from "../../../common/db/models/Session";
+import { injectable } from "inversify";
 
+@injectable()
 export class SessionsRepository {
   async createSession(sessionDbModel: SessionDbModel) {
     await SessionModelClass.create(sessionDbModel);

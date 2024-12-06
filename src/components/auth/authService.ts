@@ -10,18 +10,19 @@ import { EmailService } from "../../common/services/emailService";
 import { SessionsService } from "../security/sessions/sessionsService";
 import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
 import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
+import { injectable } from "inversify";
 
+@injectable()
 export class AuthService {
-  private usersRepository: UsersRepository;
   private jwtAuthService: JwtAuthService;
-  private sessionsService: SessionsService;
   private hashService: HashService;
   private emailService: EmailService;
 
-  constructor() {
-    this.usersRepository = new UsersRepository();
+  constructor(
+    private sessionsService: SessionsService,
+    private usersRepository: UsersRepository,
+  ) {
     this.jwtAuthService = new JwtAuthService();
-    this.sessionsService = new SessionsService();
     this.hashService = new HashService();
     this.emailService = new EmailService();
   }

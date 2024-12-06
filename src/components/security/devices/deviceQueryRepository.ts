@@ -2,7 +2,9 @@ import { DeviceApiResponseModel } from "./models/DeviceApiResponseModel";
 import { JwtAuthService } from "../../../common/services/jwtService";
 import { JwtPayload } from "jsonwebtoken";
 import { SessionModelClass } from "../../../common/db/models/Session";
+import { injectable } from "inversify";
 
+@injectable()
 export class DeviceQueryRepository {
   private jwtAuthService: JwtAuthService;
   constructor() {

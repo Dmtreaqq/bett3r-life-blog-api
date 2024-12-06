@@ -3,13 +3,13 @@ import { SessionDbModel } from "./models/SessionDbModel";
 import { JwtAuthService } from "../../../common/services/jwtService";
 import { ApiError } from "../../../common/utils/ApiError";
 import { HTTP_STATUSES } from "../../../common/utils/types";
+import { injectable } from "inversify";
 
+@injectable()
 export class SessionsService {
   private jwtAuthService: JwtAuthService;
-  private sessionsRepository: SessionsRepository;
-  constructor() {
+  constructor(private sessionsRepository: SessionsRepository) {
     this.jwtAuthService = new JwtAuthService();
-    this.sessionsRepository = new SessionsRepository();
   }
 
   async createSession(refreshToken: string, ip = "Unknown IP", userAgent = "Unknown Device") {

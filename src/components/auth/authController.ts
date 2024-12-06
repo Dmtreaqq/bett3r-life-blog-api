@@ -13,18 +13,18 @@ import { cookieValidationMiddleware } from "../../common/middlewares/cookieValid
 import confirmPasswordValidation from "./middlewares/confirmPasswordValidation";
 import { AuthLoginApiRequestModel } from "./models/AuthLoginApiRequestModel";
 import { AuthRegisterApiRequestModel } from "./models/AuthRegisterApiRequestModel";
+import { injectable } from "inversify";
+import { container } from "../../composition-root";
 
 export const authRouter = Router();
 
+@injectable()
 class AuthController {
-  private authService: AuthService;
-  private usersQueryRepository: UsersQueryRepository;
-  private sessionsService: SessionsService;
-  constructor() {
-    this.authService = new AuthService();
-    this.usersQueryRepository = new UsersQueryRepository();
-    this.sessionsService = new SessionsService();
-  }
+  constructor(
+    private sessionsService: SessionsService,
+    private authService: AuthService,
+    private usersQueryRepository: UsersQueryRepository,
+  ) {}
 
   async login(req: RequestWbody<AuthLoginApiRequestModel>, res: Response, next: NextFunction) {
     try {
@@ -171,7 +171,7 @@ class AuthController {
   }
 }
 
-const authController = new AuthController();
+const authController = container.resolve(AuthController);
 
 authRouter.post("/login", ...authValidation, authController.login.bind(authController));
 authRouter.post(

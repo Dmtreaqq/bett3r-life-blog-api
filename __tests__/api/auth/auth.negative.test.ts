@@ -41,7 +41,7 @@ describe('/auth negative', () => {
     beforeAll(async () => {
         await runDB()
 
-        authService = new AuthService()
+        authService = container.resolve(AuthService)
         usersRepository = container.resolve(UsersRepository)
         emailService = new EmailService();
     })

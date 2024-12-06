@@ -3,16 +3,17 @@ import { cookieValidationMiddleware } from "../../../common/middlewares/cookieVa
 import { SessionsService } from "../sessions/sessionsService";
 import { HTTP_STATUSES, RequestWparams } from "../../../common/utils/types";
 import { DeviceQueryRepository } from "./deviceQueryRepository";
+import { injectable } from "inversify";
+import { container } from "../../../composition-root";
 
 export const securityDevicesRouter = Router();
 
+@injectable()
 class DevicesController {
-  private sessionsService: SessionsService;
-  private deviceQueryRepository: DeviceQueryRepository;
-  constructor() {
-    this.sessionsService = new SessionsService();
-    this.deviceQueryRepository = new DeviceQueryRepository();
-  }
+  constructor(
+    private sessionsService: SessionsService,
+    private deviceQueryRepository: DeviceQueryRepository,
+  ) {}
 
   async getAllDevices(req: Request, res: Response, next: NextFunction) {
     try {
@@ -66,7 +67,7 @@ class DevicesController {
   }
 }
 
-const devicesController = new DevicesController();
+const devicesController = container.resolve(DevicesController);
 
 securityDevicesRouter.get(
   "/devices",

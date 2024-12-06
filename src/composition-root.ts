@@ -12,8 +12,17 @@ import { CommentsRepository } from "./components/comments/repositories/commentsR
 import { CommentsService } from "./components/comments/services/commentsService";
 import { CommentsQueryRepository } from "./components/comments/repositories/commentsQueryRepository";
 import { CommentsQueryService } from "./components/comments/services/commentsQueryService";
+import { ApiLogsRepository } from "./components/security/apiLogs/apiLogsRepository";
+import { ApiLogsService } from "./components/security/apiLogs/apiLogsService";
+import { DeviceQueryRepository } from "./components/security/devices/deviceQueryRepository";
+import { SessionsService } from "./components/security/sessions/sessionsService";
+import { SessionsRepository } from "./components/security/sessions/sessionsRepository";
+import { AuthService } from "./components/auth/authService";
 
 export const container = new Container();
+
+// AUTH
+container.bind(AuthService).to(AuthService);
 
 // BLOGS
 container.bind(BlogsRepository).to(BlogsRepository);
@@ -35,3 +44,10 @@ container.bind(CommentsRepository).to(CommentsRepository);
 container.bind(CommentsService).to(CommentsService);
 container.bind(CommentsQueryRepository).to(CommentsQueryRepository);
 container.bind(CommentsQueryService).to(CommentsQueryService);
+
+// DEVICES (SESSIONS), API LOGS
+container.bind(ApiLogsRepository).to(ApiLogsRepository);
+container.bind(ApiLogsService).to(ApiLogsService);
+container.bind(DeviceQueryRepository).to(DeviceQueryRepository);
+container.bind(SessionsService).to(SessionsService);
+container.bind(SessionsRepository).to(SessionsRepository);

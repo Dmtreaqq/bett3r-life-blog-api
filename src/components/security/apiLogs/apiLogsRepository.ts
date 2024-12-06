@@ -1,6 +1,8 @@
 import { ApiLogDbModel } from "./models/ApiLogDbModel";
 import { ApiLogClassModel } from "../../../common/db/models/ApiLog";
+import { injectable } from "inversify";
 
+@injectable()
 export class ApiLogsRepository {
   async createApiLog(log: ApiLogDbModel) {
     await ApiLogClassModel.create(log);

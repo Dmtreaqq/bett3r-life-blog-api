@@ -11,17 +11,13 @@ export const testingRouter = Router();
 
 @injectable()
 class TestingController {
-  private sessionsRepository: SessionsRepository;
-  private apiLogsRepository: ApiLogsRepository;
-
   constructor(
     private blogsRepository: BlogsRepository,
     private postsRepository: PostsRepository,
     private usersRepository: UsersRepository,
-  ) {
-    this.sessionsRepository = new SessionsRepository();
-    this.apiLogsRepository = new ApiLogsRepository();
-  }
+    private sessionsRepository: SessionsRepository,
+    private apiLogsRepository: ApiLogsRepository,
+  ) {}
 
   async delete(req: Request, res: Response) {
     await this.blogsRepository.deleteAllBlogs();
